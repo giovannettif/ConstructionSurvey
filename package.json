@@ -1,6 +1,16 @@
 {
+  "name": "google-drive-uploader-nodejs",
+  "version": "1.0.0",
+  "description": "A Node.js script to upload JSON files to Google Drive.",
+  "main": "driveUploader.js",
+  "type": "module",
+  "scripts": {
+    "start": "node driveUploader.js"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "@google-cloud/local-auth": "^2.1.0",
-    "googleapis": "^105.0.0"
+    "@google-cloud/local-auth": "^3.0.0",
+    "googleapis": "^128.0.0"
   }
 }
