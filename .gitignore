@@ -1,7 +1,8 @@
 node_modules
-*.json
+private
 service_account.json
 credentials.json
 client_secret.json
+token.json
 .env
 *.jpg
