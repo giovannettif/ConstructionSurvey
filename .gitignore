@@ -1,5 +1,6 @@
 node_modules
 *.json
+service_account.json
 credentials.json
 client_secret.json
 .env
