@@ -5,7 +5,7 @@
   "main": "driveUploader.js",
   "type": "module",
   "scripts": {
-    "start": "node driveUploader.js"
+    "start": "node src/backend/test/simple_upload.js"
   },
   "author": "",
   "license": "ISC",

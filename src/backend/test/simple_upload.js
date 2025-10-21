@@ -15,8 +15,8 @@ const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
 // The file token.json stores the user's access and refresh tokens.
 // It is created automatically when the authorization flow completes for the first time.
-const TOKEN_PATH = path.join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = path.join(process.cwd(), 'client_secret.json');
+const TOKEN_PATH = path.join(__dirname, 'token.json');
+const CREDENTIALS_PATH = path.join(__dirname, 'client_secret.json');
 
 /**
  * Reads previously authorized credentials from the save file.
