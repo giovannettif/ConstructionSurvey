@@ -9,10 +9,10 @@ import { Readable } from 'stream';
 
 // ID of the Google Drive folder you want to upload files to.
 // Find this in the URL of your folder: .../folders/THIS_IS_THE_ID
-const FOLDER_ID = 'YOUR_FOLDER_ID_HERE'; // <-- IMPORTANT: Replace with your actual folder ID
+const FOLDER_ID = '1QrJ8YPG68OPzR4IeIWIcagcM-HCOcxx3'; // <-- IMPORTANT: Replace with your actual folder ID
 
 // The path to your service account key file.
-const SERVICE_ACCOUNT_KEY_FILE = './service_account.json';
+const SERVICE_ACCOUNT_KEY_FILE = './private/service_account.json';
 
 // The scope determines the level of access. 'drive' allows full access.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
