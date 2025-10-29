@@ -4,12 +4,14 @@
 
 import { google } from 'googleapis';
 import { Readable } from 'stream';
+import dotenv from 'dotenv';
+dotenv.config({ path: './private/.env' });
 
 // --- Configuration ---
 
 // ID of the Google Shared Drive (or a folder within it) you want to upload files to.
 // Find this in the URL: .../drive/folders/THIS_IS_THE_ID
-const DRIVE_OR_FOLDER_ID = ''; // <-- IMPORTANT: Replace with your actual ID
+const FOLDER_ID = process.env.FOLDER_ID; // <-- IMPORTANT: Replace with your actual ID
 
 // The path to your service account key file.
 const SERVICE_ACCOUNT_KEY_FILE = './private/service_account.json';
@@ -43,7 +45,7 @@ async function authorize() {
  * @param {object} data The JavaScript object to upload as JSON.
  */
 async function uploadJsonToDrive(authClient, fileName, data) {
-    if (DRIVE_OR_FOLDER_ID === 'YOUR_SHARED_DRIVE_OR_FOLDER_ID_HERE') {
+    if (FOLDER_ID === 'YOUR_SHARED_DRIVE_OR_FOLDER_ID_HERE') {
         console.error("ERROR: Please replace 'YOUR_SHARED_DRIVE_OR_FOLDER_ID_HERE' in the script with your actual Shared Drive or Folder ID.");
         return null;
     }
@@ -58,8 +60,8 @@ async function uploadJsonToDrive(authClient, fileName, data) {
         fields: 'id, name',
     };
 
-    if (DRIVE_OR_FOLDER_ID !== '') {
-        fileMetadata.parents = [DRIVE_OR_FOLDER_ID];
+    if (FOLDER_ID !== '') {
+        fileMetadata.parents = [FOLDER_ID];
     }
 
     const media = {
@@ -70,7 +72,7 @@ async function uploadJsonToDrive(authClient, fileName, data) {
     try {
         console.log(`Uploading '${fileName}' to Google Drive...`);
         const file = await drive.files.create({
-            resource: fileMetadata,
+            requestBody: fileMetadata,
             media: media,
             // This flag is essential for uploading to Shared Drives.
             supportsAllDrives: true,
