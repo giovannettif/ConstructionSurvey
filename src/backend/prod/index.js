@@ -1,7 +1,8 @@
-// app.js
-const express = require('express');
-const serverless = require('serverless-http');
-const AWS = require('aws-sdk');
+// index.js
+import express from 'express';
+import serverless from 'serverless-http';
+import AWS from 'aws-sdk';
+import { authorize, uploadJsonToDrive } from './upload_to_drive.js';
 
 // S3 Configuration (set your bucket name)
 const S3_BUCKET = process.env.S3_BUCKET_NAME; // Set this via Lambda environment variable
@@ -11,11 +12,33 @@ const s3 = new AWS.S3();
 const app = express();
 app.use(express.json()); // Middleware to parse incoming JSON
 
+const authClient = await authorize();
+
 // POST route to handle new survey responses
 app.post('/survey', async (req, res) => {
-    const newResponse = req.body;
-    
+    const { data: newResponse } = req.body;
+    const timestamp = new Date().toISOString();
+
+    // Upload to Google Drive
+    console.log('Uploading to Google Drive...');
+
+    try {
+        if (!newResponse.userId || typeof newResponse.userId !== 'string') {
+            console.error('Invalid response format');
+            return res.status(400).json({ message: 'Invalid response format' });
+        }
+
+        const jsonFileName = `survey_response_${newResponse.userId}_${timestamp}.json`;
+        console.log('File name:', jsonFileName);
+        await uploadJsonToDrive(authClient, jsonFileName, newResponse);
+    } catch (e) {
+        console.error('Error uploading to Google Drive: ', e);
+    }
+
+    console.log('Successfully uploaded to Google Drive');
+
     // 1. Fetch the existing master file from S3
+    console.log('Fetching existing master file from S3...');
     let masterData = [];
     try {
         const params = { Bucket: S3_BUCKET, Key: S3_KEY };
@@ -30,13 +53,19 @@ app.post('/survey', async (req, res) => {
         }
     }
 
+    console.log('Successfully fetched existing master file from S3');
+
     // 2. Append the new response
-    masterData.push({ 
-        timestamp: new Date().toISOString(), 
-        data: newResponse 
+    console.log('Appending new response to master file...');
+    masterData.push({
+        timestamp,
+        data: newResponse
     });
 
+    console.log('Successfully appended new response to master file');
+
     // 3. Write the updated master file back to S3
+    console.log('Writing updated master file back to S3...');
     try {
         const uploadParams = {
             Bucket: S3_BUCKET,
@@ -44,11 +73,12 @@ app.post('/survey', async (req, res) => {
             Body: JSON.stringify(masterData, null, 2), // Pretty print for readability
             ContentType: 'application/json'
         };
+
         await s3.putObject(uploadParams).promise();
-        
-        return res.status(200).json({ 
-            message: 'Survey response saved successfully!', 
-            responseId: masterData.length 
+        console.log('Successfully saved updated master file to S3');
+
+        return res.status(200).json({
+            message: 'Survey response saved successfully!',
         });
     } catch (e) {
         console.error('Error saving to S3:', e);
