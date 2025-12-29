@@ -2,7 +2,7 @@
 import express from 'express';
 import serverless from 'serverless-http';
 import AWS from 'aws-sdk';
-import { authorize, uploadJsonToDrive } from './upload_to_drive.js';
+// import { authorize, uploadJsonToDrive } from './upload_to_drive.js';
 
 // S3 Configuration (set your bucket name)
 const S3_BUCKET = process.env.S3_BUCKET_NAME; // Set this via Lambda environment variable
@@ -12,30 +12,10 @@ const s3 = new AWS.S3();
 const app = express();
 app.use(express.json()); // Middleware to parse incoming JSON
 
-const authClient = await authorize();
-
 // POST route to handle new survey responses
 app.post('/survey', async (req, res) => {
     const { data: newResponse } = req.body;
     const timestamp = new Date().toISOString();
-
-    // Upload to Google Drive
-    console.log('Uploading to Google Drive...');
-
-    try {
-        if (!newResponse.userId || typeof newResponse.userId !== 'string') {
-            console.error('Invalid response format');
-            return res.status(400).json({ message: 'Invalid response format' });
-        }
-
-        const jsonFileName = `survey_response_${newResponse.userId}_${timestamp}.json`;
-        console.log('File name:', jsonFileName);
-        await uploadJsonToDrive(authClient, jsonFileName, newResponse);
-    } catch (e) {
-        console.error('Error uploading to Google Drive: ', e);
-    }
-
-    console.log('Successfully uploaded to Google Drive');
 
     // 1. Fetch the existing master file from S3
     console.log('Fetching existing master file from S3...');
@@ -59,7 +39,8 @@ app.post('/survey', async (req, res) => {
     console.log('Appending new response to master file...');
     masterData.push({
         timestamp,
-        data: newResponse
+        uploadedToDrive: false,
+        data: newResponse,
     });
 
     console.log('Successfully appended new response to master file');
