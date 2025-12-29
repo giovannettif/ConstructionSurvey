@@ -2,7 +2,6 @@
 import express from 'express';
 import serverless from 'serverless-http';
 import AWS from 'aws-sdk';
-// import { authorize, uploadJsonToDrive } from './upload_to_drive.js';
 
 // S3 Configuration (set your bucket name)
 const S3_BUCKET = process.env.S3_BUCKET_NAME; // Set this via Lambda environment variable

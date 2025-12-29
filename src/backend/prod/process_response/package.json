@@ -1,5 +1,5 @@
 {
-  "name": "prod",
+  "name": "process_response",
   "version": "1.0.0",
   "description": "Production backend",
   "main": "index.js",
