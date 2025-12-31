@@ -10,7 +10,7 @@
   "author": "Krish A. Patel",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
+    "@aws-sdk/client-s3": "^3.958.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "googleapis": "^166.0.0",

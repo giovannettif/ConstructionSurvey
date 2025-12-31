@@ -8,13 +8,21 @@ import AWS from 'aws-sdk';
 import { google } from 'googleapis';
 import { Readable } from 'stream';
 import dotenv from 'dotenv';
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
 dotenv.config({ path: './private/.env' });
 
 // --- Configuration ---
 
 // ID of the Google Shared Drive (or a folder within it) you want to upload files to.
 // Find this in the URL: .../drive/folders/THIS_IS_THE_ID
-const FOLDER_ID = process.env.FOLDER_ID; // <-- IMPORTANT: Replace with your actual ID
+const IS_PRODUCTION = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+const PROD_FOLDER_ID = process.env.PROD_FOLDER_ID; // Set in AWS Lambda Console
+const TEST_FOLDER_ID = process.env.TEST_FOLDER_ID; // Set in local .env
+const FOLDER_ID = IS_PRODUCTION ? PROD_FOLDER_ID : TEST_FOLDER_ID;
 
 // The path to your service account key file.
 const SERVICE_ACCOUNT_KEY_FILE = './private/service_account.json';
@@ -76,6 +84,23 @@ app.get('/upload-to-drive', async (req, res) => {
     });
 });
 
+async function getCredentials() {
+    // Check if running in Lambda or Local
+    if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+        console.log("🛠️ Running locally: Loading JSON from disk");
+        const filePath = join(process.cwd(), 'private/service_account.json');
+        const fileContent = await readFile(filePath, 'utf8');
+        return JSON.parse(fileContent);
+    }
+
+    console.log("☁️ Running in Lambda: Fetching from Secrets Manager");
+    const client = new SecretsManagerClient({ region: "us-east-1" });
+    const command = new GetSecretValueCommand({ SecretId: "GoogleServiceAccount" });
+
+    const response = await client.send(command);
+    return JSON.parse(response.SecretString);
+}
+
 /**
  * Authorizes the service account to access Google Drive APIs.
  * @returns {Promise<object>} An authorized Google Auth client.
@@ -83,7 +108,7 @@ app.get('/upload-to-drive', async (req, res) => {
 async function authorize() {
     try {
         const auth = new google.auth.GoogleAuth({
-            keyFile: SERVICE_ACCOUNT_KEY_FILE,
+            credentials: await getCredentials(),
             scopes: SCOPES,
         });
         const authClient = await auth.getClient();
@@ -135,7 +160,7 @@ async function uploadJsonToDrive(authClient, fileName, data) {
             // This flag is essential for uploading to Shared Drives.
             supportsAllDrives: true,
         });
-        console.log(`Successfully uploaded file!`);
+        console.log(`📁 Successfully uploaded file to ${IS_PRODUCTION ? 'production' : 'test'} folder.`);
         console.log(`File Name: ${file.data.name}`);
         console.log(`File ID: ${file.data.id}`);
         return file.data.id;

@@ -1,12 +1,11 @@
-// index.js
 import express from 'express';
 import serverless from 'serverless-http';
-import AWS from 'aws-sdk';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // S3 Configuration (set your bucket name)
 const S3_BUCKET = process.env.S3_BUCKET_NAME; // Set this via Lambda environment variable
 const S3_KEY = 'survey-responses-master.json'; // The file name in S3
-const s3 = new AWS.S3();
+const s3 = new S3Client({ region: process.env.AWS_REGION || "us-east-2" });
 
 const app = express();
 app.use(express.json()); // Middleware to parse incoming JSON
@@ -21,12 +20,13 @@ app.post('/survey', async (req, res) => {
     let masterData = [];
     try {
         const params = { Bucket: S3_BUCKET, Key: S3_KEY };
-        const data = await s3.getObject(params).promise();
+        const response = await s3.send(new GetObjectCommand(params));
         // Parse the existing JSON content
-        masterData = JSON.parse(data.Body.toString('utf-8'));
+        const bodyContents = await response.Body.transformToString();
+        masterData = JSON.parse(bodyContents);
     } catch (e) {
         // If the file doesn't exist (first response), start with an empty array
-        if (e.code !== 'NoSuchKey') {
+        if (e.name !== 'NoSuchKey') {
             console.error('Error fetching S3 data:', e);
             return res.status(500).json({ message: 'Error accessing master data' });
         }
@@ -54,7 +54,7 @@ app.post('/survey', async (req, res) => {
             ContentType: 'application/json'
         };
 
-        await s3.putObject(uploadParams).promise();
+        await s3.send(new PutObjectCommand(uploadParams));
         console.log('Successfully saved updated master file to S3');
 
         return res.status(200).json({
@@ -67,4 +67,4 @@ app.post('/survey', async (req, res) => {
 });
 
 // The handler function required by AWS Lambda
-module.exports.handler = serverless(app);
+export const handler = serverless(app);
