@@ -6,7 +6,14 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# --- Step 0: Validate Input ---
+# --- Step 0: AWS Login ---
+aws sts get-caller-identity &> /dev/null
+if [ $? -ne 0 ]; then
+    echo -e "${RED}AWS credentials not found. Please run 'aws configure' first.${NC}"
+    exit 1
+fi
+
+# --- Step 0.5: Validate Input ---
 if [ -z "$1" ]; then
     echo -e "${RED}Usage: ./deploy.sh <awsFunctionName>${NC}"
     echo "Example: ./deploy.sh processURL (will zip the process_url directory)"
@@ -70,6 +77,10 @@ echo -e "${YELLOW}☁️  Uploading to Lambda...${NC}"
 UPLOAD_OUTPUT=$(aws lambda update-function-code \
     --function-name "$AWS_FUNCTION_NAME" \
     --zip-file "fileb://$ZIP_NAME" 2>&1)
+
+# --- Wait for the update to finish propagating ---
+echo -e "${YELLOW}⏳ Waiting for function update to complete...${NC}"
+aws lambda wait function-updated --function-name "$AWS_FUNCTION_NAME"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Error: AWS Upload Failed!${NC}"

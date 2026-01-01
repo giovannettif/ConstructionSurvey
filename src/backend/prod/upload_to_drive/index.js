@@ -2,19 +2,12 @@
 // This script authenticates with the Google Drive API using a service account
 // and uploads a JSON object to a specific folder within a Shared Drive.
 
-import express from 'express';
-import serverless from 'serverless-http';
-import AWS from 'aws-sdk';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { google } from 'googleapis';
 import { Readable } from 'stream';
-import dotenv from 'dotenv';
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-
-dotenv.config({ path: './private/.env' });
-
-// --- Configuration ---
 
 // ID of the Google Shared Drive (or a folder within it) you want to upload files to.
 // Find this in the URL: .../drive/folders/THIS_IS_THE_ID
@@ -24,31 +17,28 @@ const PROD_FOLDER_ID = process.env.PROD_FOLDER_ID; // Set in AWS Lambda Console
 const TEST_FOLDER_ID = process.env.TEST_FOLDER_ID; // Set in local .env
 const FOLDER_ID = IS_PRODUCTION ? PROD_FOLDER_ID : TEST_FOLDER_ID;
 
-// The path to your service account key file.
-const SERVICE_ACCOUNT_KEY_FILE = './private/service_account.json';
-
 // The scope determines the level of access. 'drive' allows full access.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
-const app = express();
+const S3_BUCKET = process.env.S3_BUCKET_NAME;
+const S3_KEY = 'survey-responses-master.json';
+const s3 = new S3Client({ region: process.env.AWS_REGION || "us-east-2" });
+
 const authClient = await authorize();
 
-app.get('/upload-to-drive', async (req, res) => {
-    const s3 = new AWS.S3();
-    const S3_BUCKET = process.env.S3_BUCKET;
-    const S3_KEY = process.env.S3_KEY;
-
+export const handler = async () => {
     console.log('Fetching existing master file from S3...');
     let masterData = [];
-    try {
-        const data = await s3.getObject({ Bucket: S3_BUCKET, Key: S3_KEY }).promise();
-        masterData = JSON.parse(data.Body.toString('utf-8'));
-    } catch (e) {
-        if (e.code !== 'NoSuchKey') {
-            console.error('Error fetching S3 data:', e);
-            return res.status(500).json({ message: 'Error accessing master data' });
-        }
-    }
+    const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: S3_KEY }));
+    const bodyContents = await response.Body.transformToString();
+    masterData = JSON.parse(bodyContents);
+    // try {
+
+    // } catch (e) {
+    //     if (e.name !== 'NoSuchKey') {
+    //         console.error('Error fetching S3 data:', e);
+    //     }
+    // }
 
     const entriesToUpload = masterData.filter(item => !item.uploadedToDrive);
     let numEntriesUploaded = 0;
@@ -58,7 +48,10 @@ app.get('/upload-to-drive', async (req, res) => {
         try {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const fileName = `survey_response_${entry.userId || 'unknown'}_${timestamp}.json`;
-            const fileId = await uploadJsonToDrive(authClient, fileName, entry);
+            const fileId = await uploadJsonToDrive(authClient, fileName, {
+                timestamp: entry.timestamp,
+                data: entry.data
+            });
 
             if (fileId) {
                 entry.uploadedToDrive = true;
@@ -70,19 +63,19 @@ app.get('/upload-to-drive', async (req, res) => {
     }
 
     // Update the master file in S3 with the new upload statuses
-    await s3.putObject({
+    await s3.send(new PutObjectCommand({
         Bucket: S3_BUCKET,
         Key: S3_KEY,
         Body: JSON.stringify(masterData, null, 4),
         ContentType: 'application/json'
-    }).promise();
+    }));
 
-    res.status(200).json({
+    return {
         message: 'Sync completed',
         processed: entriesToUpload.length,
         successful: numEntriesUploaded
-    });
-});
+    };
+};
 
 async function getCredentials() {
     // Check if running in Lambda or Local
@@ -94,7 +87,7 @@ async function getCredentials() {
     }
 
     console.log("☁️ Running in Lambda: Fetching from Secrets Manager");
-    const client = new SecretsManagerClient({ region: "us-east-1" });
+    const client = new SecretsManagerClient({ region: "us-east-2" });
     const command = new GetSecretValueCommand({ SecretId: "GoogleServiceAccount" });
 
     const response = await client.send(command);
@@ -128,11 +121,6 @@ async function authorize() {
  * @returns {Promise<string> | null} The ID of the uploaded file or null if an error occurred.
  */
 async function uploadJsonToDrive(authClient, fileName, data) {
-    if (FOLDER_ID === 'YOUR_SHARED_DRIVE_OR_FOLDER_ID_HERE') {
-        console.error("ERROR: Please replace 'YOUR_SHARED_DRIVE_OR_FOLDER_ID_HERE' in the script with your actual Shared Drive or Folder ID.");
-        return null;
-    }
-
     const drive = google.drive({ version: 'v3', auth: authClient });
 
     const jsonString = JSON.stringify(data, null, 4);
@@ -169,5 +157,3 @@ async function uploadJsonToDrive(authClient, fileName, data) {
         return null;
     }
 }
-
-module.exports.handler = serverless(app);
