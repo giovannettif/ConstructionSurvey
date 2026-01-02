@@ -5,9 +5,10 @@
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { google } from 'googleapis';
-import { Readable } from 'stream';
+// import { Readable } from 'stream';
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import pLimit from 'p-limit';
 
 // ID of the Google Shared Drive (or a folder within it) you want to upload files to.
 // Find this in the URL: .../drive/folders/THIS_IS_THE_ID
@@ -25,6 +26,8 @@ const S3_KEY = 'survey-responses-master.json';
 const s3 = new S3Client({ region: process.env.AWS_REGION || "us-east-2" });
 
 const authClient = await authorize();
+const limit = pLimit(5);
+let drive = null;
 
 export const handler = async () => {
     console.log('Fetching existing master file from S3...');
@@ -41,26 +44,27 @@ export const handler = async () => {
     // }
 
     const entriesToUpload = masterData.filter(item => !item.uploadedToDrive);
-    let numEntriesUploaded = 0;
     console.log(`Found ${entriesToUpload.length} new entries to upload.`);
+    const promises = entriesToUpload.map((entry) => {
+        return limit(async () => {
+            try {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const fileName = `survey_response_${entry.userId || 'unknown'}_${timestamp}.json`;
+                const fileId = await uploadJsonToDrive(authClient, fileName, {
+                    timestamp: entry.timestamp,
+                    data: entry.data
+                });
 
-    for (const entry of entriesToUpload) {
-        try {
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const fileName = `survey_response_${entry.userId || 'unknown'}_${timestamp}.json`;
-            const fileId = await uploadJsonToDrive(authClient, fileName, {
-                timestamp: entry.timestamp,
-                data: entry.data
-            });
-
-            if (fileId) {
-                entry.uploadedToDrive = true;
-                numEntriesUploaded++;
+                if (fileId) {
+                    entry.uploadedToDrive = true;
+                }
+            } catch (e) {
+                console.log('Error uploading entry to Drive:', entry.id);
             }
-        } catch (err) {
-            console.error(`Failed to upload entry for user ${entry.userId}:`, err);
-        }
-    }
+        });
+    });
+
+    await Promise.all(promises);
 
     // Update the master file in S3 with the new upload statuses
     await s3.send(new PutObjectCommand({
@@ -71,9 +75,9 @@ export const handler = async () => {
     }));
 
     return {
-        message: 'Sync completed',
+        message: 'Synced S3 bucket contents to Google Drive',
         processed: entriesToUpload.length,
-        successful: numEntriesUploaded
+        successful: entriesToUpload.filter(item => item.uploadedToDrive).length
     };
 };
 
@@ -121,14 +125,14 @@ async function authorize() {
  * @returns {Promise<string> | null} The ID of the uploaded file or null if an error occurred.
  */
 async function uploadJsonToDrive(authClient, fileName, data) {
-    const drive = google.drive({ version: 'v3', auth: authClient });
+    if (drive == null) {
+        drive = google.drive({ version: 'v3', auth: authClient });
+    }
 
     const jsonString = JSON.stringify(data, null, 4);
-    const jsonStream = Readable.from([jsonString]);
 
     const fileMetadata = {
         name: fileName,
-        fields: 'id, name',
     };
 
     if (FOLDER_ID !== '') {
@@ -137,7 +141,7 @@ async function uploadJsonToDrive(authClient, fileName, data) {
 
     const media = {
         mimeType: 'application/json',
-        body: jsonStream,
+        body: jsonString,
     };
 
     try {
