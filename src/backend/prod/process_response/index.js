@@ -16,9 +16,16 @@ app.use(express.json());
 // Step 3: Handle new survey responses
 app.post('/survey', async (req, res) => {
     const { data: newResponse } = req.body;
-    const timestamp = new Date().toISOString();
 
-    // Step 3.1 Fetch the existing master file from S3
+    console.log('Received request body:', req.body);
+
+    // Step 3.1 Validate data
+    if (!newResponse) {
+        console.error('Validation Failed: req.body.data is missing. Check if input body is stringified.');
+        return res.status(400).json({ message: 'Invalid request format' });
+    }
+
+    // Step 3.2 Fetch the existing master file from S3
     console.log('Fetching and parsing existing master file from S3...');
     let masterData = [];
     try {
@@ -35,18 +42,18 @@ app.post('/survey', async (req, res) => {
 
     console.log('Successfully fetched and parsed existing master file from S3');
 
-    // Step 3.2 Validate data
+    // Step 3.3 Validate data
     // TODO
 
-    // Step 3.3 Append the new response
+    // Step 3.4 Append the new response
     console.log('Appending new response...');
     masterData.push({
-        timestamp,
+        timestamp: new Date().toISOString(),
         uploadedToDrive: false,
         data: newResponse,
     });
 
-    // Step 3.4 Write the updated data back to S3
+    // Step 3.5 Write the updated data back to S3
     console.log('Writing updated data back to S3...');
     try {
         await s3.send(new PutObjectCommand({

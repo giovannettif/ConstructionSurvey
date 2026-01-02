@@ -7,5 +7,10 @@
             "method": "POST",
             "path": "/survey"
         }
-    }
+    },
+    "headers": {
+        "Content-Type": "application/json"
+    },
+    "body": "{\"data\":{\"id\":\"test_id\",\"timestamp\":\"2023-01-01T00:00:00.000Z\",\"responses\":{\"Q1\":\"A\",\"Q2\":\"B\",\"Q3\":\"C\"}}}",
+    "isBase64Encoded": false
 }
