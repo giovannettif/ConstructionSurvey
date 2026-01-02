@@ -1,0 +1,11 @@
+{
+    "version": "2.0",
+    "routeKey": "POST /survey",
+    "rawPath": "/survey",
+    "requestContext": {
+        "http": {
+            "method": "POST",
+            "path": "/survey"
+        }
+    }
+}
