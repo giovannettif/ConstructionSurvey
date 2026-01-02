@@ -77,7 +77,7 @@ async function uploadJsonToDrive(authClient, folderId, fileName, data) {
             supportsAllDrives: true,
         });
 
-        console.log(`📁 Successfully uploaded file to ${IS_PROD ? 'production' : 'test'} folder.`);
+        console.log(`📁 Successfully uploaded file to folder.`);
         console.log(`File Name: ${file.data.name}`);
         console.log(`File ID: ${file.data.id}`);
         return file.data.id;

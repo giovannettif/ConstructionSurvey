@@ -40,13 +40,6 @@ export const handler = async () => {
                 processed: 0,
                 successful: 0
             };
-        } else {
-            console.log('No survey responses found in S3');
-            return {
-                message: 'No survey responses found in S3',
-                processed: 0,
-                successful: 0
-            }
         }
     }
 
@@ -54,16 +47,25 @@ export const handler = async () => {
     const entriesToUpload = masterData.filter(item => !item.uploadedToDrive);
     console.log(`Found ${entriesToUpload.length} new entries to upload.`);
 
+    if (entriesToUpload.length === 0) {
+        console.log('No new entries to upload.');
+        return {
+            message: 'No new entries to upload',
+            processed: 0,
+            successful: 0
+        };
+    }
+
     // Step 4: Upload the entries to Google Drive
     const promises = entriesToUpload.map((entry) => {
         return limit(async () => {
             try {
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const fileName = `survey_response_${entry.userId || 'unknown'}_${timestamp}.json`;
-                const fileId = await uploadJsonToDrive(authClient, FOLDER_ID, fileName, {
-                    timestamp: entry.timestamp,
-                    data: entry.data
-                });
+                const timestamp = new Date().toISOString();
+                const fileName = `survey_response_${entry.userId || 'unknown'}_${entry.data.timestamp.replace(/[:.]/g, '-')}_${timestamp.replace(/[:.]/g, '-')}.json`;
+                const dataToUpload = JSON.parse(JSON.stringify(entry));
+                dataToUpload.drive_timestamp = timestamp;
+                delete dataToUpload.uploadedToDrive;
+                const fileId = await uploadJsonToDrive(authClient, FOLDER_ID, fileName, dataToUpload);
 
                 if (fileId) {
                     entry.uploadedToDrive = true;

@@ -48,7 +48,8 @@ app.post('/survey', async (req, res) => {
     // Step 3.4 Append the new response
     console.log('Appending new response...');
     masterData.push({
-        timestamp: new Date().toISOString(),
+        id: new Date().getTime(),
+        s3_timestamp: new Date().toISOString(),
         uploadedToDrive: false,
         data: newResponse,
     });
