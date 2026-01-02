@@ -59,12 +59,13 @@ if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Error: Failed to create zip file.${NC}"
     exit 5
 fi
+
 cd ..
 
 # --- Step 5: Verify Zip Contents ---
 echo -e "${YELLOW}🔍 Verifying package contents...${NC}"
 FORBIDDEN_FILES=$(unzip -l "$ZIP_NAME" | \
-    grep -v "node_modules" | \      # whitelist node_modules
+    grep -v "node_modules" | \
     grep -E ".env|service_account.json|service-account.json|private|aws-sdk|package-lock.json|test_input.json")
 
 if [ ! -z "$FORBIDDEN_FILES" ]; then
@@ -108,7 +109,7 @@ echo -e "${GREEN}✅ Propagation successful!${NC}"
 echo -e "${YELLOW}🧪 Running smoke test...${NC}"
 aws lambda invoke \
     --function-name "$AWS_FUNCTION_NAME" \
-    --payload "$(cat test_input.json)" \
+    --payload "$(cat $DIR_NAME/test_input.json)" \
     --cli-binary-format raw-in-base64-out \
     response.json > /dev/null
 
