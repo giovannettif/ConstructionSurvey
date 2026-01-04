@@ -1,0 +1,220 @@
+[
+  {
+    "title": "988 Lifeline (24/7)",
+    "risk": 1,
+    "tags": ["depression"],
+    "meta": "Press 2 / say “Ayuda” for Español",
+    "actions": [
+      { "kind": "tel", "label": "Call 988", "href": "tel:988" },
+      { "kind": "sms", "label": "Text 988", "href": "sms:988" },
+      { "kind": "web", "label": "988lifeline.org", "href": "https://988lifeline.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Crisis Text Line (24/7)",
+    "risk": 1,
+    "tags": ["depression"],
+    "actions": [
+      { "kind": "sms", "label": "Text HELLO to 741-741", "href": "sms:741741?&body=HELLO" },
+      { "kind": "sms", "label": "Textea HOLA al 741-741", "href": "sms:741741?&body=HOLA" },
+      { "kind": "web", "label": "crisistextline.org", "href": "https://www.crisistextline.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "SAMHSA Disaster Distress Helpline (24/7)",
+    "risk": 1,
+    "tags": ["depression", "alcohol", "opioids"],
+    "meta": "Press 2 for Español",
+    "actions": [
+      { "kind": "tel", "label": "Call 1-800-985-5990", "href": "tel:18009855990" },
+      { "kind": "sms", "label": "Text 1-800-985-5990", "href": "sms:18009855990" },
+      { "kind": "web", "label": "samhsa.gov/disaster-distress-helpline", "href": "https://www.samhsa.gov/find-help/helplines/disaster-distress-helpline", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "SAMHSA National Helpline (24/7)",
+    "risk": 1,
+    "tags": ["depression", "alcohol", "opioids"],
+    "meta": "Treatment referral routing service",
+    "actions": [
+      { "kind": "tel", "label": "Call 1-800-662-HELP", "href": "tel:18006624357" },
+      { "kind": "sms", "label": "Text ZIP to 435748", "href": "sms:435748" },
+      { "kind": "web", "label": "samhsa.gov/national-helpline", "href": "https://www.samhsa.gov/find-help/helplines/national-helpline", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Reach NJ Addiction Helpline",
+    "risk": 1,
+    "tags": ["alcohol", "opioids"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-844-732-2465", "href": "tel:18447322465" },
+      { "kind": "web", "label": "nj.gov/humanservices/reachnj", "href": "https://nj.gov/humanservices/reachnj/", "targetBlank": true }
+    ]
+  },
+
+  {
+    "title": "211 United Way",
+    "risk": 2,
+    "tags": ["depression", "alcohol", "opioids"],
+    "actions": [
+      { "kind": "tel", "label": "Call 211", "href": "tel:211" },
+      { "kind": "web", "label": "211.org", "href": "https://www.211.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "American Foundation for Suicide Prevention (AFSP)",
+    "risk": 2,
+    "tags": ["depression"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-888-333-2377", "href": "tel:18883332377" },
+      { "kind": "web", "label": "afsp.org", "href": "https://afsp.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Construction Industry Alliance for Suicide Prevention (CIASP)",
+    "risk": 2,
+    "tags": ["depression"],
+    "actions": [
+      { "kind": "web", "label": "preventconstructionsuicide.com", "href": "https://www.preventconstructionsuicide.com/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Mental Health America (MHA)",
+    "risk": 2,
+    "tags": ["depression"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-800-969-6642", "href": "tel:18009696642" },
+      { "kind": "web", "label": "mhanational.org", "href": "https://mhanational.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "NAMI Helpline",
+    "risk": 2,
+    "tags": ["depression"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-800-950-NAMI", "href": "tel:18009506264" },
+      { "kind": "sms", "label": "Text 62640", "href": "sms:62640" },
+      { "kind": "web", "label": "nami.org/helpline", "href": "https://www.nami.org/support-education/nami-helpline/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Alcoholics Anonymous (AA)",
+    "risk": 2,
+    "tags": ["alcohol"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-212-870-3400", "href": "tel:12128703400" },
+      { "kind": "web", "label": "aa.org", "href": "https://www.aa.org/", "targetBlank": true },
+      { "kind": "web", "label": "Online intergroup", "href": "https://aa-intergroup.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Al‑Anon",
+    "risk": 2,
+    "tags": ["alcohol"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-888-4AL-ANON", "href": "tel:18884252666" },
+      { "kind": "web", "label": "al-anon.org", "href": "https://al-anon.org/", "targetBlank": true },
+      { "kind": "web", "label": "Find meetings", "href": "https://al-anon.org/al-anon-meetings/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "NJ Mental Health Cares",
+    "risk": 2,
+    "tags": ["depression", "alcohol", "opioids"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-866-202-4357", "href": "tel:18662024357" },
+      { "kind": "web", "label": "njmentalhealthcares.org", "href": "https://www.njmentalhealthcares.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "NJ Connect for Recovery",
+    "risk": 2,
+    "tags": ["alcohol", "opioids"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-855-652-3737", "href": "tel:18556523737" },
+      { "kind": "web", "label": "njconnectforrecovery.org", "href": "https://www.njconnectforrecovery.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "NJ Self‑Help Clearinghouse",
+    "risk": 2,
+    "tags": ["depression", "alcohol", "opioids"],
+    "meta": "Outside NJ call: 1-973-571-4100",
+    "actions": [
+      { "kind": "tel", "label": "Call 1-800-367-6274", "href": "tel:18003676274" },
+      { "kind": "web", "label": "njgroups.org", "href": "https://www.njgroups.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "SAFE Locator",
+    "risk": 2,
+    "tags": ["alcohol", "opioids"],
+    "meta": "Substance Use & Treatment Resources",
+    "actions": [
+      { "kind": "web", "label": "safelocator.org", "href": "https://safelocator.org/en/search", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "SAFE Project",
+    "risk": 2,
+    "tags": ["alcohol", "opioids"],
+    "actions": [
+      { "kind": "web", "label": "safeproject.us", "href": "https://www.safeproject.us/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "SAFE Solutions",
+    "risk": 2,
+    "tags": ["alcohol", "opioids"],
+    "actions": [
+      { "kind": "web", "label": "yoursafesolutions.us", "href": "https://www.yoursafesolutions.us", "targetBlank": true }
+    ]
+  },
+
+  {
+    "title": "SMART Recovery",
+    "risk": 3,
+    "tags": ["alcohol", "opioids"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-440-951-5357", "href": "tel:14409515357" },
+      { "kind": "web", "label": "smartrecovery.org", "href": "https://smartrecovery.org/", "targetBlank": true },
+      { "kind": "web", "label": "Find meetings", "href": "https://smartrecovery.org/meeting", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Narcotics Anonymous (NA)",
+    "risk": 3,
+    "tags": ["opioids"],
+    "actions": [
+      { "kind": "tel", "label": "Call 1-818-773-9999", "href": "tel:18187739999" },
+      { "kind": "web", "label": "na.org", "href": "https://na.org/", "targetBlank": true },
+      { "kind": "web", "label": "Meeting search", "href": "https://na.org/meetingsearch/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "IUOE Local 825 Sober Sunday",
+    "risk": 3,
+    "tags": ["alcohol"],
+    "meta": "Open to everyone, weekly",
+    "actions": [
+      { "kind": "web", "label": "Virtual meeting: Sundays 8am EST", "href": "https://zoom.us/j/82251608337?pwd=625319", "targetBlank": true }
+    ]
+  },
+
+  {
+    "title": "Alliance for Naloxone Safety in the Workplace (ANSW)",
+    "risk": 4,
+    "tags": ["opioids"],
+    "actions": [
+      { "kind": "web", "label": "answ.org", "href": "https://www.answ.org/", "targetBlank": true }
+    ]
+  },
+  {
+    "title": "Construction Suicide Prevention Week (CSPW)",
+    "risk": 4,
+    "tags": ["depression"],
+    "actions": [
+      { "kind": "web", "label": "constructionsuicideprevention.com", "href": "https://constructionsuicideprevention.com/", "targetBlank": true }
+    ]
+  }
+]
