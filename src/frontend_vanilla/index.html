@@ -1,215 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>K10 Quick Survey</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body>
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-    <i class="fas fa-moon"></i>
+<body class="dark-mode">
+  <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+    <span id="themeIcon" aria-hidden="true">🌙</span>
   </button>
 
-  <div class="particles" id="particles"></div>
-
-  <div class="container" id="container">
-    <div class="header">
-      <h1>K10 Quick Survey</h1>
-      <p>Over the past 4 weeks, how often have you felt the following?</p>
-      <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-    </div>
-
-    <button class="back-btn" id="backBtn" aria-label="Go back">
-      <i class="fas fa-arrow-left"></i>
-      Back
-    </button>
-
-    <div class="question-container active" data-question="1">
-      <div class="question-number">
-        <i class="fas fa-list-check" aria-hidden="true"></i>
-        <span>Question 1/10</span>
-      </div>
-      <div class="question-text">About how often did you feel tired out for no good reason?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-      <div class="feedback" id="feedback"></div>
-    </div>
-
-    <div class="question-container" data-question="2">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 2/10</span>
-      </div>
-      <div class="question-text">About how often did you feel nervous?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="3">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 3/10</span>
-      </div>
-      <div class="question-text">About how often did you feel so nervous that nothing could calm you down?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="4">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 4/10</span>
-      </div>
-      <div class="question-text">About how often did you feel hopeless?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="5">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 5/10</span>
-      </div>
-      <div class="question-text">About how often did you feel restless or fidgety?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="6">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 6/10</span>
-      </div>
-      <div class="question-text">About how often did you feel so restless you could not sit still?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="7">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 7/10</span>
-      </div>
-      <div class="question-text">About how often did you feel depressed?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="8">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 8/10</span>
-      </div>
-      <div class="question-text">About how often did you feel that everything was an effort?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="9">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 9/10</span>
-      </div>
-      <div class="question-text">About how often did you feel so sad that nothing could cheer you up?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="10">
-      <div class="question-number">
-        <i class="fas fa-list-check"></i>
-        <span>Question 10/10</span>
-      </div>
-      <div class="question-text">About how often did you feel worthless?</div>
-      <div class="options">
-        <div class="option" data-value="1"><i class="fas fa-circle"></i> None of the time</div>
-        <div class="option" data-value="2"><i class="fas fa-circle"></i> A little of the time</div>
-        <div class="option" data-value="3"><i class="fas fa-circle"></i> Some of the time</div>
-        <div class="option" data-value="4"><i class="fas fa-circle"></i> Most of the time</div>
-        <div class="option" data-value="5"><i class="fas fa-circle"></i> All of the time</div>
-      </div>
-
-      <div class="submit-row">
-        <button class="submit-btn" id="submitBtn">
-          <i class="fas fa-paper-plane"></i>
-          Submit
-        </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="complete" style="display: none;">
-      <div class="completion-screen">
-        <div class="completion-icon">
-          <i class="fas fa-rocket"></i>
-        </div>
-        <span class="k10-badge">K10 Summary</span>
-        <h2 class="completion-title">All Done!</h2>
-        <p class="completion-text">Here’s your K10 total and a quick interpretation. This isn’t a diagnosis.</p>
-
-        <div class="stats" id="stats"></div>
-        <div id="k10Summary" style="margin-top:10px; font-weight:800;"></div>
-        <div id="k10Interp" style="opacity:0.9; margin-top:6px;"></div>
-
-        <button class="restart-btn" id="restartBtn">
-          <i class="fas fa-redo"></i> Do it again
-        </button>
-
-        <p class="footer-note">
-          If you’re concerned about your wellbeing, consider talking to a qualified professional.
-        </p>
+  <!-- Cookie banner -->
+  <div id="cookieOverlay" class="cookie-overlay" role="dialog" aria-modal="true" aria-labelledby="cookieTitle">
+    <div class="cookie-banner">
+      <h3 id="cookieTitle">🍪 We use cookies 🍪</h3>
+      <p>We store your theme choice and survey progress locally to make your experience smoother. No personally identifiable data is sent to our server. To show region-appropriate help resources, our server may use your IP address to approximate your region. We don’t use advertising cookies, and we minimize and retain this data only briefly.</p>
+      <div class="cookie-actions">
+        <button id="cookieAccept" class="cookie-btn primary"><i class="fas fa-check"></i> Accept</button>
+        <button id="cookieDismiss" class="cookie-btn secondary">Not now</button>
       </div>
     </div>
   </div>
 
-  <script src="static/script.js" defer></script>
+  <div class="container">
+    <div class="header">
+      <h1>K10 Quick Survey</h1>
+      <p>Construction worker wellbeing check-in</p>
+      <div class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Questions 1-10 -->
+    <div class="question-container active" data-question="1">
+      <div class="question-number"><span>Question 1/10</span></div>
+      <div class="question-text">About how often did you feel tired out for no good reason?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+      <div class="feedback" id="feedback">Saved!</div>
+    </div>
+
+    <div class="question-container" data-question="2">
+      <div class="question-number"><span>Question 2/10</span></div>
+      <div class="question-text">About how often did you feel nervous?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="3">
+      <div class="question-number"><span>Question 3/10</span></div>
+      <div class="question-text">About how often did you feel so nervous that nothing could calm you down?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="4">
+      <div class="question-number"><span>Question 4/10</span></div>
+      <div class="question-text">How often did you feel hopeless?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="5">
+      <div class="question-number"><span>Question 5/10</span></div>
+      <div class="question-text">About how often did you feel restless or fidgety?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="6">
+      <div class="question-number"><span>Question 6/10</span></div>
+      <div class="question-text">About how often did you feel so restless you could not sit still?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="7">
+      <div class="question-number"><span>Question 7/10</span></div>
+      <div class="question-text">About how often did you feel depressed?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="8">
+      <div class="question-number"><span>Question 8/10</span></div>
+      <div class="question-text">About how often did you feel that everything was an effort?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="9">
+      <div class="question-number"><span>Question 9/10</span></div>
+      <div class="question-text">About how often did you feel so sad that nothing could cheer you up?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+    </div>
+
+    <div class="question-container" data-question="10">
+      <div class="question-number"><span>Question 10/10</span></div>
+      <div class="question-text">About how often did you feel worthless?</div>
+      <div class="options">
+        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
+        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
+        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
+        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
+        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
+      </div>
+      <div class="submit-row">
+        <button id="submitBtn" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit</button>
+      </div>
+    </div>
+
+    <!-- Completion screen -->
+    <div class="question-container" data-question="complete" style="display:none;">
+      <div class="completion-screen">
+        <div class="completion-icon"><i class="fas fa-check"></i></div>
+        <div class="k10-badge">K10 Summary</div>
+        <div class="completion-title">All Done!</div>
+        <div class="completion-text">Thank you for completing the survey! Here’s your K10 total and a quick interpretation. This isn’t a diagnosis.</div>
+
+        <div id="k10Summary" class="completion-text" style="font-weight:800;"></div>
+        <div id="k10Interp" class="completion-text"></div>
+
+        <button id="helpBtn" class="restart-btn" style="margin-top:6px; background: var(--submit-bg); box-shadow: var(--submit-glow);">
+          <i class="fa-solid fa-circle-info"></i> View Resources
+        </button>
+
+        <button id="restartBtn" class="restart-btn">Do it again</button>
+        <div class="footer-note">If you’re concerned about your wellbeing, consider talking to a qualified professional.</div>
+      </div>
+    </div>
+
+    <!-- Help / Resources page (populated dynamically) -->
+    <div class="question-container help-container" data-question="help" style="display:none;">
+      <div class="help-title">Crisis and Support Resources</div>
+      <div class="help-subtitle">If you or someone you know is in immediate danger, call your local emergency number.</div>
+      <div id="helpGrid" class="help-grid"></div>
+
+      <div class="help-back-row">
+        <button id="helpBackBtn" class="help-nav-btn secondary"><i class="fas fa-arrow-left"></i> Back to summary</button>
+        <button id="helpRestartBtn" class="help-nav-btn"><i class="fas fa-rotate-left"></i> Restart survey</button>
+      </div>
+    </div>
+
+    <button id="backBtn" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+  </div>
+
+  <script src="static/script.js"></script>
 </body>
 </html>
