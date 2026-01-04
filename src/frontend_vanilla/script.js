@@ -1,30 +1,104 @@
-// Load saved theme on boot as early as possible
+// Load saved theme early
 (function restoreTheme() {
   try {
     const savedTheme = localStorage.getItem('k10:theme');
-    if (savedTheme === 'dark') document.documentElement.classList.add('dark-mode') || document.body.classList.add('dark-mode');
+    if (savedTheme === 'dark') document.body.classList.add('dark-mode');
   } catch {}
 })();
 
-document.addEventListener('DOMContentLoaded', () => {
+// In-memory resources loaded from static/resources.json
+let RESOURCES_DB = [];
+
+// Load resources.json at runtime
+async function loadResourcesJSON() {
+  try {
+    const res = await fetch('static/resources.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    RESOURCES_DB = await res.json();
+  } catch (e) {
+    console.error('Failed to load resources.json', e);
+    RESOURCES_DB = [];
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  const cookieOverlay = document.getElementById('cookieOverlay');
+  const cookieAccept = document.getElementById('cookieAccept');
+  const cookieDismiss = document.getElementById('cookieDismiss');
+
   const syncThemeIcon = () => {
-    const icon = themeToggle?.querySelector('i');
-    if (!icon) return;
-    const dark = document.body.classList.contains('dark-mode') || document.documentElement.classList.contains('dark-mode');
-    icon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+    const dark = document.body.classList.contains('dark-mode');
+    if (themeIcon) themeIcon.textContent = dark ? '☀️' : '🌙';
   };
 
-  // Theme toggle with persistence
+  // Theme toggle
   themeToggle?.addEventListener('click', () => {
-    const target = document.body;
-    target.classList.toggle('dark-mode');
-    const isDark = target.classList.contains('dark-mode');
-    const icon = themeToggle.querySelector('i');
-    icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    syncThemeIcon();
     try { localStorage.setItem('k10:theme', isDark ? 'dark' : 'light'); } catch {}
   });
   syncThemeIcon();
+
+  // Cookie consent
+  const cookiesAccepted = () => {
+    try { return localStorage.getItem('k10:cookiesAccepted') === 'yes'; } catch { return false; }
+  };
+  const hideCookie = () => cookieOverlay?.classList.remove('show');
+  if (!cookiesAccepted()) cookieOverlay?.classList.add('show');
+  cookieAccept?.addEventListener('click', () => {
+    try { localStorage.setItem('k10:cookiesAccepted', 'yes'); } catch {}
+    hideCookie();
+  });
+  cookieDismiss?.addEventListener('click', hideCookie);
+
+  // Load resources.json before booting the app
+  await loadResourcesJSON();
+
+  // Helper to get stored issue preferences (optional future UI)
+  function getSavedIssues() {
+    try {
+      const raw = localStorage.getItem('k10:issues');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          depression: !!parsed.depression,
+          alcohol: !!parsed.alcohol,
+          opioids: !!parsed.opioids
+        };
+      }
+    } catch {}
+    return { depression: true, alcohol: false, opioids: false };
+  }
+
+  // Map risk to titles/subtitles
+  function getHelpCopyForRisk(risk) {
+    switch (risk) {
+      case 1:
+        return {
+          title: 'Crisis & Support Resources',
+          subtitle: 'If you or someone you know is in immediate danger, call your local emergency number. These options offer crisis help and direct support.'
+        };
+      case 2:
+        return {
+          title: 'Urgent Support Options',
+          subtitle: 'You may benefit from talking to someone soon. Consider these helplines and services; call emergency services if there’s immediate danger.'
+        };
+      case 3:
+        return {
+          title: 'Support and Self‑Help Resources',
+          subtitle: 'Here are supportive services and self‑help options. Reach out for professional advice if things feel tougher than usual.'
+        };
+      case 4:
+      default:
+        return {
+          title: 'Wellbeing Tips & Helpful Resources',
+          subtitle: 'You reported lower distress. Explore these resources to maintain wellbeing and know where to turn if you ever need extra support.'
+        };
+    }
+  }
 
   class QuickSurvey {
     constructor() {
@@ -32,11 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
       this.totalQuestions = 10;
       this.answers = {};
       this.pendingAutoAdvance = null;
-
+      this.riskCategory = undefined;
       this.init();
     }
 
-    // Storage helpers for submissions
     getSubmissions() {
       try {
         const raw = localStorage.getItem('k10:submissions');
@@ -53,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
       this.bindEvents();
       this.hydrateFromStorage();
       this.updateProgress();
-      this.createParticles();
       this.updateBackButtonState();
     }
 
@@ -92,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     bindEvents() {
-      // Option click to select + auto-advance (except on last question)
       document.addEventListener('click', (e) => {
         const option = e.target.closest('.option');
         if (!option) return;
@@ -108,11 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Back button
       const backBtn = document.getElementById('backBtn');
       backBtn?.addEventListener('click', () => this.prevQuestion());
 
-      // Keyboard navigation
       document.addEventListener('keydown', (e) => {
         const activeContainer = document.querySelector('.question-container.active');
         if (!activeContainer) return;
@@ -129,13 +198,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Submit button
       const submitBtn = document.getElementById('submitBtn');
       submitBtn?.addEventListener('click', () => this.handleSubmit());
 
-      // Restart button on completion
       const restartBtn = document.getElementById('restartBtn');
       restartBtn?.addEventListener('click', () => restartSurvey());
+
+      const helpBtn = document.getElementById('helpBtn');
+      helpBtn?.addEventListener('click', () => {
+        const issues = getSavedIssues();
+        this.renderHelpResources(issues);
+        showHelpPage();
+      });
+
+      document.getElementById('helpBackBtn')?.addEventListener('click', () => backToSummary());
+      document.getElementById('helpRestartBtn')?.addEventListener('click', () => restartSurvey());
     }
 
     selectOption(option) {
@@ -179,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
           this.showQuickInsight();
           this.updateBackButtonState();
         } else {
-          // At last question; do nothing here (wait for Submit)
           this.updateProgress();
           this.updateBackButtonState();
         }
@@ -188,6 +264,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prevQuestion() {
       const completionActive = document.querySelector('.question-container.active[data-question="complete"]');
+      const helpActive = document.querySelector('.question-container.active[data-question="help"]');
+
+      if (helpActive) {
+        backToSummary();
+        return;
+      }
+
       if (completionActive) {
         completionActive.classList.remove('active');
         completionActive.style.display = 'none';
@@ -219,8 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateBackButtonState() {
       const backBtn = document.getElementById('backBtn');
       const onCompletion = document.querySelector('.question-container.active[data-question="complete"]');
+      const onHelp = document.querySelector('.question-container.active[data-question="help"]');
       if (!backBtn) return;
-      backBtn.style.display = onCompletion ? 'none' : 'flex';
+      backBtn.style.display = (onCompletion || onHelp) ? 'none' : 'flex';
       backBtn.disabled = this.currentQuestion <= 1;
     }
 
@@ -234,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
       nums.forEach(num => {
         const container = num.closest('.question-container');
         const q = container?.dataset?.question;
-        if (container && q && q !== 'complete') num.textContent = `Question ${q}/10`;
+        if (container && q && q !== 'complete' && q !== 'help') num.textContent = `Question ${q}/10`;
       });
     }
 
@@ -248,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Almost there!",
         "Good momentum!",
         "Just a couple more!",
-        "Last one next!",
+        "Last one next!"
       ];
 
       if (this.currentQuestion > 1 && this.currentQuestion <= this.totalQuestions) {
@@ -257,23 +341,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Submit handler: validate, save submission, show completion
     handleSubmit() {
-      // Validate all questions answered
       const missing = [];
       for (let i = 1; i <= this.totalQuestions; i++) {
         if (!Number.isFinite(this.answers[i])) missing.push(i);
       }
       if (missing.length) {
         this.showToast(`Please answer Q${missing[0]} before submitting`);
-        // Jump to first missing question
         this.goToQuestion(missing[0]);
         return;
       }
 
       const total = this.computeK10Score();
 
-      // Save a submission entry
       const entry = {
         timestamp: new Date().toISOString(),
         answers: { ...this.answers },
@@ -281,10 +361,8 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       this.saveSubmission(entry);
 
-      // Also persist current run as complete
       try { localStorage.setItem('k10:currentQuestion', 'complete'); } catch {}
 
-      // Show completion summary
       this.completeSurvey();
     }
 
@@ -302,18 +380,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     completeSurvey() {
       const completionContainer = document.querySelector('[data-question="complete"]');
+      const helpContainer = document.querySelector('[data-question="help"]');
       if (!completionContainer) return;
+
+      if (helpContainer) {
+        helpContainer.classList.remove('active');
+        helpContainer.style.display = 'none';
+      }
 
       completionContainer.style.display = 'block';
       completionContainer.classList.add('active');
 
-      const activeQ = document.querySelector('.question-container.active:not([data-question="complete"])');
+      const activeQ = document.querySelector('.question-container.active:not([data-question="complete"]):not([data-question="help"])');
       if (activeQ) activeQ.classList.remove('active');
 
       try { localStorage.setItem('k10:currentQuestion', 'complete'); } catch {}
 
-      this.createCelebration();
       this.generateStats();
+      this.renderHelpResources(getSavedIssues());
       this.updateBackButtonState();
 
       document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
@@ -327,6 +411,33 @@ document.addEventListener('DOMContentLoaded', () => {
       return sum;
     }
 
+    // Map K10 to categories: 1=highest risk, 4=lowest risk
+    computeRiskCategory(total) {
+      if (total <= 15) return 4;  // Low
+      if (total <= 21) return 3;  // Moderate
+      if (total <= 29) return 2;  // High
+      return 1;                   // Very High
+    }
+
+    generateStats() {
+      const total = this.computeK10Score();
+      const interp = this.interpretK10(total);
+      const category = this.computeRiskCategory(total);
+      this.riskCategory = category;
+
+      const summary = document.getElementById('k10Summary');
+      const interpEl = document.getElementById('k10Interp');
+
+      if (summary) summary.textContent = `K10 Total: ${total} / 50`;
+      if (interpEl) {
+        interpEl.textContent = `Interpretation: ${interp.band}. ${interp.text} Risk level: ${category} of 4 (1 = highest, 4 = lowest).`;
+        interpEl.style.color = interp.color;
+      }
+
+      // Also update the help page heading/subtitle now that we know risk
+      this.updateHelpHeadings();
+    }
+
     interpretK10(total) {
       if (total <= 15) return { band: 'Low (10–15)', color: '#22c55e', text: 'Low level of psychological distress.' };
       if (total <= 21) return { band: 'Moderate (16–21)', color: '#eab308', text: 'Moderate distress; consider self-care and monitoring.' };
@@ -334,62 +445,74 @@ document.addEventListener('DOMContentLoaded', () => {
       return { band: 'Very High (30–50)', color: '#ef4444', text: 'Very high distress; professional support is recommended.' };
     }
 
-    generateStats() {
-      const statsContainer = document.getElementById('stats');
+    updateHelpHeadings() {
+      const helpTitleEl = document.querySelector('.help-container .help-title');
+      const helpSubtitleEl = document.querySelector('.help-container .help-subtitle');
       const total = this.computeK10Score();
-      const interp = this.interpretK10(total);
+      const category = this.computeRiskCategory(total);
+      const copy = getHelpCopyForRisk(category);
 
-      if (statsContainer) {
-        const tiles = [];
-        for (let i = 1; i <= this.totalQuestions; i++) {
-          const val = this.answers[i] || 0;
-          tiles.push(`
-            <div class="stat">
-              <span class="stat-number">${val}/5</span>
-              <div class="stat-label">Q${i}</div>
-            </div>
-          `);
-        }
-        statsContainer.innerHTML = tiles.join('');
-      }
-
-      const summary = document.getElementById('k10Summary');
-      const interpEl = document.getElementById('k10Interp');
-      if (summary) summary.textContent = `K10 Total: ${total} / 50`;
-      if (interpEl) {
-        interpEl.textContent = `Interpretation: ${interp.band}. ${interp.text}`;
-        interpEl.style.color = interp.color;
-      }
+      if (helpTitleEl) helpTitleEl.textContent = copy.title;
+      if (helpSubtitleEl) helpSubtitleEl.textContent = copy.subtitle;
     }
 
-    createParticles() {
-      const container = document.getElementById('particles');
-      if (!container) return;
-      for (let i = 0; i < 3; i++) {
-        this.createParticle(container, true);
+    renderHelpResources(issuesOverride) {
+      const grid = document.getElementById('helpGrid');
+      const helpSubtitle = document.querySelector('.help-container .help-subtitle');
+      if (!grid) return;
+
+      const total = this.computeK10Score();
+      const category = this.computeRiskCategory(total);
+      this.riskCategory = category;
+
+      // Update headings according to risk
+      this.updateHelpHeadings();
+
+      // Issues to apply (from override or saved/default)
+      const issues = issuesOverride ?? getSavedIssues();
+      const anySelected = !!(issues.depression || issues.alcohol || issues.opioids);
+
+      // Filter resources: by risk level, then by issue tags
+      const filtered = (RESOURCES_DB || [])
+        .filter(r => Number(r.risk) === category)
+        .filter(r => {
+          const tags = Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : [];
+
+          if (!anySelected) {
+            // If no explicit issue chosen, default to mental-health/general
+            return tags.length === 0 || tags.includes('depression');
+          }
+
+          if (issues.depression && tags.includes('depression')) return true;
+          if (issues.alcohol && tags.includes('alcohol')) return true;
+          if (issues.opioids && tags.includes('opioids')) return true;
+          return false;
+        });
+
+      if (helpSubtitle) {
+        const topics = Object.entries(issues).filter(([, v]) => v).map(([k]) => k).join(', ') || 'general mental health';
+        helpSubtitle.textContent =
+          `${helpSubtitle.textContent}`;
       }
-    }
 
-    createParticle(container, ambient = false) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      particle.style.left = Math.random() * 100 + '%';
-      particle.style.top = Math.random() * 100 + '%';
-      particle.style.background = ambient ? 'rgba(34, 197, 94, 0.5)' : 'var(--accent)';
-      particle.style.animationDelay = Math.random() * 2 + 's';
-
-      container.appendChild(particle);
-      setTimeout(() => particle.remove(), 3000);
-    }
-
-    createCelebration() {
-      const container = document.getElementById('particles');
-      if (!container) return;
-      for (let i = 0; i < 20; i++) {
-        setTimeout(() => this.createParticle(container, false), i * 100);
-      }
-      document.body.style.animation = 'shake 0.5s ease-in-out';
-      setTimeout(() => { document.body.style.animation = ''; }, 500);
+      grid.innerHTML = filtered.map(card => {
+        const actions = (card.actions || []).map(a => {
+          const icon = a.icon
+            || (a.kind === 'sms' ? 'fas fa-comment-dots'
+            : a.kind === 'web' ? 'fas fa-globe'
+            : 'fas fa-phone');
+          const safeHref = a.href || '#';
+          const blank = a.targetBlank ? 'target="_blank" rel="noopener noreferrer"' : '';
+          return `<a class="chip" href="${safeHref}" ${blank}><i class="${icon}"></i> ${a.label}</a>`;
+        }).join('');
+        return `
+          <div class="help-card">
+            <h4>${card.title}</h4>
+            ${card.meta ? `<div class="help-meta">${card.meta}</div>` : ''}
+            <div class="help-actions">${actions}</div>
+          </div>
+        `;
+      }).join('');
     }
 
     showToast(message) {
@@ -431,6 +554,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Boot the survey
   window.survey = new QuickSurvey();
+
+  // Help page navigation
+  window.showHelpPage = function showHelpPage() {
+    const completion = document.querySelector('[data-question="complete"]');
+    const help = document.querySelector('[data-question="help"]');
+    if (!help) return;
+    completion?.classList.remove('active');
+    if (completion) completion.style.display = 'none';
+    help.style.display = 'flex';
+    help.classList.add('active');
+    document.getElementById('backBtn')?.style?.setProperty('display', 'none');
+    document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  window.backToSummary = function backToSummary() {
+    const completion = document.querySelector('[data-question="complete"]');
+    const help = document.querySelector('[data-question="help"]');
+    if (!completion) return;
+    help?.classList.remove('active');
+    if (help) help.style.display = 'none';
+    completion.style.display = 'block';
+    completion.classList.add('active');
+    document.getElementById('backBtn')?.style?.removeProperty('display');
+    document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
+  };
 });
 
 // Restart and clear current run, but keep past submissions
@@ -444,13 +592,17 @@ function restartSurvey() {
   try {
     localStorage.removeItem('k10:answers');
     localStorage.setItem('k10:currentQuestion', '1');
-    // Note: we intentionally DO NOT clear k10:submissions
   } catch {}
 
   const completion = document.querySelector('[data-question="complete"]');
   if (completion) {
     completion.style.display = 'none';
     completion.classList.remove('active');
+  }
+  const help = document.querySelector('[data-question="help"]');
+  if (help) {
+    help.style.display = 'none';
+    help.classList.remove('active');
   }
 
   document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active', 'leaving'));
@@ -461,12 +613,6 @@ function restartSurvey() {
 
   const progressBar = document.getElementById('progressBar');
   if (progressBar) progressBar.style.width = '10%';
-
-  const particles = document.getElementById('particles');
-  if (particles) {
-    particles.innerHTML = '';
-    survey.createParticles();
-  }
 
   survey.updateBackButtonState?.();
   document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
