@@ -11,6 +11,6 @@
     "headers": {
         "Content-Type": "application/json"
     },
-    "body": "{\"data\":{\"timestamp\":\"2023-01-01T00:00:00.000Z\",\"responses\":{\"Q1\":\"A\",\"Q2\":\"B\",\"Q3\":\"C\"}}}",
+    "body": "{\"data\": {\"timestamp\":\"2026-01-04T00:14:51.910Z\",\"answers\":{\"1\":5,\"2\":4,\"3\":2,\"4\":3,\"5\":2,\"6\":2,\"7\":3,\"8\":3,\"9\":4,\"10\":5},\"total\":33}}",
     "isBase64Encoded": false
 }

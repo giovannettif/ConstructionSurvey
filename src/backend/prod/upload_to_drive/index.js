@@ -44,7 +44,7 @@ export const handler = async () => {
     }
 
     // Step 3: Filter out already uploaded entries
-    const entriesToUpload = masterData.filter(item => !item.uploadedToDrive);
+    const entriesToUpload = masterData.filter(item => !item.uploaded_to_drive);
     console.log(`Found ${entriesToUpload.length} new entries to upload.`);
 
     if (entriesToUpload.length === 0) {
@@ -61,14 +61,14 @@ export const handler = async () => {
         return limit(async () => {
             try {
                 const timestamp = new Date().toISOString();
-                const fileName = `survey_response_${entry.userId || 'unknown'}_${entry.data.timestamp.replace(/[:.]/g, '-')}_${timestamp.replace(/[:.]/g, '-')}.json`;
+                const fileName = `survey_response_${entry.id || 'unknown'}_${entry.data?.timestamp?.replace(/[:.]/g, '-') || 'unknown'}_${timestamp.replace(/[:.]/g, '-')}.json`;
                 const dataToUpload = JSON.parse(JSON.stringify(entry));
                 dataToUpload.drive_timestamp = timestamp;
-                delete dataToUpload.uploadedToDrive;
+                delete dataToUpload.uploaded_to_drive;
                 const fileId = await uploadJsonToDrive(authClient, FOLDER_ID, fileName, dataToUpload);
 
                 if (fileId) {
-                    entry.uploadedToDrive = true;
+                    entry.uploaded_to_drive = true;
                 }
             } catch (e) {
                 console.error(`Error uploading entry ${entry.id} to Drive:`, e);
@@ -90,6 +90,6 @@ export const handler = async () => {
     return {
         message: 'Synced S3 bucket contents to Google Drive',
         processed: entriesToUpload.length,
-        successful: entriesToUpload.filter(item => item.uploadedToDrive).length
+        successful: entriesToUpload.filter(item => item.uploaded_to_drive).length
     };
 };
