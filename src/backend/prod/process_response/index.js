@@ -4,7 +4,6 @@ import express from 'express';
 import serverless from 'serverless-http';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { validateResponse } from './validateResponse.js';
-
 // Step 1: S3 Configuration
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
 const S3_KEY = 'survey-responses-master.json';
