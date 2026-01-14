@@ -78,6 +78,14 @@ body {
   gap: 8px;
 }
 
+.start-logo {
+  width: min(80vw, 320px);
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem;
+}
+
+
 .container {
   width: 100%;
   max-width: 420px;
@@ -112,12 +120,12 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
 .progress-bar {
   height: 100%;
   background: var(--accent);
-  width: 10%; /* start at Q1 = 10% */
+  width: 0%;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
-/* Question containers */
+/* Question containers (dynamic) */
 .question-container {
   padding: 48px 22px 70px;
   min-height: 420px;
@@ -168,33 +176,17 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
   box-shadow: var(--shadow-inset);
   text-align: left;
 }
-
 .option:hover { transform: translateY(-2px); }
-
 .option.selected {
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
   color: white;
   transform: translateY(-2px) scale(1.01);
   box-shadow: var(--glow), 0 10px 30px rgba(0,0,0,0.1);
 }
-
 .option i { font-size: 1rem; opacity: 0.85; }
 
-.feedback {
-  position: absolute; top: 18px; right: 18px; background: var(--accent); color: white;
-  padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
-  opacity: 0; transform: scale(0.9); transition: all 0.2s ease;
-}
-.feedback.show { opacity: 1; transform: scale(1); }
-
 /* Submit row and button */
-.submit-row {
-  position: sticky;
-  bottom: 0;
-  margin-top: 22px;
-  padding-top: 16px;
-}
-
+.submit-row { position: sticky; bottom: 0; margin-top: 22px; padding-top: 16px; }
 .submit-btn {
   width: 100%;
   display: inline-flex;
@@ -222,17 +214,26 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
   width: 90px; height: 90px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
   border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: var(--glow);
   animation: celebrate 1.6s ease-in-out;
+  font-size: 2.2rem; color: #fff;
 }
 @keyframes celebrate { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-.completion-icon i { font-size: 2.4rem; color: white; }
 .completion-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; }
 .completion-text { opacity: 0.9; font-size: 1rem; margin-bottom: 22px; line-height: 1.5; }
 
-/* removed .stats/.stat rules (unused) */
+/* Stack resource + restart buttons nicely */
+.completion-screen .help-nav-btn,
+.completion-screen .restart-btn {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.completion-screen .help-nav-btn { margin-bottom: 12px; }
 
 .restart-btn {
   background: var(--accent); color: white; border: none; padding: 14px 26px; border-radius: 24px;
-  font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; box-shadow: var(--glow);
+  font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--glow);
 }
 .restart-btn:hover { transform: translateY(-2px); }
 
@@ -293,7 +294,7 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
 .cookie-btn {
   border: none;
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 10px 12px;
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -302,6 +303,7 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
   background: var(--accent);
   color: white;
   box-shadow: var(--glow);
+  padding: 10px 24px;
 }
 .cookie-btn.secondary {
   background: var(--bg-primary);
@@ -309,6 +311,117 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
   box-shadow: var(--shadow-inset);
 }
 .cookie-btn:hover { transform: translateY(-1px); }
+
+.begin-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--glow);
+  font-size: 1.05rem;
+}
+.begin-btn:hover { transform: translateY(-1px); }
+
+
+/* Start overlay (welcome) */
+.start-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3100;
+  padding: 18px;
+}
+.start-overlay.show { display: flex; }
+
+.start-card {
+  width: min(720px, 100%);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow-a);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.start-media {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  /* background gradients underneath everything */
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(34, 197, 94, 0.25) 0%, rgba(0,0,0,0) 50%),
+    radial-gradient(120% 120% at 100% 100%, rgba(37, 99, 235, 0.20) 0%, rgba(0,0,0,0) 50%);
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow-inset);
+}
+
+/* Layer 1: diagonal yellow stripes */
+.start-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 215, 0, 0.3) 0,
+    rgba(255, 215, 0, 0.3) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  pointer-events: none;
+}
+
+/* Layer 2: logo image on top */
+.start-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* keeps logo fully visible */
+  z-index: 1; /* above stripes and background */
+  pointer-events: none;
+}
+
+.start-content h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.start-lead {
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.start-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 560px) {
+  .start-card {
+    grid-template-columns: 1.1fr 1fr;
+    align-items: center;
+  }
+  .start-media { margin: 4px; }
+}
 
 /* Help page */
 .help-container {
@@ -319,11 +432,7 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
   text-align: center;
   min-height: 420px;
 }
-.help-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin-bottom: 6px;
-}
+.help-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; }
 .help-subtitle { color: var(--text-secondary); margin-bottom: 12px; }
 .help-grid {
   display: grid;
@@ -341,17 +450,10 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
   gap: 6px;
   overflow: hidden;
 }
-.help-card,
-.help-card * {
-  min-width: 0;
-}
+.help-card, .help-card * { min-width: 0; }
 .help-card h4 { font-size: 1.05rem; font-weight: 800; }
 .help-meta { color: var(--text-secondary); font-size: 0.92rem; }
-.help-meta,
-.chip {
-  word-wrap: break-word;
-  overflow-wrap: anywhere;
-}
+.help-meta, .chip { word-wrap: break-word; overflow-wrap: anywhere; }
 .help-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; margin-top: 8px; }
 .chip {
   display: inline-flex;
@@ -390,6 +492,12 @@ body.dark-mode .progress-container { background: rgba(255,255,255,0.08); }
   box-shadow: var(--glow);
   transition: transform 0.12s ease;
 }
+.help-nav-btn.orange {
+  background: #f97316;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.25);
+}
+.help-nav-btn.orange:hover { background: #ea580c; }
 .help-nav-btn.secondary {
   background: var(--bg-primary);
   color: var(--text-primary);
