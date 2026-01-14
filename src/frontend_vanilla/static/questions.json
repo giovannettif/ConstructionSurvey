@@ -1,0 +1,158 @@
+{
+  "title": "Protecting Under the Hard Hat Survey",
+  "version": "2.0.0",
+  "settings": {
+    "autoAdvanceSingle": true,
+    "requireNextOnMultiple": true,
+    "defaultTopics": []
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "text": "Which best describes you today?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "mh_current", "label": "Experiencing mental health challenges", "indicates": ["depression"] },
+        { "id": "su_current", "label": "Experiencing substance use challenges", "indicates": ["alcohol", "opioids"] },
+        { "id": "mh_recovery", "label": "In recovery from a mental health condition", "indicates": ["depression"] },
+        { "id": "su_recovery", "label": "In recovery from substance use", "indicates": ["alcohol", "opioids"] },
+        { "id": "none", "label": "None of the above" },
+        { "id": "pnots", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "Which of the following do you sometimes feel? Select all that apply.",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "nervous", "label": "Nervous", "indicates": ["depression"] },
+        { "id": "anxious", "label": "Anxious", "indicates": ["depression"] },
+        { "id": "hopeless", "label": "Hopeless", "indicates": ["depression"] },
+        { "id": "lonely", "label": "Lonely", "indicates": ["depression"] },
+        { "id": "restless", "label": "Restless", "indicates": ["depression"] },
+        { "id": "fidgety", "label": "Fidgety", "indicates": ["depression"] },
+        { "id": "sad", "label": "Sad", "indicates": ["depression"] },
+        { "id": "depressed", "label": "Depressed", "indicates": ["depression"] },
+        { "id": "worthless", "label": "Worthless", "indicates": ["depression"] },
+        { "id": "none", "label": "None of the above", "exclusive": true }
+      ],
+      "exclusiveOptionIds": ["none"]
+    },
+    {
+      "id": "q3",
+      "text": "In the past 4 weeks, which of the following have you experienced? Select all that apply.",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "restlessness", "label": "Restlessness", "indicates": ["depression"] },
+        { "id": "irritability", "label": "Irritability", "indicates": ["depression"] },
+        { "id": "trouble_concentrating", "label": "Trouble concentrating", "indicates": ["depression"] },
+        { "id": "none", "label": "None of the above", "exclusive": true }
+      ],
+      "exclusiveOptionIds": ["none"]
+    },
+    {
+      "id": "q4",
+      "text": "How have you addressed these experiences? Select all that apply.",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "contacted_dr", "label": "Contacted a doctor" },
+        { "id": "let_it_pass", "label": "Let it pass" },
+        { "id": "own_coping", "label": "Used my own coping methods (e.g., yoga, reading, exercise)" }
+      ]
+    },
+    {
+      "id": "q5",
+      "text": "In the past 4 weeks, which of the following physical symptoms have you experienced? Select all that apply.",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "increased_hr", "label": "Increased heart rate", "indicates": ["depression"] },
+        { "id": "rapid_breathing", "label": "Rapid breathing", "indicates": ["depression"] },
+        { "id": "muscle_tension", "label": "Muscle tension", "indicates": ["depression"] },
+        { "id": "sweating", "label": "Sweating", "indicates": ["depression"] },
+        { "id": "dry_mouth", "label": "Dry mouth", "indicates": ["depression"] },
+        { "id": "headache", "label": "Headache", "indicates": ["depression"] },
+        { "id": "stomachache", "label": "Stomachache", "indicates": ["depression"] },
+        { "id": "dizziness", "label": "Dizziness", "indicates": ["depression"] },
+        { "id": "none", "label": "None of the above", "exclusive": true }
+      ],
+      "exclusiveOptionIds": ["none"]
+    },
+    {
+      "id": "q6",
+      "text": "How have you addressed these experiences? Select all that apply.",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "contacted_dr", "label": "Contacted a doctor" },
+        { "id": "let_it_pass", "label": "Let it pass" },
+        { "id": "own_coping", "label": "Used my own coping methods (e.g., yoga, reading, exercise)" }
+      ]
+    },
+    {
+      "id": "q7",
+      "text": "Do you drink alcohol?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "yes", "label": "Yes", "indicates": ["alcohol"] },
+        { "id": "no", "label": "No", "indicatesRemove": ["alcohol"] }
+      ],
+      "nextVisibleIfAnyOf": ["yes"]
+    },
+    {
+      "id": "q8",
+      "text": "How often do you drink alcohol?",
+      "type": "single",
+      "required": true,
+      "showIf": { "questionId": "q7", "anyOf": ["yes"] },
+      "options": [
+        { "id": "daily", "label": "Daily", "indicates": ["alcohol"] },
+        { "id": "weekly", "label": "Weekly", "indicates": ["alcohol"] },
+        { "id": "monthly", "label": "Monthly", "indicates": ["alcohol"] },
+        { "id": "rarely", "label": "Rarely", "indicates": ["alcohol"] }
+      ]
+    },
+    {
+      "id": "q9",
+      "text": "Is alcohol one of your coping methods?",
+      "type": "single",
+      "required": true,
+      "showIf": { "questionId": "q7", "anyOf": ["yes"] },
+      "options": [
+        { "id": "yes", "label": "Yes", "indicates": ["alcohol"] },
+        { "id": "no", "label": "No" }
+      ]
+    },
+    {
+      "id": "q10",
+      "text": "Do you use drugs?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "prescribed", "label": "Prescribed", "indicates": ["opioids"] },
+        { "id": "non_prescribed", "label": "Non-prescribed", "indicates": ["opioids"] },
+        { "id": "both", "label": "Both prescribed and non-prescribed", "indicates": ["opioids"] },
+        { "id": "none", "label": "None" }
+      ],
+      "nextVisibleIfAnyOf": ["prescribed", "non_prescribed", "both"]
+    },
+    {
+      "id": "q11",
+      "text": "How often do you use drugs?",
+      "type": "single",
+      "required": true,
+      "showIf": { "questionId": "q10", "anyOf": ["prescribed", "non_prescribed", "both"] },
+      "options": [
+        { "id": "Rarely", "label": "Rarely", "indicates": ["opioids"] },
+        { "id": "Weekly", "label": "Weekly", "indicates": ["opioids"] },
+        { "id": "Daily", "label": "Daily", "indicates": ["opioids"] },
+        { "id": "socially", "label": "Socially", "indicates": ["opioids"] }
+      ]
+    }
+  ]
+}
