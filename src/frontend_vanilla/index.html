@@ -1,198 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>K10 Quick Survey</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Load saved theme early -->
+  <script>
+    try {
+      const saved = localStorage.getItem('k10:theme');
+      const shouldDark = saved ? (saved === 'dark') : true;
+      if (shouldDark) document.documentElement.classList.add('pre-dark');
+    } catch {
+      document.documentElement.classList.add('pre-dark');
+    }
+  </script>
+  <style>
+    /* Basic pre-dark paint to avoid light flash */
+    .pre-dark body { background: #1a202c; color: #e2e8f0; }
+  </style>
+
+  <!-- Load main CSS -->
+  <title>Protecting Under the Hard Hat Survey</title>
   <link rel="stylesheet" href="static/style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body class="dark-mode">
+<body>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      if (root.classList.contains('pre-dark')) {
+        document.addEventListener('DOMContentLoaded', () => {
+          document.body.classList.add('dark-mode');
+          root.classList.remove('pre-dark');
+        });
+      }
+    })();
+  </script>
+
+  <!-- Theme toggle -->
   <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
     <span id="themeIcon" aria-hidden="true">🌙</span>
   </button>
 
-  <!-- Cookie banner -->
-  <div id="cookieOverlay" class="cookie-overlay" role="dialog" aria-modal="true" aria-labelledby="cookieTitle">
-    <div class="cookie-banner">
-      <h3 id="cookieTitle">🍪 We use cookies 🍪</h3>
-      <p>We store your theme choice and survey progress locally to make your experience smoother. No personally identifiable data is sent to our server. To show region-appropriate help resources, our server may use your IP address to approximate your region. We don’t use advertising cookies, and we minimize and retain this data only briefly.</p>
-      <div class="cookie-actions">
-        <button id="cookieAccept" class="cookie-btn primary"><i class="fas fa-check"></i> Accept</button>
-        <button id="cookieDismiss" class="cookie-btn secondary">Not now</button>
-      </div>
-    </div>
-  </div>
-
   <div class="container">
+    <!-- Header -->
     <div class="header">
-      <h1>K10 Quick Survey</h1>
-      <p>Construction worker wellbeing check-in</p>
+      <h1 id="appTitle">Protecting Under the Hard Hat Survey</h1>
+      <p id="appSubtitle">Loading survey…</p>
       <div class="progress-container">
         <div id="progressBar" class="progress-bar"></div>
       </div>
     </div>
 
-    <!-- Questions 1-10 -->
-    <div class="question-container active" data-question="1">
-      <div class="question-number"><span>Question 1/10</span></div>
-      <div class="question-text">About how often did you feel tired out for no good reason?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-      <div class="feedback" id="feedback">Saved!</div>
-    </div>
+    <!-- Dynamic questions mount point -->
+    <main id="questionsRoot" aria-live="polite"></main>
 
-    <div class="question-container" data-question="2">
-      <div class="question-number"><span>Question 2/10</span></div>
-      <div class="question-text">About how often did you feel nervous?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="3">
-      <div class="question-number"><span>Question 3/10</span></div>
-      <div class="question-text">About how often did you feel so nervous that nothing could calm you down?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="4">
-      <div class="question-number"><span>Question 4/10</span></div>
-      <div class="question-text">How often did you feel hopeless?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="5">
-      <div class="question-number"><span>Question 5/10</span></div>
-      <div class="question-text">About how often did you feel restless or fidgety?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="6">
-      <div class="question-number"><span>Question 6/10</span></div>
-      <div class="question-text">About how often did you feel so restless you could not sit still?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="7">
-      <div class="question-number"><span>Question 7/10</span></div>
-      <div class="question-text">About how often did you feel depressed?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="8">
-      <div class="question-number"><span>Question 8/10</span></div>
-      <div class="question-text">About how often did you feel that everything was an effort?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="9">
-      <div class="question-number"><span>Question 9/10</span></div>
-      <div class="question-text">About how often did you feel so sad that nothing could cheer you up?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-    </div>
-
-    <div class="question-container" data-question="10">
-      <div class="question-number"><span>Question 10/10</span></div>
-      <div class="question-text">About how often did you feel worthless?</div>
-      <div class="options">
-        <button class="option" data-value="1"><i class="far fa-circle"></i> Never</button>
-        <button class="option" data-value="2"><i class="far fa-circle"></i> Rarely</button>
-        <button class="option" data-value="3"><i class="far fa-circle"></i> Sometimes</button>
-        <button class="option" data-value="4"><i class="far fa-circle"></i> Usually</button>
-        <button class="option" data-value="5"><i class="far fa-circle"></i> Always </button>
-      </div>
-      <div class="submit-row">
-        <button id="submitBtn" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit</button>
-      </div>
-    </div>
-
-    <!-- Completion screen -->
-    <div class="question-container" data-question="complete" style="display:none;">
+    <!-- Completion -->
+    <section class="question-container" data-question="complete" style="display:none">
       <div class="completion-screen">
-        <div class="completion-icon"><i class="fas fa-check"></i></div>
-        <div class="k10-badge">K10 Summary</div>
-        <div class="completion-title">All Done!</div>
-        <div class="completion-text">Thank you for completing the survey! Here’s your K10 total and a quick interpretation. This isn’t a diagnosis.</div>
-
-        <div id="k10Summary" class="completion-text" style="font-weight:800;"></div>
-        <div id="k10Interp" class="completion-text"></div>
-
-        <button id="helpBtn" class="restart-btn" style="margin-top:6px; background: var(--submit-bg); box-shadow: var(--submit-glow);">
-          <i class="fa-solid fa-circle-info"></i> View Resources
-        </button>
-
+        <div class="completion-icon" aria-hidden="true">✓</div>
+        <h2 class="completion-title">All Done!</h2>
+        <p class="completion-text">Thank you for completing the survey! This isn’t a diagnosis.</p>
+        <button id="helpBtn" class="help-nav-btn orange">View Resources</button>
         <button id="restartBtn" class="restart-btn">Do it again</button>
-        <div class="footer-note">If you’re concerned about your wellbeing, consider talking to a qualified professional.</div>
+        <div class="footer-note">
+          If you’re concerned about your wellbeing, consider talking to a qualified professional.
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Help / Resources page (populated dynamically) -->
-    <div class="question-container help-container" data-question="help" style="display:none;">
-      <div class="help-title">Crisis and Support Resources</div>
-      <div class="help-subtitle">If you or someone you know is in immediate danger, call your local emergency number.</div>
+    <!-- Help page -->
+    <section class="help-container question-container" data-question="help" style="display:none">
+      <div class="help-title">Resources</div>
+      <div class="help-subtitle">Based on your responses, here are some options.</div>
       <div id="helpGrid" class="help-grid"></div>
-
       <div class="help-back-row">
-        <button id="helpBackBtn" class="help-nav-btn secondary"><i class="fas fa-arrow-left"></i> Back to summary</button>
-        <button id="helpRestartBtn" class="help-nav-btn"><i class="fas fa-rotate-left"></i> Restart survey</button>
+        <button id="helpBackBtn" class="help-nav-btn secondary">Back to summary</button>
+        <button id="helpRestartBtn" class="help-nav-btn">Restart survey</button>
       </div>
-    </div>
+    </section>
 
-    <button id="backBtn" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+    <!-- Back button -->
+    <button id="backBtn" class="back-btn" type="button">← Back</button>
   </div>
 
-  <script src="static/script.js"></script>
+  <!-- Start overlay (welcome) -->
+  <div id="startOverlay" class="start-overlay" role="dialog" aria-modal="true" aria-labelledby="startTitle">
+    <div class="start-card">
+      <div class="start-media" id="startMedia" aria-hidden="true">
+        <img src="static/Logo.jpg" alt="Site logo" class="start-logo">
+      </div>
+
+      <div class="start-content">
+        <h2 id="startTitle">Welcome</h2>
+        <p class="start-lead">
+          This quick check takes about 1–2 minutes. It’s not a diagnosis, but it can point you to
+          helpful resources.
+        </p>
+        <div class="start-actions">
+          <button id="startBegin" class="begin-btn">Begin</button>
+          <!-- <button id="startDismiss" class="cookie-btn secondary">Not now</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cookie overlay -->
+  <div id="cookieOverlay" class="cookie-overlay" role="dialog" aria-modal="true" aria-labelledby="cookieTitle">
+    <div class="cookie-banner">
+      <h3 id="cookieTitle">🍪 We use cookies 🍪</h3>
+      <p>
+        We store your theme choice and survey progress locally to make your experience smoother.
+        No personally identifiable data is sent to our server. To show region-appropriate help resources,
+        our server may use your IP address to approximate your region. We don’t use advertising cookies,
+        and we minimize and retain this data only briefly.
+      </p>
+      <div class="cookie-actions">
+        <button id="cookieAccept" class="cookie-btn primary">Accept</button>
+        <button id="cookieDismiss" class="cookie-btn secondary">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="static/script.js" defer></script>
 </body>
 </html>
