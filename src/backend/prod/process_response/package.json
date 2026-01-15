@@ -1,0 +1,14 @@
+{
+  "name": "process_response",
+  "version": "1.0.0",
+  "description": "Accepts a new survey response and stores it to S3 bucket",
+  "main": "index.js",
+  "type": "module",
+  "author": "Krish A. Patel",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.958.0",
+    "express": "^5.1.0",
+    "serverless-http": "^4.0.0"
+  }
+}

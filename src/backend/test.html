@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test</title>
+</head>
+
+<body>
+    <h1>Test</h1>
+    <p>This is a test page.</p>
+    <button id="test-button">Test</button>
+    <script>
+        document.querySelector('button').addEventListener('click', async () => {
+            // const SURVEY_ENDPOINT = 'https://nn6mnazknqfj6su7x5cm4svs640nmglc.lambda-url.us-east-2.on.aws/survey';
+
+            // // Submit payload to backend
+            // async function submitSurvey(payload) {
+            //     const res = await fetch(SURVEY_ENDPOINT, {
+            //         method: 'POST',
+            //         headers: { 'Content-Type': 'application/json' },
+            //         body: JSON.stringify(payload)
+            //     });
+
+            //     const text = await res.text();
+            //     let data;
+            //     try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+
+            //     if (!res.ok) {
+            //         const message = (data && data.message) || res.statusText || 'Request failed';
+            //         throw new Error(`Submit failed (${res.status}): ${message}`);
+            //     }
+            //     return data;
+            // }
+            const response = await fetch('https://nn6mnazknqfj6su7x5cm4svs640nmglc.lambda-url.us-east-2.on.aws/survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "data": {
+                        "timestamp": "2026-01-26T00:14:51.910Z",
+                        "answers": {
+                            "1": 5,
+                            "2": 4,
+                            "3": 2,
+                            "4": 3,
+                            "5": 2,
+                            "6": 2,
+                            "7": 3,
+                            "8": 3,
+                            "9": 4,
+                            "10": 5
+                        },
+                        "total": 33
+                    }
+                })
+            })
+            console.log(response);
+        });
+    </script>
+</body>
+
+</html>
