@@ -51,13 +51,15 @@
         { "id": "trouble_concentrating", "label": "Trouble concentrating", "indicates": ["depression"] },
         { "id": "none", "label": "None of the above", "exclusive": true }
       ],
-      "exclusiveOptionIds": ["none"]
+      "exclusiveOptionIds": ["none"],
+      "nextVisibleIfAnyOf": ["restlessness", "irritability", "trouble_concentrating"]
     },
     {
       "id": "q4",
       "text": "How have you addressed these experiences? Select all that apply.",
       "type": "multiple",
       "required": false,
+      "showIf": { "questionId": "q3", "anyOf": ["restlessness", "irritability", "trouble_concentrating"] },
       "options": [
         { "id": "contacted_dr", "label": "Contacted a doctor" },
         { "id": "let_it_pass", "label": "Let it pass" },
@@ -80,13 +82,15 @@
         { "id": "dizziness", "label": "Dizziness", "indicates": ["depression"] },
         { "id": "none", "label": "None of the above", "exclusive": true }
       ],
-      "exclusiveOptionIds": ["none"]
+      "exclusiveOptionIds": ["none"],
+      "nextVisibleIfAnyOf": ["increased_hr", "rapid_breathing", "muscle_tension", "sweating", "dry_mouth", "headache", "stomachache", "dizziness"]
     },
     {
       "id": "q6",
       "text": "How have you addressed these experiences? Select all that apply.",
       "type": "multiple",
       "required": false,
+      "showIf": { "questionId": "q5", "anyOf": ["increased_hr", "rapid_breathing", "muscle_tension", "sweating", "dry_mouth", "headache", "stomachache", "dizziness"] },
       "options": [
         { "id": "contacted_dr", "label": "Contacted a doctor" },
         { "id": "let_it_pass", "label": "Let it pass" },
