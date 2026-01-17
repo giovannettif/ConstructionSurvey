@@ -73,7 +73,7 @@ function isVisible(question, answers) {
   const arr = Array.isArray(a) ? a : a != null ? [a] : [];
   if (c.equals !== undefined) return a === c.equals;
   if (Array.isArray(c.anyOf)) return arr.some(v => c.anyOf.includes(v));
-  if (Array.isArray(c.noneOf)) return arr.every(v => !c.noneOf.includes(v));
+  // if (Array.isArray(c.noneOf)) return arr.every(v => !c.noneOf.includes(v));
   if (c.notEquals !== undefined) return a !== c.notEquals;
   return true;
 }
@@ -631,7 +631,7 @@ class DynamicSurvey {
       const v = a[qid], arr = Array.isArray(v) ? v : v != null ? [v] : [];
       if (cond.equals !== undefined) return v === cond.equals;
       if (Array.isArray(cond.anyOf)) return arr.some(x => cond.anyOf.includes(x));
-      if (Array.isArray(cond.noneOf)) return arr.every(x => !cond.noneOf.includes(x));
+      // if (Array.isArray(cond.noneOf)) return arr.every(x => !cond.noneOf.includes(x));
       if (cond.notEquals !== undefined) return v !== cond.notEquals;
       return false;
     };
@@ -718,15 +718,17 @@ class DynamicSurvey {
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  /* Submission: validate visible, save local copy, POST, then show completion (immediately) */
   buildSurveyPayload() {
-    return [{
-      timestamp: new Date().toISOString(),
-      surveyTitle: this.config.title,
-      surveyVersion: this.config.version,
-      answers: { ...this.answers }
-    }];
+    return {
+      data: [{
+        timestamp: new Date().toISOString(),
+        surveyTitle: this.config.title,
+        surveyVersion: this.config.version,
+        answers: { ...this.answers }
+      }]
+    };
   }
+
   async handleSubmit() {
     if (this.submitting) return; // double-submit guard
 
