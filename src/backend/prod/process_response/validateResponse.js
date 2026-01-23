@@ -2,21 +2,62 @@
 /*
 Format Version 1:
 {
-    "timestamp": "2026-01-04T00:14:51.910Z",
-    "answers": {
-        "1": 5,
-        "2": 4,
-        "3": 2,
-        "4": 3,
-        "5": 2,
-        "6": 2,
-        "7": 3,
-        "8": 3,
-        "9": 4,
-        "10": 5
-    },
-    "total": 33
-},
+    "id": 1769174974001,
+    "s3_timestamp": "2026-01-23T13:29:34.001Z",
+    "uploaded_to_drive": false,
+    "valid": false,
+    "data": [
+      {
+        "timestamp": "2026-01-23T13:29:35.592Z",
+        "surveyTitle": "Protecting Under the Hard Hat Survey",
+        "surveyVersion": "3.0.0",
+        "answers": {
+          "k10_1": "1",
+          "k10_2": "4",
+          "k10_3": "5",
+          "k10_4": "4",
+          "k10_5": "2",
+          "k10_6": "1",
+          "k10_7": "4",
+          "k10_8": "2",
+          "k10_9": "4",
+          "k10_10": "2",
+          "t1": "su_recovery",
+          "t2": [
+            "none"
+          ],
+          "t3": [
+            "trouble_concentrating",
+            "irritability"
+          ],
+          "t4": [
+            "let_it_pass"
+          ],
+          "t5": [
+            "rapid_breathing",
+            "muscle_tension"
+          ],
+          "t6": [
+            "let_it_pass"
+          ],
+          "t7": "no",
+          "t8": "monthly",
+          "t9": "no",
+          "t10": "both",
+          "t11": "daily",
+          "jama1": "0",
+          "notes1": [
+            "meditate"
+          ],
+          "notes2": "6-9",
+          "notes_q4": "prescribed",
+          "notes_q4_followup": [
+            "sleep"
+          ]
+        }
+      }
+    ]
+  },
 */
 const LAUNCH_DATE = process.env.LAUNCH_DATE || '2026-01-01T00:00:00.000Z';
 
@@ -28,8 +69,8 @@ const LAUNCH_DATE = process.env.LAUNCH_DATE || '2026-01-01T00:00:00.000Z';
  */
 export const validateResponse = (response) => {
     // check response type
-    if (typeof response !== 'object' || Array.isArray(response)) {
-        throw Error('Invalid response: expected non-array object');
+    if (!Array.isArray(response) || response.length === 0 || typeof response[0] !== 'object') {
+        throw Error('Invalid response: an array of objects expected');
     }
 
     // check valid JSON
@@ -40,15 +81,21 @@ export const validateResponse = (response) => {
     }
 
     // basic type-checking of first-order fields
-    const { timestamp, answers, total } = response;
+    const { timestamp, answers, surveyTitle, surveyVersion } = response[0];
 
-    if (typeof timestamp !== 'string' || typeof answers !== 'object' || typeof total !== 'number') {
-        throw Error('Invalid types: expected { timestamp: string, answers: object, total: number }');
+    if (typeof timestamp !== 'string' || typeof answers !== 'object' || typeof surveyTitle !== 'string' || typeof surveyVersion !== 'string') {
+        throw Error('Invalid types: expected { timestamp: string, answers: object, surveyTitle: string, surveyVersion: string }');
     }
 
     // more advanced type-checking of first-order fields
-    if (isNaN(new Date(timestamp).getTime()) || Array.isArray(answers) || total % 1 !== 0) {
-        throw Error('Invalid values: expected { timestamp: valid date string, answers: non-arrayobject, total: integer }');
+    if (isNaN(new Date(timestamp).getTime()) || Array.isArray(answers) || !surveyVersion.match(/[0-9]+\.[0-9]+\.[0-9]+/)) {
+        throw Error('Invalid values: expected { timestamp: valid date string, answers: non-array object, surveyVersion: semantic version string }');
+    }
+
+    // check all parts of version to check that they are nonnegative integers
+    const versionParts = surveyVersion.split('.');
+    if (versionParts.length !== 3 || versionParts.some((part) => isNaN(parseInt(part)) || parseInt(part) < 0)) {
+        throw Error('Invalid values: expected { surveyVersion: semantic version string }');
     }
 
     // check if timestamp is after launch date
@@ -56,41 +103,10 @@ export const validateResponse = (response) => {
         throw Error('Invalid timestamp: expected timestamp to be after launch date');
     }
 
-    // check if there are extra first-order fields
-    if (Object.keys(response).length !== 3) {
-        throw Error('Extra first-order fields found: expected only { timestamp, answers, total }');
-    }
-
-    // check if all keys of answers are integer strings
-    let int;
-    for (const key of Object.keys(answers)) {
-        int = parseInt(key);
-        if (isNaN(int) || int < 1) {
-            throw Error('Invalid values: expected answer keys to be positive integer strings');
-        }
-    }
-
-    let sum = 0;
-
-    for (const ans of Object.values(answers)) {
-        // check if all values of answers are integers
-        if (ans % 1 !== 0) {
-            throw Error('Invalid values: expected answer values to be integers');
-        }
-
-        // check if all answers are between 1 and 5
-        if (ans < 1 || ans > 5) {
-            throw Error('Invalid values: expected answer points to be between 1 and 5, inclusive');
-        }
-
-        sum += ans;
-    }
-
-    // check if all answers add up to total
-    if (sum !== total) {
-        throw Error('Invalid values: expected answer points to add up to total');
+    if (Object.keys(response[0]).length !== 4) {
+        throw Error('Invalid response: expected { timestamp: string, answers: object, surveyTitle: string, surveyVersion: string }');
     }
 
     // send back format version
-    return { version: 1 };
+    return { version: surveyVersion };
 };
