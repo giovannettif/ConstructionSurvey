@@ -1,0 +1,346 @@
+{
+  "title": "Protecting Under the Hard Hat Survey",
+  "version": "3.0.0",
+  "settings": {
+    "autoAdvanceSingle": true,
+    "requireNextOnMultiple": true,
+    "defaultTopics": []
+  },
+  "questions": [
+    {
+      "id": "k10_1",
+      "text": "In the past 30 days, about how often did you feel tired out for no good reason?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_2",
+      "text": "In the past 30 days, about how often did you feel nervous?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_3",
+      "text": "In the past 30 days, about how often did you feel so nervous that nothing could calm you down?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_4",
+      "text": "In the past 30 days, about how often did you feel hopeless?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_5",
+      "text": "In the past 30 days, about how often did you feel restless or fidgety?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_6",
+      "text": "In the past 30 days, about how often did you feel so restless you could not sit still?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_7",
+      "text": "In the past 30 days, about how often did you feel depressed?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_8",
+      "text": "In the past 30 days, about how often did you feel that everything was an effort?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_9",
+      "text": "In the past 30 days, about how often did you feel so sad that nothing could cheer you up?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "k10_10",
+      "text": "In the past 30 days, about how often did you feel worthless?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1", "label": "None of the time" },
+        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
+        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
+        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
+        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+      ]
+    },
+    {
+      "id": "t1",
+      "text": "Which best describes you today?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "mh_current", "label": "Experiencing mental health challenges", "indicates": ["depression"] },
+        { "id": "su_current", "label": "Experiencing substance use challenges", "indicates": ["alcohol", "opioids"] },
+        { "id": "mh_recovery", "label": "In recovery from a mental health condition", "indicates": ["depression"] },
+        { "id": "su_recovery", "label": "In recovery from substance use", "indicates": ["alcohol", "opioids"] },
+        { "id": "none", "label": "None of the above" },
+        { "id": "pnots", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "t2",
+      "text": "In the past 30 days, which of the following did you sometimes feel? (Select all that apply.)",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "nervous", "label": "Nervous", "indicates": ["depression"] },
+        { "id": "anxious", "label": "Anxious", "indicates": ["depression"] },
+        { "id": "hopeless", "label": "Hopeless", "indicates": ["depression"] },
+        { "id": "lonely", "label": "Lonely", "indicates": ["depression"] },
+        { "id": "restless", "label": "Restless", "indicates": ["depression"] },
+        { "id": "fidgety", "label": "Fidgety", "indicates": ["depression"] },
+        { "id": "sad", "label": "Sad", "indicates": ["depression"] },
+        { "id": "depressed", "label": "Depressed", "indicates": ["depression"] },
+        { "id": "worthless", "label": "Worthless", "indicates": ["depression"] },
+        { "id": "none", "label": "None of the above", "exclusive": true }
+      ],
+      "exclusiveOptionIds": ["none"]
+    },
+    {
+      "id": "t3",
+      "text": "In the past 30 days, which of the following have you experienced? (Select all that apply.)",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "restlessness", "label": "Restlessness", "indicates": ["depression"] },
+        { "id": "irritability", "label": "Irritability", "indicates": ["depression"] },
+        { "id": "trouble_concentrating", "label": "Trouble concentrating", "indicates": ["depression"] },
+        { "id": "none", "label": "None of the above", "exclusive": true }
+      ],
+      "exclusiveOptionIds": ["none"]
+    },
+    {
+      "id": "t4",
+      "text": "In the past 30 days, how have you addressed these experiences? (Select all that apply.)",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "contacted_dr", "label": "Contacted a doctor" },
+        { "id": "let_it_pass", "label": "Let it pass" },
+        { "id": "own_coping", "label": "Used my own coping methods (e.g., exercise, reading)" }
+      ]
+    },
+    {
+      "id": "t5",
+      "text": "In the past 30 days, which physical symptoms have you experienced? (Select all that apply.)",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "increased_hr", "label": "Increased heart rate", "indicates": ["depression"] },
+        { "id": "rapid_breathing", "label": "Rapid breathing", "indicates": ["depression"] },
+        { "id": "muscle_tension", "label": "Muscle tension", "indicates": ["depression"] },
+        { "id": "sweating", "label": "Sweating", "indicates": ["depression"] },
+        { "id": "dry_mouth", "label": "Dry mouth", "indicates": ["depression"] },
+        { "id": "headache", "label": "Headache", "indicates": ["depression"] },
+        { "id": "stomachache", "label": "Stomachache", "indicates": ["depression"] },
+        { "id": "dizziness", "label": "Dizziness", "indicates": ["depression"] },
+        { "id": "none", "label": "None of the above", "exclusive": true }
+      ],
+      "exclusiveOptionIds": ["none"]
+    },
+    {
+      "id": "t6",
+      "text": "In the past 30 days, how have you addressed these physical symptoms? (Select all that apply.)",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "contacted_dr", "label": "Contacted a doctor" },
+        { "id": "let_it_pass", "label": "Let it pass" },
+        { "id": "own_coping", "label": "Used my own coping methods" }
+      ]
+    },
+    {
+      "id": "t7",
+      "text": "In the past 30 days, have you consumed alcohol?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "yes", "label": "Yes", "indicates": ["alcohol"] },
+        { "id": "no", "label": "No", "indicatesRemove": ["alcohol"] }
+      ]
+    },
+    {
+      "id": "t8",
+      "text": "In the past 30 days, how often did you drink alcohol?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "daily", "label": "Daily", "indicates": ["alcohol"] },
+        { "id": "weekly", "label": "Weekly", "indicates": ["alcohol"] },
+        { "id": "monthly", "label": "Monthly", "indicates": ["alcohol"] },
+        { "id": "rarely", "label": "Rarely", "indicates": ["alcohol"] }
+      ]
+    },
+    {
+      "id": "t9",
+      "text": "In the past 30 days, was alcohol one of your coping methods?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "yes", "label": "Yes", "indicates": ["alcohol"] },
+        { "id": "no", "label": "No" }
+      ]
+    },
+    {
+      "id": "t10",
+      "text": "In the past 30 days, have you used drugs?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "prescribed", "label": "Prescribed", "indicates": ["opioids"] },
+        { "id": "non_prescribed", "label": "Non-prescribed", "indicates": ["opioids"] },
+        { "id": "both", "label": "Both prescribed and non-prescribed", "indicates": ["opioids"] },
+        { "id": "none", "label": "None" }
+      ]
+    },
+    {
+      "id": "t11",
+      "text": "In the past 30 days, how often did you use drugs?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "rarely", "label": "Rarely", "indicates": ["opioids"] },
+        { "id": "weekly", "label": "Weekly", "indicates": ["opioids"] },
+        { "id": "daily", "label": "Daily", "indicates": ["opioids"] },
+        { "id": "socially", "label": "Socially", "indicates": ["opioids"] }
+      ]
+    },
+    {
+      "id": "jama1",
+      "text": "How many times in the past year have you used an illegal drug or used a prescription medication for nonmedical reasons?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "0", "label": "0 times" },
+        { "id": "1", "label": "1 or more times", "indicates": ["opioids"] }
+      ]
+    },
+    {
+      "id": "notes1",
+      "text": "What do you do for yourself? (Select all that apply.)",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "walk", "label": "Walk" },
+        { "id": "friends", "label": "Meet up with friends" },
+        { "id": "drink", "label": "Have a drink", "indicates": ["alcohol"] },
+        { "id": "substances", "label": "Use other substances", "indicates": ["opioids"] },
+        { "id": "meditate", "label": "Meditate" },
+        { "id": "sports", "label": "Watch sports" },
+        { "id": "family", "label": "Spend time with my family" }
+      ]
+    },
+    {
+      "id": "notes2",
+      "text": "In the past 30 days, on how many days did you drink more than one alcoholic beverage?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "1-2", "label": "1–2 days", "indicates": ["alcohol"] },
+        { "id": "3-5", "label": "3–5 days", "indicates": ["alcohol"] },
+        { "id": "6-9", "label": "6–9 days", "indicates": ["alcohol"] },
+        { "id": "10-19", "label": "10–19 days", "indicates": ["alcohol"] },
+        { "id": "20-29", "label": "20–29 days", "indicates": ["alcohol"] },
+        { "id": "30", "label": "All 30 days", "indicates": ["alcohol"] }
+      ]
+    },
+    {
+      "id": "notes_q4",
+      "text": "Do you take prescription or non-prescription medication?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "never", "label": "Never" },
+        { "id": "prescribed", "label": "If it is prescribed", "indicates": ["opioids"] },
+        { "id": "daily", "label": "Daily", "indicates": ["opioids"] }
+      ]
+    },
+    {
+      "id": "notes_q4_followup",
+      "text": "If Daily, do you use it for:",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "pain", "label": "Pain", "indicates": ["depression"] },
+        { "id": "anxiety", "label": "Anxiety", "indicates": ["depression"] },
+        { "id": "depression", "label": "Depression", "indicates": ["depression"] },
+        { "id": "sleep", "label": "Sleep", "indicates": ["depression"] },
+        { "id": "other", "label": "Other" }
+      ]
+    }
+  ]
+}
