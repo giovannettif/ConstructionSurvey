@@ -193,8 +193,8 @@
       "options": [
         { "id": "contacted_dr", "label": "Contacted a doctor" },
         { "id": "let_it_pass", "label": "Let it pass" },
-        { "id": "prescribed_substance", "label": "Used Prescribed Substances" },
-        { "id": "non-prescribed_substance", "label": "Used Non-Prescribed Substances Including Alcohol" },
+        { "id": "prescribed_substance", "label": "Used prescribed substances" },
+        { "id": "non-prescribed_substance", "label": "Used non-prescribed substances including alcohol" },
         { "id": "own_coping", "label": "Used my own coping methods (e.g., exercise, reading)" }
       ]
     },
@@ -224,8 +224,8 @@
       "options": [
         { "id": "contacted_dr", "label": "Contacted a doctor" },
         { "id": "let_it_pass", "label": "Let it pass" },
-        { "id": "prescribed_substance", "label": "Used Prescribed Substances" },
-        { "id": "non-prescribed_substance", "label": "Used Non-Prescribed Substances Including Alcohol" },
+        { "id": "prescribed_substance", "label": "Used prescribed substances" },
+        { "id": "non-prescribed_substance", "label": "Used non-prescribed substances including alcohol" },
         { "id": "own_coping", "label": "Used my own coping methods (e.g., exercise, reading)" }
       ]
     },
@@ -285,7 +285,7 @@
         { "id": "weekly", "label": "Weekly", "indicates": ["opioids"] },
         { "id": "rarely", "label": "Rarely", "indicates": ["opioids"] },
         { "id": "socially", "label": "Socially (Less than three times a month)", "indicates": ["opioids"] },
-        { "id": "prescribed", "label": "Only as Prescribed", "indicates": ["opioids"] }
+        { "id": "prescribed", "label": "Only as prescribed", "indicates": ["opioids"] }
       ]
     },
     {
@@ -340,7 +340,7 @@
     },
     {
       "id": "notes_q4_followup",
-      "text": "If Daily, do you use it for:",
+      "text": "If Daily, what do you use it for? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
@@ -353,7 +353,7 @@
     },
     {
       "id": "alcohol_reasons",
-      "text": "What are some reasons you drink alcohol? Select all that apply.",
+      "text": "What are some reasons you drink alcohol? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
