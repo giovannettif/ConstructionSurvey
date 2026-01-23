@@ -139,8 +139,8 @@
     },
     {
       "id": "t1",
-      "text": "Which best describes you today?",
-      "type": "single",
+      "text": "Which best describes you today? (Select all that apply)",
+      "type": "multiple",
       "required": true,
       "options": [
         { "id": "mh_current", "label": "Experiencing mental health challenges", "indicates": ["depression"] },
@@ -149,11 +149,12 @@
         { "id": "su_recovery", "label": "In recovery from substance use", "indicates": ["alcohol", "opioids"] },
         { "id": "none", "label": "None of the above" },
         { "id": "pnots", "label": "Prefer not to say" }
-      ]
+      ],
+      "exclusiveOptionIds": ["none", "pnots"]
     },
     {
       "id": "t2",
-      "text": "In the past 30 days, which of the following did you sometimes feel? (Select all that apply.)",
+      "text": "In the past 30 days, which of the following did you sometimes feel? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
@@ -172,31 +173,34 @@
     },
     {
       "id": "t3",
-      "text": "In the past 30 days, which of the following have you experienced? (Select all that apply.)",
+      "text": "In the past 30 days, which of the following have you experienced? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
         { "id": "restlessness", "label": "Restlessness", "indicates": ["depression"] },
         { "id": "irritability", "label": "Irritability", "indicates": ["depression"] },
         { "id": "trouble_concentrating", "label": "Trouble concentrating", "indicates": ["depression"] },
+        { "id": "trouble_sleeping", "label": "Trouble sleeping", "indicates": ["depression"] },
         { "id": "none", "label": "None of the above", "exclusive": true }
       ],
       "exclusiveOptionIds": ["none"]
     },
     {
       "id": "t4",
-      "text": "In the past 30 days, how have you addressed these experiences? (Select all that apply.)",
+      "text": "In the past 30 days, how have you addressed these experiences? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
         { "id": "contacted_dr", "label": "Contacted a doctor" },
         { "id": "let_it_pass", "label": "Let it pass" },
+        { "id": "prescribed_substance", "label": "Used Prescribed Substances" },
+        { "id": "non-prescribed_substance", "label": "Used Non-Prescribed Substances Including Alcohol" },
         { "id": "own_coping", "label": "Used my own coping methods (e.g., exercise, reading)" }
       ]
     },
     {
       "id": "t5",
-      "text": "In the past 30 days, which physical symptoms have you experienced? (Select all that apply.)",
+      "text": "In the past 30 days, which physical symptoms have you experienced? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
@@ -214,13 +218,15 @@
     },
     {
       "id": "t6",
-      "text": "In the past 30 days, how have you addressed these physical symptoms? (Select all that apply.)",
+      "text": "In the past 30 days, how have you addressed these physical symptoms? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
         { "id": "contacted_dr", "label": "Contacted a doctor" },
         { "id": "let_it_pass", "label": "Let it pass" },
-        { "id": "own_coping", "label": "Used my own coping methods" }
+        { "id": "prescribed_substance", "label": "Used Prescribed Substances" },
+        { "id": "non-prescribed_substance", "label": "Used Non-Prescribed Substances Including Alcohol" },
+        { "id": "own_coping", "label": "Used my own coping methods (e.g., exercise, reading)" }
       ]
     },
     {
@@ -242,6 +248,7 @@
         { "id": "daily", "label": "Daily", "indicates": ["alcohol"] },
         { "id": "weekly", "label": "Weekly", "indicates": ["alcohol"] },
         { "id": "monthly", "label": "Monthly", "indicates": ["alcohol"] },
+        { "id": "socially", "label": "Socially (Less than three times a month)", "indicates": ["alcohol"] },
         { "id": "rarely", "label": "Rarely", "indicates": ["alcohol"] }
       ]
     },
@@ -273,10 +280,12 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "rarely", "label": "Rarely", "indicates": ["opioids"] },
-        { "id": "weekly", "label": "Weekly", "indicates": ["opioids"] },
+
         { "id": "daily", "label": "Daily", "indicates": ["opioids"] },
-        { "id": "socially", "label": "Socially", "indicates": ["opioids"] }
+        { "id": "weekly", "label": "Weekly", "indicates": ["opioids"] },
+        { "id": "rarely", "label": "Rarely", "indicates": ["opioids"] },
+        { "id": "socially", "label": "Socially (Less than three times a month)", "indicates": ["opioids"] },
+        { "id": "prescribed", "label": "Only as Prescribed", "indicates": ["opioids"] }
       ]
     },
     {
@@ -291,7 +300,7 @@
     },
     {
       "id": "notes1",
-      "text": "What do you do for yourself? (Select all that apply.)",
+      "text": "What do you do for yourself? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
@@ -340,6 +349,19 @@
         { "id": "depression", "label": "Depression", "indicates": ["depression"] },
         { "id": "sleep", "label": "Sleep", "indicates": ["depression"] },
         { "id": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "alcohol_reasons",
+      "text": "What are some reasons you drink alcohol? Select all that apply.",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        { "id": "forget_worries", "label": "To forget your worries", "indicates": ["alcohol"]},
+        { "id": "peer_pressure", "label": "Because your friends pressure you to drink", "indicates": ["alcohol"]},
+        { "id": "enjoy_party", "label": "Because it helps you enjoy a party", "indicates": ["alcohol"]},
+        { "id": "cope_mood", "label": "Because it helps you when you feel depressed or nervous", "indicates": ["alcohol", "depression"]},
+        { "id": "sociable", "label": "To be sociable", "indicates": ["alcohol"]}
       ]
     }
   ]
