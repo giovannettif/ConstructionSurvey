@@ -61,7 +61,7 @@ export const handler = async () => {
         return limit(async () => {
             try {
                 const timestamp = new Date().toISOString();
-                const fileName = `survey_response_${entry.id || 'unknown'}_${entry.data?.timestamp?.replace(/[:.]/g, '-') || 'unknown'}_${timestamp.replace(/[:.]/g, '-')}.json`;
+                const fileName = `${entry.data?.timestamp?.replace(/[:.]/g, '-') || 'unknown'}_${entry.id || 'unknown'}_${timestamp.replace(/[:.]/g, '-')}.json`;
                 const dataToUpload = JSON.parse(JSON.stringify(entry));
                 dataToUpload.drive_timestamp = timestamp;
                 delete dataToUpload.uploaded_to_drive;

@@ -45,7 +45,7 @@ cd "$DIR_NAME" || exit 4
 # Zip contents excluding sensitive files, pre-installed SDKs, etc.
 zip -qr "../$ZIP_NAME" . \
     -x "*.git*" \
-    -x "test_input.json" \
+    -x "test_input.js" \
     -x "**/.env" \
     -x "**/service_account.json" "**/service-account.json" \
     -x "package-lock.json" \
@@ -66,7 +66,7 @@ cd ..
 echo -e "${YELLOW}🔍 Verifying package contents...${NC}"
 FORBIDDEN_FILES=$(unzip -l "$ZIP_NAME" | \
     grep -v "node_modules" | \
-    grep -E ".env|service_account.json|service-account.json|private|aws-sdk|package-lock.json|test_input.json")
+    grep -E ".env|service_account.json|service-account.json|private|aws-sdk|package-lock.json|test_input.js")
 
 if [ ! -z "$FORBIDDEN_FILES" ]; then
     echo -e "${RED}⚠️  WARNING: Forbidden files found in zip!${NC}"
@@ -109,7 +109,7 @@ echo -e "${GREEN}✅ Propagation successful!${NC}"
 echo -e "${YELLOW}🧪 Running smoke test...${NC}"
 aws lambda invoke \
     --function-name "$AWS_FUNCTION_NAME" \
-    --payload "$(cat $DIR_NAME/test_input.json)" \
+    --payload "$(node $DIR_NAME/test_input.js)" \
     --cli-binary-format raw-in-base64-out \
     response.json > /dev/null
 
