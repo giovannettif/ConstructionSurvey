@@ -6,6 +6,61 @@ import { join } from "node:path";
 let drive = null;
 
 /**
+ * Retrieves the Google Drive API client.
+ * @param {object} authClient An authorized auth client.
+ * @returns {object} The Google Drive API client.
+ */
+function getDrive(authClient) {
+    if (drive == null) {
+        drive = google.drive({ version: 'v3', auth: authClient });
+    }
+    return drive;
+}
+
+/**
+ * Recursively creates a folder structure in Google Drive.
+ * @param {object} authClient An authorized auth client.
+ * @param {string} folderId The ID of the parent folder.
+ * @param {string} path The path to the folder to create.
+ * @returns {Promise<string> | null} The ID of the created folder or null if an error occurred.
+ */
+async function createFolders(authClient, folderId, path) {
+    const drive = getDrive(authClient);
+
+    const folders = path.split('/').filter(f => f !== '');
+    let currentFolderId = folderId;
+
+    for (const folderName of folders) {
+        // TODO: test this code
+        // const searchQuery = `name = '${folderName}' and '${currentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+
+        // const response = await drive.files.list({
+        //     q: searchQuery,
+        //     fields: 'files(id)',
+        //     supportsAllDrives: true,
+        //     includeItemsFromAllDrives: true,
+        // });
+
+        // if (response.data.files.length > 0) {
+        //     currentFolderId = response.data.files[0].id;
+        //     continue;
+        // }
+
+        const folder = await drive.files.create({
+            requestBody: {
+                name: folderName,
+                mimeType: 'application/vnd.google-apps.folder',
+                parents: [currentFolderId],
+            },
+            fields: 'id',
+            supportsAllDrives: true,
+        });
+        currentFolderId = folder.data.id;
+    }
+    return currentFolderId;
+}
+
+/**
  * Retrieves the service account credentials for Google Drive API.
  * @returns {Promise<object>} The credentials object.
  */
@@ -50,13 +105,19 @@ async function authorize(scopes) {
  * Uploads a JavaScript object as a JSON file to a specific Google Drive location.
  * @param {object} authClient An authorized auth client.
  * @param {string} folderId The ID of the folder to upload the file to.
- * @param {string} fileName The name for the new file.
+ * @param {string} filePath The path to the file to upload.
  * @param {object} data The JavaScript object to upload as JSON.
  * @returns {Promise<string> | null} The ID of the uploaded file or null if an error occurred.
  */
-async function uploadJsonToDrive(authClient, folderId, fileName, data) {
-    if (drive == null) {
-        drive = google.drive({ version: 'v3', auth: authClient });
+async function uploadJsonToDrive(authClient, folderId, filePath, data) {
+    const drive = getDrive(authClient);
+    const pathParts = filePath.split('/');
+    const fileName = pathParts.pop();
+    const folderPath = pathParts.join('/');
+
+    // if the file name contains a path, create the folders first
+    if (folderPath.length > 0) {
+        folderId = await createFolders(authClient, folderId, folderPath);
     }
 
     // pretty print the JSON data

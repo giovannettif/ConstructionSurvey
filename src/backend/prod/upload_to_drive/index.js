@@ -1,6 +1,6 @@
 // Uploads existing survey responses from S3 to Google Drive folder
 
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
 import { authorize, uploadJsonToDrive } from './driveManager.js';
 
@@ -14,7 +14,7 @@ const FOLDER_ID = IS_PROD ? PROD_FOLDER_ID : TEST_FOLDER_ID;
 
 // S3 configuration
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
-const S3_KEY = 'survey-responses-master.json';
+const S3_PREFIX = 'data/';
 const s3 = new S3Client({ region: process.env.AWS_REGION });    // AWS_REGION is pre-defined by AWS
 
 // Drive authorization
@@ -25,71 +25,103 @@ const limit = pLimit(5);
 
 export const handler = async () => {
     // Step 2: Fetch the existing master file from S3
-    console.log('Fetching existing master file from S3...');
-    let masterData = [];
+    console.log('Fetching existing data from S3...');
+
+    let files = [];
 
     try {
-        const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: S3_KEY }));
-        const bodyContents = await response.Body.transformToString();
-        masterData = JSON.parse(bodyContents);
+        const response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: S3_PREFIX }));
+        let objects = response.Contents;
+        let nextToken = response.NextContinuationToken;
+
+        while (response.IsTruncated) {
+            response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: S3_PREFIX, ContinuationToken: nextToken }));
+            objects = objects.concat(response.Contents);
+            nextToken = response.NextContinuationToken;
+        }
+
+        files = objects.map(item => item.Key);
     } catch (e) {
-        if (e.name !== 'NoSuchKey') {
-            console.error('Error fetching S3 data:', e);
-            return {
-                message: 'Error fetching survey responses from S3',
-                processed: 0,
-                successful: 0
-            };
+        console.error('Error fetching S3 data:', e);
+        return { message: 'Error fetching S3 data' };
+    }
+
+    let unuploadedS3Data = {};
+
+    for (const fileName of files) {
+        try {
+            const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: fileName }));
+            const jsonStr = await response.Body.transformToString();
+            const data = JSON.parse(jsonStr);
+            const uploaded = data.every(item => item.uploaded_to_drive);
+
+            // include even partially unuploaded files (certain responses uploaded, others not)
+            if (!uploaded) {
+                unuploadedS3Data[fileName] = data;
+            }
+        } catch (e) {
+            console.error(`Error fetching file ${fileName} from S3:`, e);
+            return { message: 'Error fetching file from S3' };
         }
     }
 
     // Step 3: Filter out already uploaded entries
-    const entriesToUpload = masterData.filter(item => !item.uploaded_to_drive);
-    console.log(`Found ${entriesToUpload.length} new entries to upload.`);
-
-    if (entriesToUpload.length === 0) {
+    if (Object.keys(unuploadedS3Data).length === 0) {
         console.log('No new entries to upload.');
-        return {
-            message: 'No new entries to upload',
-            processed: 0,
-            successful: 0
-        };
+        return { message: 'No new entries to upload' };
     }
 
     // Step 4: Upload the entries to Google Drive
-    const promises = entriesToUpload.map((entry) => {
-        return limit(async () => {
-            try {
-                const timestamp = new Date().toISOString();
-                const fileName = `${entry.data?.timestamp?.replace(/[:.]/g, '-') || 'unknown'}_${entry.id || 'unknown'}_${timestamp.replace(/[:.]/g, '-')}.json`;
-                const dataToUpload = JSON.parse(JSON.stringify(entry));
-                dataToUpload.drive_timestamp = timestamp;
-                delete dataToUpload.uploaded_to_drive;
-                const fileId = await uploadJsonToDrive(authClient, FOLDER_ID, fileName, dataToUpload);
+    const promises1 = Object.entries(unuploadedS3Data).map(([s3FileName, data]) => {
+        const promises2 = data.filter(item => !item.uploaded_to_drive).map((entry) => {
+            return limit(async () => {
+                try {
+                    // folderName in Title Case
+                    const timestamp = new Date().toISOString();
+                    const surveyTsConv = entry.data?.timestamp?.replace(/[:.]/g, '-') || 'unknown';
+                    const s3TsConv = entry.s3_timestamp.replace(/[:.]/g, '-') || 'unknown';
+                    const currTsConv = timestamp.replace(/[:.]/g, '-');
 
-                if (fileId) {
-                    entry.uploaded_to_drive = true;
+                    const folderName = s3FileName
+                        .split('/')
+                        .pop()
+                        .toLowerCase()
+                        .replace(/\.\w+$/, '')
+                        .replace(/_/g, ' ')
+                        .replace(/\b\w/g, l => l.toUpperCase());
+                    const fileName = `${folderName}/${surveyTsConv}_${s3TsConv}_${currTsConv}_${entry.id || 'unknown'}.json`;
+                    const dataToUpload = JSON.parse(JSON.stringify(entry));
+                    dataToUpload.drive_timestamp = timestamp;
+                    delete dataToUpload.uploaded_to_drive;
+
+                    console.log(fileName)
+                    const fileId = await uploadJsonToDrive(authClient, FOLDER_ID, fileName, dataToUpload);
+
+                    if (fileId) {
+                        entry.uploaded_to_drive = true;
+                        entry.drive_timestamp = timestamp;
+                    }
+                } catch (e) {
+                    console.error(`Error uploading entry ${entry.id} to Drive:`, e);
                 }
-            } catch (e) {
-                console.error(`Error uploading entry ${entry.id} to Drive:`, e);
-            }
+            });
         });
+        return promises2;
     });
 
     // resolve the promises concurrently since they're independent of each other
-    await Promise.all(promises);
+    await Promise.all(promises1.flat());
 
-    // Step 5: Update the master file in S3 with the new upload statuses
-    await s3.send(new PutObjectCommand({
-        Bucket: S3_BUCKET,
-        Key: S3_KEY,
-        ContentType: 'application/json',
-        Body: JSON.stringify(masterData),
-    }));
+    // Step 5: Update the files in S3 with the new upload statuses
+    for (const [s3FileName, data] of Object.entries(unuploadedS3Data)) {
+        await s3.send(new PutObjectCommand({
+            Bucket: S3_BUCKET,
+            Prefix: S3_PREFIX,
+            Key: s3FileName,
+            ContentType: 'application/json',
+            Body: JSON.stringify(data),
+        }));
+    }
 
-    return {
-        message: 'Synced S3 bucket contents to Google Drive',
-        processed: entriesToUpload.length,
-        successful: entriesToUpload.filter(item => item.uploaded_to_drive).length
-    };
+    return { message: 'Synced S3 bucket contents to Google Drive' };
 };

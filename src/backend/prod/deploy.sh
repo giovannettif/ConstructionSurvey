@@ -60,9 +60,41 @@ if [ $? -ne 0 ]; then
     exit 5
 fi
 
+# --- Step 5: Merge .env to Lambda environment ---
+echo -e "${YELLOW}Merging .env to Lambda environment...${NC}"
+# Fetch current environment variables from AWS
+CURRENT_VARS=$(aws lambda get-function-configuration \
+    --function-name "$AWS_FUNCTION_NAME" \
+    --query 'Environment.Variables' \
+    --output json)
+
+# Convert .env file to a JSON object
+PATTERN="^[\"']|[\"']$"
+LOCAL_VARS=$(jq -Rs --arg pattern "$PATTERN" '
+  split("\n") 
+  | map(select(length > 0 and (startswith("#") | not))) 
+  | map(split("=")) 
+  | map({(.[0]): (.[1] | gsub($pattern; ""))}) 
+  | add
+' private/.env)
+
+# Merge them (Local variables will overwrite remote ones if keys match)
+MERGED_VARS=$(echo "$CURRENT_VARS $LOCAL_VARS" | jq -s 'add')
+FINAL_JSON=$(jq -n --argjson vars "$MERGED_VARS" '{Variables: $vars}')
+
+# Push the update back to AWS
+aws lambda update-function-configuration \
+    --function-name "$AWS_FUNCTION_NAME" \
+    --environment "$FINAL_JSON" > /dev/null
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ Error: Failed to merge .env to Lambda environment.${NC}"
+    exit 6
+fi
+
 cd ..
 
-# --- Step 5: Verify Zip Contents ---
+# --- Step 6: Verify Zip Contents ---
 echo -e "${YELLOW}🔍 Verifying package contents...${NC}"
 FORBIDDEN_FILES=$(unzip -l "$ZIP_NAME" | \
     grep -v "node_modules" | \
@@ -73,11 +105,11 @@ if [ ! -z "$FORBIDDEN_FILES" ]; then
     echo "$FORBIDDEN_FILES"
     echo -e "${RED}Aborting deployment for safety.${NC}"
     rm "../$ZIP_NAME"
-    exit 6
+    exit 7
 fi
 echo -e "${GREEN}✅ No secrets or SDKs detected in package.${NC}"
 
-# --- Step 6: Upload to AWS Lambda ---
+# --- Step 7: Upload to AWS Lambda ---
 echo -e "${YELLOW}☁️  Uploading to Lambda...${NC}"
 UPLOAD_OUTPUT=$(aws lambda update-function-code \
     --function-name "$AWS_FUNCTION_NAME" \
@@ -87,7 +119,7 @@ if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Error: AWS upload failed!${NC}"
     echo -e "$UPLOAD_OUTPUT"
     rm "$ZIP_NAME"
-    exit 7
+    exit 8
 fi
 
 echo -e "${GREEN}✅ Upload successful!${NC}"
@@ -100,12 +132,12 @@ if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Error: Propagation failed!${NC}"
     echo -e "$PROPAGATION_OUTPUT"
     rm "$ZIP_NAME"
-    exit 8
+    exit 9
 fi
 
 echo -e "${GREEN}✅ Propagation successful!${NC}"
 
-# --- Step 7: Smoke Test (Invoke) ---
+# --- Step 8: Smoke Test (Invoke) ---
 echo -e "${YELLOW}🧪 Running smoke test...${NC}"
 aws lambda invoke \
     --function-name "$AWS_FUNCTION_NAME" \
@@ -134,10 +166,10 @@ else
         --log-stream-name "$STREAM" \
         --limit 10 --query 'events[*].message' --output text
     
-    exit 9
+    exit 10
 fi
 
-# --- Step 8: Final Cleanup ---
+# --- Step 9: Final Cleanup ---
 echo -e "${YELLOW}🧹 Cleaning up temporary files...${NC}"
 rm -f "$ZIP_NAME" response.json
 echo -e "${GREEN}--- ✨ Deployment complete ---${NC}"
