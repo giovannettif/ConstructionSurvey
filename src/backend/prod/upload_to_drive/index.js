@@ -108,7 +108,9 @@ export const handler = async () => {
                         entry.drive_timestamp = timestamp;
                     }
                 } catch (e) {
-                    console.error(`Error uploading entry ${entry.id} to Drive:`, e);
+                    message = `Error uploading entry ${entry.id} to Drive`;
+                    console.error(message, e);
+                    return { message };
                 }
             });
         });
@@ -121,13 +123,19 @@ export const handler = async () => {
 
     console.log('4. Updating the files in S3 with the new upload statuses...');
     for (const [s3FileName, data] of Object.entries(unuploadedS3Data)) {
-        await s3.send(new PutObjectCommand({
-            Bucket: S3_BUCKET,
-            Prefix: S3_PREFIX,
-            Key: s3FileName,
-            ContentType: 'application/json',
-            Body: JSON.stringify(data),
-        }));
+        try {
+            await s3.send(new PutObjectCommand({
+                Bucket: S3_BUCKET,
+                Prefix: S3_PREFIX,
+                Key: s3FileName,
+                ContentType: 'application/json',
+                Body: JSON.stringify(data),
+            }));
+        } catch (e) {
+            message = `Error updating file ${s3FileName} in S3`;
+            console.error(message, e);
+            return { message };
+        }
     }
 
     message = 'Synced S3 bucket contents to Google Drive';
