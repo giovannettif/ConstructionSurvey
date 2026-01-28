@@ -42,7 +42,6 @@ async function createFolders(authClient, folderId, path) {
         });
 
         if (response.data.files.length > 0) {
-            console.log(`Folder '${folderName}' already exists. Using existing folder.`);
             currentFolderId = response.data.files[0].id;
             continue;
         }
@@ -133,8 +132,7 @@ async function uploadJsonToDrive(authClient, folderId, fileName, data) {
             supportsAllDrives: true,
         });
 
-        console.log(`📁 Successfully uploaded file to folder.`);
-        console.log(`File ID: ${file.data.id}`);
+        console.log(`Successfully uploaded file to folder. File ID: ${file.data.id}`);
         return file.data.id;
     } catch (e) {
         console.error(`An error occurred during upload: ${e}`);
