@@ -31,21 +31,23 @@ async function createFolders(authClient, folderId, path) {
     let currentFolderId = folderId;
 
     for (const folderName of folders) {
-        // TODO: test this code
-        // const searchQuery = `name = '${folderName}' and '${currentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+        // check if folder already exists
+        const searchQuery = `name = '${folderName}' and '${currentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
 
-        // const response = await drive.files.list({
-        //     q: searchQuery,
-        //     fields: 'files(id)',
-        //     supportsAllDrives: true,
-        //     includeItemsFromAllDrives: true,
-        // });
+        const response = await drive.files.list({
+            q: searchQuery,
+            fields: 'files(id)',
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: true,
+        });
 
-        // if (response.data.files.length > 0) {
-        //     currentFolderId = response.data.files[0].id;
-        //     continue;
-        // }
+        if (response.data.files.length > 0) {
+            console.log(`Folder '${folderName}' already exists. Using existing folder.`);
+            currentFolderId = response.data.files[0].id;
+            continue;
+        }
 
+        // otherwise, create the folder
         const folder = await drive.files.create({
             requestBody: {
                 name: folderName,
@@ -105,20 +107,12 @@ async function authorize(scopes) {
  * Uploads a JavaScript object as a JSON file to a specific Google Drive location.
  * @param {object} authClient An authorized auth client.
  * @param {string} folderId The ID of the folder to upload the file to.
- * @param {string} filePath The path to the file to upload.
+ * @param {string} fileName The name of the file to upload.
  * @param {object} data The JavaScript object to upload as JSON.
  * @returns {Promise<string> | null} The ID of the uploaded file or null if an error occurred.
  */
-async function uploadJsonToDrive(authClient, folderId, filePath, data) {
+async function uploadJsonToDrive(authClient, folderId, fileName, data) {
     const drive = getDrive(authClient);
-    const pathParts = filePath.split('/');
-    const fileName = pathParts.pop();
-    const folderPath = pathParts.join('/');
-
-    // if the file name contains a path, create the folders first
-    if (folderPath.length > 0) {
-        folderId = await createFolders(authClient, folderId, folderPath);
-    }
 
     // pretty print the JSON data
     const jsonString = JSON.stringify(data, null, 4);
@@ -130,6 +124,7 @@ async function uploadJsonToDrive(authClient, folderId, filePath, data) {
                 name: fileName,
                 parents: [folderId]
             },
+            fields: 'id',
             media: {
                 mimeType: 'application/json',
                 body: jsonString,
@@ -139,7 +134,6 @@ async function uploadJsonToDrive(authClient, folderId, filePath, data) {
         });
 
         console.log(`📁 Successfully uploaded file to folder.`);
-        console.log(`File Name: ${file.data.name}`);
         console.log(`File ID: ${file.data.id}`);
         return file.data.id;
     } catch (e) {
@@ -148,4 +142,4 @@ async function uploadJsonToDrive(authClient, folderId, filePath, data) {
     }
 }
 
-export { authorize, uploadJsonToDrive };
+export { authorize, createFolders, uploadJsonToDrive };

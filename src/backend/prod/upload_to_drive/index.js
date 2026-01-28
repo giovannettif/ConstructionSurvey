@@ -2,7 +2,7 @@
 
 import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
-import { authorize, uploadJsonToDrive } from './driveManager.js';
+import { authorize, createFolders, uploadJsonToDrive } from './driveManager.js';
 
 // Step 1: Set up
 // env vars
@@ -72,32 +72,42 @@ export const handler = async () => {
     }
 
     // Step 4: Upload the entries to Google Drive
-    const promises1 = Object.entries(unuploadedS3Data).map(([s3FileName, data]) => {
+    const promises1 = Object.entries(unuploadedS3Data).map(async ([s3FileName, data]) => {
+        // set up folder
+        const fileNameOnly = s3FileName.split('/').pop();
+        let folderId = FOLDER_ID;
+        // based on phase: TEST5.json (file) -> Test 5 (folder)
+        const folderName = fileNameOnly
+            .toLowerCase()
+            .replace(/\.\w+$/, '')
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+
+        // if the file name contains a path, create the folders first
+        // TODO: TEST this
+        console.log(`Creating folders for ${folderName}`);
+        folderId = await createFolders(authClient, FOLDER_ID, folderName);
+
         const promises2 = data.filter(item => !item.uploaded_to_drive).map((entry) => {
             return limit(async () => {
                 try {
-                    // folderName in Title Case
+                    // upload file
                     const timestamp = new Date().toISOString();
                     const surveyTsConv = entry.data?.timestamp?.replace(/[:.]/g, '-') || 'unknown';
                     const s3TsConv = entry.s3_timestamp.replace(/[:.]/g, '-') || 'unknown';
                     const currTsConv = timestamp.replace(/[:.]/g, '-');
 
-                    const folderName = s3FileName
-                        .split('/')
-                        .pop()
-                        .toLowerCase()
-                        .replace(/\.\w+$/, '')
-                        .replace(/_/g, ' ')
-                        .replace(/\b\w/g, l => l.toUpperCase());
-                    const fileName = `${folderName}/${surveyTsConv}_${s3TsConv}_${currTsConv}_${entry.id || 'unknown'}.json`;
+                    const fileName = `${surveyTsConv}_${s3TsConv}_${currTsConv}_${entry.id || 'unknown'}.json`;
                     const dataToUpload = JSON.parse(JSON.stringify(entry));
                     dataToUpload.drive_timestamp = timestamp;
                     delete dataToUpload.uploaded_to_drive;
 
-                    console.log(fileName)
-                    const fileId = await uploadJsonToDrive(authClient, FOLDER_ID, fileName, dataToUpload);
+                    const fileId = await uploadJsonToDrive(authClient, folderId, fileName, dataToUpload);
+                    console.log(`File ID: ${fileId}`);
 
                     if (fileId) {
+                        console.log(`Uploaded ${fileName} to Drive`);
+                        console.log(`Entry ID: ${entry.id}`);
                         entry.uploaded_to_drive = true;
                         entry.drive_timestamp = timestamp;
                     }
@@ -106,11 +116,12 @@ export const handler = async () => {
                 }
             });
         });
-        return promises2;
+
+        return Promise.all(promises2);
     });
 
     // resolve the promises concurrently since they're independent of each other
-    await Promise.all(promises1.flat());
+    await Promise.all(promises1);
 
     // Step 5: Update the files in S3 with the new upload statuses
     for (const [s3FileName, data] of Object.entries(unuploadedS3Data)) {
