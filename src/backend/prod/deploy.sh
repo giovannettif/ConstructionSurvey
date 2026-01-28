@@ -46,6 +46,7 @@ cd "$DIR_NAME" || exit 4
 zip -qr "../$ZIP_NAME" . \
     -x "*.git*" \
     -x "test_input.js" \
+    -x "validResponse.json" \
     -x "**/.env" \
     -x "**/service_account.json" "**/service-account.json" \
     -x "package-lock.json" \
