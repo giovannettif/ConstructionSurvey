@@ -12,7 +12,7 @@ function updateSheet() {
         // bfs
         const queue = [root];
 
-        while (queue.length() > 0) {
+        while (queue.length > 0) {
             const currFolder = queue.shift();
             const foldersIt = currFolder.getFolders();
             const filesIt = currFolder.getFiles();
@@ -25,6 +25,7 @@ function updateSheet() {
             // process files
             while (filesIt.hasNext()) {
                 const file = filesIt.next();
+                if (!file.getName().endsWith(".json")) continue;
                 const content = file.getBlob().getDataAsString();
                 const data = JSON.parse(content);
 
@@ -53,10 +54,16 @@ function updateSheet() {
             rangeData.push(row);
         }
 
-        // TODO: test this!
-        SHEET.getRange(1, 1, rangeData.length, headers.length).setValues(rangeData);
+        // add metadata
+        const metadata = [
+            "Last updated: " + new Date().toLocaleString()
+        ];
+        SHEET.getRange(1, 1, 1, metadata.length).setValues([metadata]);
+
+        // add data
+        SHEET.getRange(2, 1, rangeData.length, headers.length).setValues(rangeData);
 
     } catch (e) {
-        console.error('Error: ' + e.message);
+        console.error('Error: ' + e);
     }
 }
