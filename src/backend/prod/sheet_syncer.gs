@@ -1,5 +1,6 @@
 // Syncs the JSON files in a Google Drive folder to a Google Sheet
 // This script is connected to a Google Sheet via Apps Script
+// TODO: make this code efficient using AI
 // leave here or put inside function?
 const FOLDER_ID = PropertiesService.getScriptProperties().getProperty("FolderID");
 const SHEET = SpreadsheetApp.getActiveSpreadsheet().getSheetById(0);
@@ -29,10 +30,17 @@ function updateSheet() {
                 const content = file.getBlob().getDataAsString();
                 const data = JSON.parse(content);
 
-                masterData.push({
-                    ...data,
+                // flatten data 
+                // bring out survey data from under 'data' field
+                const surveyData = JSON.parse(JSON.stringify(data.data[0]));
+                delete data.data;
+                // bring out answers from under 'answers' field
+                const answerData = JSON.parse(JSON.stringify(surveyData.answers));
+                delete surveyData.answers;
+
+                masterData.push(Object.assign(surveyData, data, answerData, {
                     phase: currFolder.getName()
-                });
+                }));
             }
         }
 
@@ -54,14 +62,17 @@ function updateSheet() {
             rangeData.push(row);
         }
 
+        SHEET.clearContents();
+
         // add metadata
         const metadata = [
-            "Last updated: " + new Date().toLocaleString()
+            ["DO NOT EDIT THIS SHEET. IT IS AUTOMATICALLY UPDATED."],
+            ["Last updated: " + new Date().toISOString()],
         ];
-        SHEET.getRange(1, 1, 1, metadata.length).setValues([metadata]);
+        SHEET.getRange(1, 1, metadata.length, metadata[0].length).setValues(metadata);
 
         // add data
-        SHEET.getRange(2, 1, rangeData.length, headers.length).setValues(rangeData);
+        SHEET.getRange(metadata.length + 1, 1, rangeData.length, headers.length).setValues(rangeData);
 
     } catch (e) {
         console.error('Error: ' + e);
