@@ -32,7 +32,7 @@ function updateSheet() {
 
                 // flatten data 
                 // bring out survey data from under 'data' field
-                const surveyData = JSON.parse(JSON.stringify(data.data[0]));
+                const surveyData = JSON.parse(JSON.stringify(data.data[0] ?? data.data));
                 delete data.data;
                 // bring out answers from under 'answers' field
                 const answerData = JSON.parse(JSON.stringify(surveyData.answers));
