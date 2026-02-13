@@ -9,8 +9,20 @@
   try {
     sessionStorage.removeItem('dyn:answers');
     sessionStorage.removeItem('dyn:currentId');
+    sessionStorage.removeItem('dyn:mode');
   } catch {}
 })();
+
+/* store query params into sessionStorage */
+function captureQueryParams(allowedKeys = null) {
+  const params = new URLSearchParams(window.location.search);
+  const obj = {};
+  for (const [k, v] of params.entries()) {
+    if (!allowedKeys || allowedKeys.includes(k)) obj[k] = v;
+  }
+  try { sessionStorage.setItem('dyn:query', JSON.stringify(obj)); } catch {}
+  return obj;
+}
 
 /* Data loading */
 let RESOURCES_DB = [];
@@ -106,6 +118,7 @@ class DynamicSurvey {
     this._interactUnlockTimer = null;
 
     this.submitting = false;         // lock UI during submit
+    this.helpOrigin = 'summary';     // where help was opened from
 
     this.dom = {
       root: document.getElementById('questionsRoot'),
@@ -127,14 +140,14 @@ class DynamicSurvey {
     this.bindGlobalEvents();
     this.initUI();
 
-    this.dom.helpBtn?.addEventListener('click', () => { this.renderHelpResources(); this.showHelpPage(); });
+    this.dom.helpBtn?.addEventListener('click', () => { this.renderHelpResources({ all: false, from: 'summary' }); this.showHelpPage(); });
     this.dom.restartBtn?.addEventListener('click', () => this.restart());
     this.dom.helpBackBtn?.addEventListener('click', () => this.backToSummary());
     this.dom.helpRestartBtn?.addEventListener('click', () => this.restart());
   }
 
   get storageKeys() {
-    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions' };
+    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions', mode: 'dyn:mode', query: 'dyn:query' };
   }
 
   // Throttle helpers
@@ -171,6 +184,20 @@ class DynamicSurvey {
 
   /* Global UI: theme, cookies, back, keys, and event delegation for clicks */
   bindGlobalEvents() {
+
+    // Apply saved theme, or default to dark if none saved
+    try {
+      const savedTheme = localStorage.getItem('k10:theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+      } else if (savedTheme === 'light') {
+        document.body.classList.remove('dark-mode');
+      } else {
+        // No saved preference → default to dark
+        document.body.classList.add('dark-mode');
+      }
+    } catch {}
+
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const syncThemeIcon = () => { if (themeIcon) themeIcon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙'; };
@@ -447,6 +474,8 @@ class DynamicSurvey {
   showQuestion(qId, { pushHistory = true } = {}) {
     if (this.submitting) return;
 
+    if (this.dom.root) this.dom.root.style.display = '';
+
     this.dom.completion?.classList.remove('active');
     if (this.dom.completion) this.dom.completion.style.display = 'none';
     this.dom.help?.classList.remove('active');
@@ -525,6 +554,11 @@ class DynamicSurvey {
     });
   }
   getStoredCurrent() { try { return sessionStorage.getItem(this.storageKeys.current) || null; } catch { return null; } }
+  getStoredMode() { try { return sessionStorage.getItem(this.storageKeys.mode) || null; } catch { return null; } }
+  getStoredQuery() {
+    try { return JSON.parse(sessionStorage.getItem(this.storageKeys.query) || '{}'); }
+    catch { return {}; }
+  }
 
   /* Next/Submit flows */
   onNextFrom(qId) {
@@ -570,17 +604,44 @@ class DynamicSurvey {
     if (prevId) this.showQuestion(prevId, { pushHistory: true });
   }
 
-  /* Help/resources derivation */
-  renderHelpResources() {
-    const grid = this.dom.helpGrid; if (!grid) return;
-    const topics = this.computeSelectedTopics();
-    const copy = this.helpCopyFromResponses(topics);
-    if (this.dom.helpTitle) this.dom.helpTitle.textContent = copy.title;
-    if (this.dom.helpSubtitle) this.dom.helpSubtitle.textContent = copy.subtitle;
+  updateHelpNavButtons() {
+    const back = this.dom.helpBackBtn;
+    const restart = this.dom.helpRestartBtn;
+    if (!back) return;
 
-    const cards = (RESOURCES_DB || [])
-      .filter(r => (Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []).some(t => topics.has(t)))
-      .sort((a, b) => (a.risk || 999) - (b.risk || 999));
+    if (this.helpOrigin === 'start') {
+      back.textContent = 'Back to beginning';
+      if (restart) restart.style.display = 'none';
+    } else {
+      back.textContent = 'Back to summary';
+      if (restart) restart.style.display = '';
+    }
+  }
+
+  /* Help/resources derivation */
+  renderHelpResources({ all = false, from = 'summary' } = {}) {
+    this.helpOrigin = from;
+    this.updateHelpNavButtons();
+
+    const grid = this.dom.helpGrid; if (!grid) return;
+
+    let cards = [];
+    if (all) {
+      if (this.dom.helpTitle) this.dom.helpTitle.textContent = 'Resources';
+      if (this.dom.helpSubtitle) this.dom.helpSubtitle.textContent = 'Browse the full list of available resources.';
+      cards = (RESOURCES_DB || [])
+        .slice()
+        .sort((a, b) => (a.risk || 999) - (b.risk || 999));
+    } else {
+      const topics = this.computeSelectedTopics();
+      const copy = this.helpCopyFromResponses(topics);
+      if (this.dom.helpTitle) this.dom.helpTitle.textContent = copy.title;
+      if (this.dom.helpSubtitle) this.dom.helpSubtitle.textContent = copy.subtitle;
+
+      cards = (RESOURCES_DB || [])
+        .filter(r => (Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []).some(t => topics.has(t)))
+        .sort((a, b) => (a.risk || 999) - (b.risk || 999));
+    }
 
     grid.innerHTML = cards.length
       ? cards.map(card => {
@@ -706,26 +767,45 @@ class DynamicSurvey {
   showHelpPage() {
     const c = this.dom.completion, h = this.dom.help; if (!h) return;
     c?.classList.remove('active'); if (c) c.style.display = 'none';
+
+    if (this.dom.root) this.dom.root.style.display = 'none';
+
     h.style.display = 'flex'; h.classList.add('active');
     this.dom.backBtn?.style?.setProperty('display', 'none');
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   }
   backToSummary() {
-    const c = this.dom.completion, h = this.dom.help; if (!c) return;
+    const h = this.dom.help; if (!h) return;
     h?.classList.remove('active'); if (h) h.style.display = 'none';
-    c.style.display = 'block'; c.classList.add('active');
-    this.dom.backBtn?.style?.removeProperty('display');
+
+    if (this.dom.root) this.dom.root.style.display = '';
+
+    if (this.helpOrigin === 'start') {
+      const startOverlay = document.getElementById('startOverlay');
+      startOverlay?.classList.add('show');
+      document.body.classList.add('intro-open');
+      this.dom.backBtn?.style?.setProperty('display', 'none');
+    } else {
+      const c = this.dom.completion; if (!c) return;
+      c.style.display = 'block'; c.classList.add('active');
+      this.dom.backBtn?.style?.removeProperty('display');
+    }
+
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   buildSurveyPayload() {
+    const query = this.getStoredQuery();
     return {
-      data: [{
+      data: {
         timestamp: new Date().toISOString(),
         surveyTitle: this.config.title,
         surveyVersion: this.config.version,
+        mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
+        site: query.site || null,   // common param bubbled up for convenience
+        query,                      // full set of captured query params
         answers: { ...this.answers }
-      }]
+      }
     };
   }
 
@@ -795,8 +875,11 @@ class DynamicSurvey {
   }
 }
 
-/* Boot: intro + cookies + data load + survey */
+/* boot up order: intro + cookies + data load + survey */
 document.addEventListener('DOMContentLoaded', async () => {
+  // capturing all query params (e.g., ?site=123) into sessionStorage
+  captureQueryParams();
+
   const cookieOverlay = document.getElementById('cookieOverlay');
   const cookiesAccepted = () => { try { return localStorage.getItem('k10:cookiesAccepted') === 'yes'; } catch { return false; } };
   const showCookieIfNeeded = () => { if (!cookiesAccepted()) cookieOverlay?.classList.add('show'); };
@@ -804,7 +887,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const startOverlay = document.getElementById('startOverlay');
   const startBegin = document.getElementById('startBegin');
   const startDismiss = document.getElementById('startDismiss');
+  const startResources = document.getElementById('startResources');
   const startMedia = document.getElementById('startMedia');
+
+  const modeOverlay = document.getElementById('modeOverlay');
+  const modeSelf = document.getElementById('modeSelf');
+  const modeOther = document.getElementById('modeOther');
 
   // Welcome banner visuals
   startMedia.style.backgroundImage = "url('static/Logo.jpg')";
@@ -819,8 +907,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.classList.remove('intro-open');
   };
 
-  // Always show intro on load
-  openIntro();
+  const openMode = () => { document.body.classList.add('intro-open'); modeOverlay?.classList.add('show'); };
+  const closeMode = () => { modeOverlay?.classList.remove('show'); };
+
+  const proceedFromMode = (modeValue) => {
+    try { sessionStorage.setItem('dyn:mode', modeValue); } catch {}
+    closeMode();
+    openIntro();
+  };
+
+  modeSelf?.addEventListener('click', () => proceedFromMode('self'));
+  modeOther?.addEventListener('click', () => proceedFromMode('someoneElse'));
+
+  // Always show mode selection on load
+  openMode();
 
   startBegin?.addEventListener('click', () => {
     closeIntro(true);
@@ -829,6 +929,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   });
   startDismiss?.addEventListener('click', () => { closeIntro(false); showCookieIfNeeded(); });
+
+  startResources?.addEventListener('click', () => {
+    closeIntro(false);
+    showCookieIfNeeded();
+    if (!window.survey) return showToast('Loading resources…');
+    window.survey.renderHelpResources({ all: true, from: 'start' });
+    window.survey.showHelpPage();
+  });
 
   await loadResourcesJSON();
 
