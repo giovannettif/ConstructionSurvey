@@ -37,8 +37,11 @@ function updateSheet() {
                 // bring out answers from under 'answers' field
                 const answerData = JSON.parse(JSON.stringify(surveyData.answers));
                 delete surveyData.answers;
+                // bring out answers from under 'answers' field
+                const queryParamsData = JSON.parse(JSON.stringify(surveyData.queryParams ?? {}));
+                delete surveyData.queryParams;
 
-                masterData.push(Object.assign(surveyData, data, answerData, {
+                masterData.push(Object.assign(surveyData, data, answerData, queryParamsData, {
                     phase: currFolder.getName()
                 }));
             }
