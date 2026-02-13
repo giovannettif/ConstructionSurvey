@@ -13,11 +13,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -26,11 +26,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -39,11 +39,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -52,11 +52,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -65,11 +65,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -78,11 +78,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -91,11 +91,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -104,11 +104,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -117,11 +117,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -130,11 +130,11 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "None of the time" },
-        { "id": "2", "label": "A little of the time", "indicates": ["depression"] },
-        { "id": "3", "label": "Some of the time", "indicates": ["depression"] },
-        { "id": "4", "label": "Most of the time", "indicates": ["depression"] },
-        { "id": "5", "label": "All of the time", "indicates": ["depression"] }
+        { "id": "1", "label": "Never" },
+        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
+        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
+        { "id": "4", "label": "Usually", "indicates": ["depression"] },
+        { "id": "5", "label": "Always", "indicates": ["depression"] }
       ]
     },
     {
@@ -363,6 +363,50 @@
         { "id": "cope_mood", "label": "Because it helps you when you feel depressed or nervous", "indicates": ["alcohol", "depression"]},
         { "id": "sociable", "label": "To be sociable", "indicates": ["alcohol"]}
       ]
+    },
+    {
+      "id": "g1",
+      "text": "During the past 12 months, have you become restless, irritable, or anxious when trying to stop or cut down on gambling?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "yes", "label": "Yes", "indicates": ["gambling"] },
+        { "id": "no", "label": "No" }
+      ]
+    },
+    {
+      "id": "g2",
+      "text": "During the past 12 months, have you tried to keep your family or friends from knowing how much you gambled?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "yes", "label": "Yes", "indicates": ["gambling"] },
+        { "id": "no", "label": "No" }
+      ]
+    },
+    {
+      "id": "g3",
+      "text": "During the past 12 months, did you have such financial trouble as a result of your gambling that you had to get help with living expenses from family, friends, or welfare?",
+      "type": "single",
+      "required": true,
+      "options": [
+        { "id": "yes", "label": "Yes", "indicates": ["gambling"] },
+        { "id": "no", "label": "No" }
+      ]
+    },
+    {
+      "id": "g4",
+      "text": "How would you describe your relationship with gambling right now?",
+      "type": "single",
+      "required": true,
+      "options": [
+        {"id": "no_thoughts", "label": "I never think about my gambling."},
+        {"id": "think_less", "label": "Sometimes I think about gambling less.", "indicates": ["gambling"]},
+        {"id": "decided_less", "label": "I have decided to gamble less.", "indicates": ["gambling"]},
+        {"id": "cutting_back", "label": "I am already trying to cut back on my gambling.", "indicates": ["gambling"]},
+        {"id": "changed", "label": "I changed my gambling. I now do not gamble, or gamble less than before.", "indicates": ["gambling"]}
+      ]
     }
+
   ]
 }
