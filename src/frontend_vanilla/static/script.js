@@ -90,6 +90,75 @@ function isVisible(question, answers) {
   return true;
 }
 
+async function captureBrowserGPS({
+  highAccuracy = false,      // false reduces timeouts indoors; you can retry with true if needed
+  timeoutMs = 30000,
+  maximumAgeMs = 600000      // allow cached position up to 10 min
+} = {}) {
+  const write = (obj) => { try { sessionStorage.setItem('dyn:gps', JSON.stringify(obj)); } catch {} };
+
+  if (!('geolocation' in navigator)) {
+    write({ supported: false, status: 'unsupported', capturedAt: new Date().toISOString() });
+    return null;
+  }
+
+  const getPosition = () =>
+    new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: highAccuracy,
+        timeout: timeoutMs,
+        maximumAge: maximumAgeMs
+      });
+    });
+
+  try {
+    const pos = await getPosition();
+    const gps = {
+      supported: true,
+      status: 'ok',
+      capturedAt: new Date().toISOString(),
+      coords: {
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        accuracy: pos.coords.accuracy
+      }
+    };
+    write(gps);
+    return gps;
+  } catch (err) {
+    // Standard codes: 1=PERMISSION_DENIED, 2=POSITION_UNAVAILABLE, 3=TIMEOUT
+    const code = err?.code;
+    const status =
+      code === 1 ? 'denied' :
+      code === 2 ? 'unavailable' :
+      code === 3 ? 'timeout' :
+      'error';
+
+    const gps = {
+      supported: true,
+      status,
+      capturedAt: new Date().toISOString(),
+      error: { code, message: err?.message }
+    };
+    write(gps);
+    return null;
+  }
+}
+
+function getStoredGPS() {
+  try { return JSON.parse(sessionStorage.getItem('dyn:gps') || 'null'); }
+  catch { return null; }
+}
+
+async function retryGPS() {
+  // First attempt: reliable
+  let gps = await captureBrowserGPS({ highAccuracy: false });
+  if (gps) return gps;
+
+  // Second attempt: more precise but may be slower
+  return await captureBrowserGPS({ highAccuracy: true, timeoutMs: 20000 });
+}
+
 /* Dynamic survey controller */
 class DynamicSurvey {
   constructor(config) {
@@ -521,8 +590,8 @@ class DynamicSurvey {
 
   /* Persistence (session) + prune hidden answers after branching */
   persistAnswers() {
-    try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch {}
     this.pruneHiddenAnswers();
+    try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch {}
   }
   pruneHiddenAnswers() {
     const visible = new Set(this.getVisibleIds());
@@ -651,13 +720,14 @@ class DynamicSurvey {
             const blank = a.targetBlank ? 'target="_blank" rel="noopener noreferrer"' : '';
             return `<a class="chip" href="${href}" ${blank}><i class="${icon}"></i> ${a.label}</a>`;
           }).join('');
-          return `
+            return `
             <div class="help-card">
-              <h4>${card.title}</h4>
-              ${card.meta ? `<div class="help-meta">${card.meta}</div>` : ''}
-              <div class="help-actions">${actions}</div>
+                <h4>${card.title}</h4>
+                ${card.description ? `<div class="help-description">${card.description}</div>` : ''}
+                ${card.meta ? `<div class="help-meta">${card.meta}</div>` : ''}
+                <div class="help-actions">${actions}</div>
             </div>
-          `;
+            `;
         }).join('')
       : `
         <div class="help-card">
@@ -723,7 +793,14 @@ class DynamicSurvey {
         const ex = new Set((q.exclusiveOptionIds || []).map(String));
         const isExcl = (id) => ex.has(String(id)) || !!getOpt(q, id)?.exclusive;
         const onlyExcl = val.length > 0 && val.every(isExcl);
-        if (onlyExcl) return;
+        if (onlyExcl) {
+        val.forEach(id => {
+            const o = getOpt(q, id);
+            if (!o) return;
+            remTags(o).forEach(t => removes.add(t));
+        });
+        return;
+        }
         val.forEach(id => {
           if (isExcl(id)) return;
           const o = getOpt(q, id); if (!o) return;
@@ -741,7 +818,7 @@ class DynamicSurvey {
   selectedTopicsObject() {
     const set = this.computeSelectedTopics();
     const known = new Set((RESOURCES_DB || []).flatMap(r => Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []));
-    if (!known.size) ['depression', 'alcohol', 'opiods'].forEach(t => known.add(t));
+    if (!known.size) ['depression', 'alcohol', 'opioids'].forEach(t => known.add(t));
     const obj = {}; known.forEach(t => { obj[t] = set.has(t); }); return obj;
   }
   computeUrgencyLevel() {
@@ -796,6 +873,7 @@ class DynamicSurvey {
 
   buildSurveyPayload() {
     const query = this.getStoredQuery();
+    const gps = getStoredGPS();
     return {
       data: {
         timestamp: new Date().toISOString(),
@@ -804,6 +882,7 @@ class DynamicSurvey {
         mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
         site: query.site || null,   // common param bubbled up for convenience
         query,                      // full set of captured query params
+        gps,
         answers: { ...this.answers }
       }
     };
@@ -922,9 +1001,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Always show mode selection on load
   openMode();
 
-  startBegin?.addEventListener('click', () => {
+  startBegin?.addEventListener('click', async () => {
     closeIntro(true);
     showCookieIfNeeded();
+
+    // Ask for GPS once the user starts
+    await retryGPS(); // better than a single strict attempt
+
     try { const step = sessionStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch {}
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   });
