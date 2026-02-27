@@ -13,11 +13,44 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ],
+          "groupReason": "Frequent distress symptoms"
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ],
+          "groupReason": "Frequent distress symptoms"
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ],
+          "groupReason": "Frequent distress symptoms",
+          "urgency": "moderate"
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ],
+          "groupReason": "Frequent distress symptoms",
+          "urgency": "moderate"
+        }
       ]
     },
     {
@@ -26,11 +59,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -39,11 +99,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -52,11 +139,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -65,11 +179,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -78,11 +219,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -91,11 +259,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -104,11 +299,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -117,11 +339,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -130,11 +379,38 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1", "label": "Never" },
-        { "id": "2", "label": "Rarely", "indicates": ["depression"] },
-        { "id": "3", "label": "Sometimes", "indicates": ["depression"] },
-        { "id": "4", "label": "Usually", "indicates": ["depression"] },
-        { "id": "5", "label": "Always", "indicates": ["depression"] }
+        {
+          "id": "1",
+          "label": "Never"
+        },
+        {
+          "id": "2",
+          "label": "Rarely",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "3",
+          "label": "Sometimes",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "4",
+          "label": "Usually",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "5",
+          "label": "Always",
+          "indicates": [
+            "depression"
+          ]
+        }
       ]
     },
     {
@@ -143,14 +419,55 @@
       "type": "multiple",
       "required": true,
       "options": [
-        { "id": "mh_current", "label": "Experiencing mental health challenges", "indicates": ["depression"] },
-        { "id": "su_current", "label": "Experiencing substance use challenges", "indicates": ["alcohol", "opioids"] },
-        { "id": "mh_recovery", "label": "In recovery from a mental health condition", "indicates": ["depression"] },
-        { "id": "su_recovery", "label": "In recovery from substance use", "indicates": ["alcohol", "opioids"] },
-        { "id": "none", "label": "None of the above" },
-        { "id": "pnots", "label": "Prefer not to say" }
+        {
+          "id": "mh_current",
+          "label": "Experiencing mental health challenges",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Current mental health challenges",
+          "urgency": "moderate"
+        },
+        {
+          "id": "su_current",
+          "label": "Experiencing substance use challenges",
+          "indicates": [
+            "alcohol",
+            "opioids"
+          ],
+          "reason": "Current substance use challenges",
+          "urgency": "urgent"
+        },
+        {
+          "id": "mh_recovery",
+          "label": "In recovery from a mental health condition",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Maintaining mental health recovery"
+        },
+        {
+          "id": "su_recovery",
+          "label": "In recovery from substance use",
+          "indicates": [
+            "alcohol",
+            "opioids"
+          ],
+          "reason": "Maintaining substance use recovery"
+        },
+        {
+          "id": "none",
+          "label": "None of the above"
+        },
+        {
+          "id": "pnots",
+          "label": "Prefer not to say"
+        }
       ],
-      "exclusiveOptionIds": ["none", "pnots"]
+      "exclusiveOptionIds": [
+        "none",
+        "pnots"
+      ]
     },
     {
       "id": "t2",
@@ -158,18 +475,90 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "nervous", "label": "Nervous", "indicates": ["depression"] },
-        { "id": "anxious", "label": "Anxious", "indicates": ["depression"] },
-        { "id": "hopeless", "label": "Hopeless", "indicates": ["depression"] },
-        { "id": "lonely", "label": "Lonely", "indicates": ["depression"] },
-        { "id": "restless", "label": "Restless", "indicates": ["depression"] },
-        { "id": "fidgety", "label": "Fidgety", "indicates": ["depression"] },
-        { "id": "sad", "label": "Sad", "indicates": ["depression"] },
-        { "id": "depressed", "label": "Depressed", "indicates": ["depression"] },
-        { "id": "worthless", "label": "Worthless", "indicates": ["depression"] },
-        { "id": "none", "label": "None of the above", "exclusive": true }
+        {
+          "id": "nervous",
+          "label": "Nervous",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling nervous recently"
+        },
+        {
+          "id": "anxious",
+          "label": "Anxious",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling anxious recently"
+        },
+        {
+          "id": "hopeless",
+          "label": "Hopeless",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling hopeless recently",
+          "urgency": "moderate"
+        },
+        {
+          "id": "lonely",
+          "label": "Lonely",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling lonely recently"
+        },
+        {
+          "id": "restless",
+          "label": "Restless",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling restless recently"
+        },
+        {
+          "id": "fidgety",
+          "label": "Fidgety",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling fidgety recently"
+        },
+        {
+          "id": "sad",
+          "label": "Sad",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling sad recently"
+        },
+        {
+          "id": "depressed",
+          "label": "Depressed",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling depressed recently",
+          "urgency": "moderate"
+        },
+        {
+          "id": "worthless",
+          "label": "Worthless",
+          "indicates": [
+            "depression"
+          ],
+          "reason": "Feeling worthless recently",
+          "urgency": "moderate"
+        },
+        {
+          "id": "none",
+          "label": "None of the above",
+          "exclusive": true
+        }
       ],
-      "exclusiveOptionIds": ["none"]
+      "exclusiveOptionIds": [
+        "none"
+      ]
     },
     {
       "id": "t3",
@@ -177,13 +566,43 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "restlessness", "label": "Restlessness", "indicates": ["depression"] },
-        { "id": "irritability", "label": "Irritability", "indicates": ["depression"] },
-        { "id": "trouble_concentrating", "label": "Trouble concentrating", "indicates": ["depression"] },
-        { "id": "trouble_sleeping", "label": "Trouble sleeping", "indicates": ["depression"] },
-        { "id": "none", "label": "None of the above", "exclusive": true }
+        {
+          "id": "restlessness",
+          "label": "Restlessness",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "irritability",
+          "label": "Irritability",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "trouble_concentrating",
+          "label": "Trouble concentrating",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "trouble_sleeping",
+          "label": "Trouble sleeping",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "none",
+          "label": "None of the above",
+          "exclusive": true
+        }
       ],
-      "exclusiveOptionIds": ["none"]
+      "exclusiveOptionIds": [
+        "none"
+      ]
     },
     {
       "id": "t4",
@@ -191,11 +610,26 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "contacted_dr", "label": "Contacted a doctor" },
-        { "id": "let_it_pass", "label": "Let it pass" },
-        { "id": "prescribed_substance", "label": "Used prescribed substances" },
-        { "id": "non-prescribed_substance", "label": "Used non-prescribed substances including alcohol" },
-        { "id": "own_coping", "label": "Used my own coping methods (e.g., exercise, reading)" }
+        {
+          "id": "contacted_dr",
+          "label": "Contacted a doctor"
+        },
+        {
+          "id": "let_it_pass",
+          "label": "Let it pass"
+        },
+        {
+          "id": "prescribed_substance",
+          "label": "Used prescribed substances"
+        },
+        {
+          "id": "non-prescribed_substance",
+          "label": "Used non-prescribed substances including alcohol"
+        },
+        {
+          "id": "own_coping",
+          "label": "Used my own coping methods (e.g., exercise, reading)"
+        }
       ]
     },
     {
@@ -204,17 +638,71 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "increased_hr", "label": "Increased heart rate", "indicates": ["depression"] },
-        { "id": "rapid_breathing", "label": "Rapid breathing", "indicates": ["depression"] },
-        { "id": "muscle_tension", "label": "Muscle tension", "indicates": ["depression"] },
-        { "id": "sweating", "label": "Sweating", "indicates": ["depression"] },
-        { "id": "dry_mouth", "label": "Dry mouth", "indicates": ["depression"] },
-        { "id": "headache", "label": "Headache", "indicates": ["depression"] },
-        { "id": "stomachache", "label": "Stomachache", "indicates": ["depression"] },
-        { "id": "dizziness", "label": "Dizziness", "indicates": ["depression"] },
-        { "id": "none", "label": "None of the above", "exclusive": true }
+        {
+          "id": "increased_hr",
+          "label": "Increased heart rate",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "rapid_breathing",
+          "label": "Rapid breathing",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "muscle_tension",
+          "label": "Muscle tension",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "sweating",
+          "label": "Sweating",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "dry_mouth",
+          "label": "Dry mouth",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "headache",
+          "label": "Headache",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "stomachache",
+          "label": "Stomachache",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "dizziness",
+          "label": "Dizziness",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "none",
+          "label": "None of the above",
+          "exclusive": true
+        }
       ],
-      "exclusiveOptionIds": ["none"]
+      "exclusiveOptionIds": [
+        "none"
+      ]
     },
     {
       "id": "t6",
@@ -222,11 +710,26 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "contacted_dr", "label": "Contacted a doctor" },
-        { "id": "let_it_pass", "label": "Let it pass" },
-        { "id": "prescribed_substance", "label": "Used prescribed substances" },
-        { "id": "non-prescribed_substance", "label": "Used non-prescribed substances including alcohol" },
-        { "id": "own_coping", "label": "Used my own coping methods (e.g., exercise, reading)" }
+        {
+          "id": "contacted_dr",
+          "label": "Contacted a doctor"
+        },
+        {
+          "id": "let_it_pass",
+          "label": "Let it pass"
+        },
+        {
+          "id": "prescribed_substance",
+          "label": "Used prescribed substances"
+        },
+        {
+          "id": "non-prescribed_substance",
+          "label": "Used non-prescribed substances including alcohol"
+        },
+        {
+          "id": "own_coping",
+          "label": "Used my own coping methods (e.g., exercise, reading)"
+        }
       ]
     },
     {
@@ -235,8 +738,20 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "yes", "label": "Yes", "indicates": ["alcohol"] },
-        { "id": "no", "label": "No", "indicatesRemove": ["alcohol"] }
+        {
+          "id": "yes",
+          "label": "Yes",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "indicatesRemove": [
+            "alcohol"
+          ]
+        }
       ]
     },
     {
@@ -245,11 +760,41 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "daily", "label": "Daily", "indicates": ["alcohol"] },
-        { "id": "weekly", "label": "Weekly", "indicates": ["alcohol"] },
-        { "id": "monthly", "label": "Monthly", "indicates": ["alcohol"] },
-        { "id": "socially", "label": "Socially (Less than three times a month)", "indicates": ["alcohol"] },
-        { "id": "rarely", "label": "Rarely", "indicates": ["alcohol"] }
+        {
+          "id": "daily",
+          "label": "Daily",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "weekly",
+          "label": "Weekly",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "monthly",
+          "label": "Monthly",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "socially",
+          "label": "Socially (Less than three times a month)",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "rarely",
+          "label": "Rarely",
+          "indicates": [
+            "alcohol"
+          ]
+        }
       ]
     },
     {
@@ -258,8 +803,17 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "yes", "label": "Yes", "indicates": ["alcohol"] },
-        { "id": "no", "label": "No" }
+        {
+          "id": "yes",
+          "label": "Yes",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "no",
+          "label": "No"
+        }
       ]
     },
     {
@@ -268,10 +822,36 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "prescribed", "label": "Prescribed", "indicates": ["opioids"] },
-        { "id": "non_prescribed", "label": "Non-prescribed", "indicates": ["opioids"] },
-        { "id": "both", "label": "Both prescribed and non-prescribed", "indicates": ["opioids"] },
-        { "id": "none", "label": "None" }
+        {
+          "id": "prescribed",
+          "label": "Prescribed",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Prescribed drug use"
+        },
+        {
+          "id": "non_prescribed",
+          "label": "Non-prescribed",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Non-prescribed drug use",
+          "urgency": "urgent"
+        },
+        {
+          "id": "both",
+          "label": "Both prescribed and non-prescribed",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Prescribed and non-prescribed drug use",
+          "urgency": "urgent"
+        },
+        {
+          "id": "none",
+          "label": "None"
+        }
       ]
     },
     {
@@ -280,12 +860,48 @@
       "type": "single",
       "required": true,
       "options": [
-
-        { "id": "daily", "label": "Daily", "indicates": ["opioids"] },
-        { "id": "weekly", "label": "Weekly", "indicates": ["opioids"] },
-        { "id": "rarely", "label": "Rarely", "indicates": ["opioids"] },
-        { "id": "socially", "label": "Socially (Less than three times a month)", "indicates": ["opioids"] },
-        { "id": "prescribed", "label": "Only as prescribed", "indicates": ["opioids"] }
+        {
+          "id": "daily",
+          "label": "Daily",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Daily drug use",
+          "urgency": "urgent"
+        },
+        {
+          "id": "weekly",
+          "label": "Weekly",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Weekly drug use",
+          "urgency": "moderate"
+        },
+        {
+          "id": "rarely",
+          "label": "Rarely",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Rare drug use"
+        },
+        {
+          "id": "socially",
+          "label": "Socially (Less than three times a month)",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Social drug use"
+        },
+        {
+          "id": "prescribed",
+          "label": "Only as prescribed",
+          "indicates": [
+            "opioids"
+          ],
+          "reason": "Drug use as prescribed"
+        }
       ]
     },
     {
@@ -294,8 +910,17 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "0", "label": "0 times" },
-        { "id": "1", "label": "1 or more times", "indicates": ["opioids"] }
+        {
+          "id": "0",
+          "label": "0 times"
+        },
+        {
+          "id": "1",
+          "label": "1 or more times",
+          "indicates": [
+            "opioids"
+          ]
+        }
       ]
     },
     {
@@ -304,13 +929,40 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "walk", "label": "Walk" },
-        { "id": "friends", "label": "Meet up with friends" },
-        { "id": "drink", "label": "Have a drink", "indicates": ["alcohol"] },
-        { "id": "substances", "label": "Use other substances", "indicates": ["opioids"] },
-        { "id": "meditate", "label": "Meditate" },
-        { "id": "sports", "label": "Watch sports" },
-        { "id": "family", "label": "Spend time with my family" }
+        {
+          "id": "walk",
+          "label": "Walk"
+        },
+        {
+          "id": "friends",
+          "label": "Meet up with friends"
+        },
+        {
+          "id": "drink",
+          "label": "Have a drink",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "substances",
+          "label": "Use other substances",
+          "indicates": [
+            "opioids"
+          ]
+        },
+        {
+          "id": "meditate",
+          "label": "Meditate"
+        },
+        {
+          "id": "sports",
+          "label": "Watch sports"
+        },
+        {
+          "id": "family",
+          "label": "Spend time with my family"
+        }
       ]
     },
     {
@@ -319,12 +971,48 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "1-2", "label": "1–2 days", "indicates": ["alcohol"] },
-        { "id": "3-5", "label": "3–5 days", "indicates": ["alcohol"] },
-        { "id": "6-9", "label": "6–9 days", "indicates": ["alcohol"] },
-        { "id": "10-19", "label": "10–19 days", "indicates": ["alcohol"] },
-        { "id": "20-29", "label": "20–29 days", "indicates": ["alcohol"] },
-        { "id": "30", "label": "All 30 days", "indicates": ["alcohol"] }
+        {
+          "id": "1-2",
+          "label": "1–2 days",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "3-5",
+          "label": "3–5 days",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "6-9",
+          "label": "6–9 days",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "10-19",
+          "label": "10–19 days",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "20-29",
+          "label": "20–29 days",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "30",
+          "label": "All 30 days",
+          "indicates": [
+            "alcohol"
+          ]
+        }
       ]
     },
     {
@@ -333,9 +1021,24 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "never", "label": "Never" },
-        { "id": "prescribed", "label": "If it is prescribed", "indicates": ["opioids"] },
-        { "id": "daily", "label": "Daily", "indicates": ["opioids"] }
+        {
+          "id": "never",
+          "label": "Never"
+        },
+        {
+          "id": "prescribed",
+          "label": "If it is prescribed",
+          "indicates": [
+            "opioids"
+          ]
+        },
+        {
+          "id": "daily",
+          "label": "Daily",
+          "indicates": [
+            "opioids"
+          ]
+        }
       ]
     },
     {
@@ -344,11 +1047,38 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "pain", "label": "Pain", "indicates": ["depression"] },
-        { "id": "anxiety", "label": "Anxiety", "indicates": ["depression"] },
-        { "id": "depression", "label": "Depression", "indicates": ["depression"] },
-        { "id": "sleep", "label": "Sleep", "indicates": ["depression"] },
-        { "id": "other", "label": "Other" }
+        {
+          "id": "pain",
+          "label": "Pain",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "anxiety",
+          "label": "Anxiety",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "depression",
+          "label": "Depression",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "sleep",
+          "label": "Sleep",
+          "indicates": [
+            "depression"
+          ]
+        },
+        {
+          "id": "other",
+          "label": "Other"
+        }
       ]
     },
     {
@@ -357,11 +1087,42 @@
       "type": "multiple",
       "required": false,
       "options": [
-        { "id": "forget_worries", "label": "To forget your worries", "indicates": ["alcohol"]},
-        { "id": "peer_pressure", "label": "Because your friends pressure you to drink", "indicates": ["alcohol"]},
-        { "id": "enjoy_party", "label": "Because it helps you enjoy a party", "indicates": ["alcohol"]},
-        { "id": "cope_mood", "label": "Because it helps you when you feel depressed or nervous", "indicates": ["alcohol", "depression"]},
-        { "id": "sociable", "label": "To be sociable", "indicates": ["alcohol"]}
+        {
+          "id": "forget_worries",
+          "label": "To forget your worries",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "peer_pressure",
+          "label": "Because your friends pressure you to drink",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "enjoy_party",
+          "label": "Because it helps you enjoy a party",
+          "indicates": [
+            "alcohol"
+          ]
+        },
+        {
+          "id": "cope_mood",
+          "label": "Because it helps you when you feel depressed or nervous",
+          "indicates": [
+            "alcohol",
+            "depression"
+          ]
+        },
+        {
+          "id": "sociable",
+          "label": "To be sociable",
+          "indicates": [
+            "alcohol"
+          ]
+        }
       ]
     },
     {
@@ -370,8 +1131,17 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "yes", "label": "Yes", "indicates": ["gambling"] },
-        { "id": "no", "label": "No" }
+        {
+          "id": "yes",
+          "label": "Yes",
+          "indicates": [
+            "gambling"
+          ]
+        },
+        {
+          "id": "no",
+          "label": "No"
+        }
       ]
     },
     {
@@ -380,8 +1150,17 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "yes", "label": "Yes", "indicates": ["gambling"] },
-        { "id": "no", "label": "No" }
+        {
+          "id": "yes",
+          "label": "Yes",
+          "indicates": [
+            "gambling"
+          ]
+        },
+        {
+          "id": "no",
+          "label": "No"
+        }
       ]
     },
     {
@@ -390,8 +1169,17 @@
       "type": "single",
       "required": true,
       "options": [
-        { "id": "yes", "label": "Yes", "indicates": ["gambling"] },
-        { "id": "no", "label": "No" }
+        {
+          "id": "yes",
+          "label": "Yes",
+          "indicates": [
+            "gambling"
+          ]
+        },
+        {
+          "id": "no",
+          "label": "No"
+        }
       ]
     },
     {
@@ -400,13 +1188,39 @@
       "type": "single",
       "required": true,
       "options": [
-        {"id": "no_thoughts", "label": "I never think about my gambling."},
-        {"id": "think_less", "label": "Sometimes I think about gambling less.", "indicates": ["gambling"]},
-        {"id": "decided_less", "label": "I have decided to gamble less.", "indicates": ["gambling"]},
-        {"id": "cutting_back", "label": "I am already trying to cut back on my gambling.", "indicates": ["gambling"]},
-        {"id": "changed", "label": "I changed my gambling. I now do not gamble, or gamble less than before.", "indicates": ["gambling"]}
+        {
+          "id": "no_thoughts",
+          "label": "I never think about my gambling."
+        },
+        {
+          "id": "think_less",
+          "label": "Sometimes I think about gambling less.",
+          "indicates": [
+            "gambling"
+          ]
+        },
+        {
+          "id": "decided_less",
+          "label": "I have decided to gamble less.",
+          "indicates": [
+            "gambling"
+          ]
+        },
+        {
+          "id": "cutting_back",
+          "label": "I am already trying to cut back on my gambling.",
+          "indicates": [
+            "gambling"
+          ]
+        },
+        {
+          "id": "changed",
+          "label": "I changed my gambling. I now do not gamble, or gamble less than before.",
+          "indicates": [
+            "gambling"
+          ]
+        }
       ]
     }
-
   ]
 }

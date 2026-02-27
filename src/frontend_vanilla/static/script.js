@@ -5,12 +5,12 @@
   try {
     localStorage.removeItem('dyn:answers');
     localStorage.removeItem('dyn:currentId');
-  } catch {}
+  } catch { }
   try {
     sessionStorage.removeItem('dyn:answers');
     sessionStorage.removeItem('dyn:currentId');
     sessionStorage.removeItem('dyn:mode');
-  } catch {}
+  } catch { }
 })();
 
 /* store query params into sessionStorage */
@@ -20,7 +20,7 @@ function captureQueryParams(allowedKeys = null) {
   for (const [k, v] of params.entries()) {
     if (!allowedKeys || allowedKeys.includes(k)) obj[k] = v;
   }
-  try { sessionStorage.setItem('dyn:query', JSON.stringify(obj)); } catch {}
+  try { sessionStorage.setItem('dyn:query', JSON.stringify(obj)); } catch { }
   return obj;
 }
 
@@ -95,7 +95,7 @@ async function captureBrowserGPS({
   timeoutMs = 30000,
   maximumAgeMs = 600000      // allow cached position up to 10 min
 } = {}) {
-  const write = (obj) => { try { sessionStorage.setItem('dyn:gps', JSON.stringify(obj)); } catch {} };
+  const write = (obj) => { try { sessionStorage.setItem('dyn:gps', JSON.stringify(obj)); } catch { } };
 
   if (!('geolocation' in navigator)) {
     write({ supported: false, status: 'unsupported', capturedAt: new Date().toISOString() });
@@ -130,9 +130,9 @@ async function captureBrowserGPS({
     const code = err?.code;
     const status =
       code === 1 ? 'denied' :
-      code === 2 ? 'unavailable' :
-      code === 3 ? 'timeout' :
-      'error';
+        code === 2 ? 'unavailable' :
+          code === 3 ? 'timeout' :
+            'error';
 
     const gps = {
       supported: true,
@@ -203,7 +203,10 @@ class DynamicSurvey {
       helpBackBtn: document.getElementById('helpBackBtn'),
       helpRestartBtn: document.getElementById('helpRestartBtn'),
       helpBtn: document.getElementById('helpBtn'),
-      restartBtn: document.getElementById('restartBtn')
+      restartBtn: document.getElementById('restartBtn'),
+      whyLink: document.getElementById('whyLink'),
+      whyContent: document.getElementById('whyContent'),
+      whySection: document.getElementById('whySection')
     };
 
     this.bindGlobalEvents();
@@ -213,6 +216,11 @@ class DynamicSurvey {
     this.dom.restartBtn?.addEventListener('click', () => this.restart());
     this.dom.helpBackBtn?.addEventListener('click', () => this.backToSummary());
     this.dom.helpRestartBtn?.addEventListener('click', () => this.restart());
+
+    this.dom.whyLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleWhySection();
+    });
   }
 
   get storageKeys() {
@@ -247,7 +255,7 @@ class DynamicSurvey {
         // options.style.opacity = '';
       }, ms);
     } else {
-      this._interactUnlockTimer = setTimeout(() => {}, ms);
+      this._interactUnlockTimer = setTimeout(() => { }, ms);
     }
   }
 
@@ -265,20 +273,20 @@ class DynamicSurvey {
         // No saved preference → default to dark
         document.body.classList.add('dark-mode');
       }
-    } catch {}
+    } catch { }
 
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const syncThemeIcon = () => { if (themeIcon) themeIcon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙'; };
     themeToggle?.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
-      try { localStorage.setItem('k10:theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch {}
+      try { localStorage.setItem('k10:theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch { }
       syncThemeIcon();
     });
     syncThemeIcon();
 
     const cookieOverlay = document.getElementById('cookieOverlay');
-    document.getElementById('cookieAccept')?.addEventListener('click', () => { try { localStorage.setItem('k10:cookiesAccepted', 'yes'); } catch {} cookieOverlay?.classList.remove('show'); });
+    document.getElementById('cookieAccept')?.addEventListener('click', () => { try { localStorage.setItem('k10:cookiesAccepted', 'yes'); } catch { } cookieOverlay?.classList.remove('show'); });
     document.getElementById('cookieDismiss')?.addEventListener('click', () => cookieOverlay?.classList.remove('show'));
 
     this.dom.backBtn?.addEventListener('click', () => {
@@ -559,7 +567,7 @@ class DynamicSurvey {
     this.updateQuestionNumberBadges();
 
     this.currentId = qId;
-    try { sessionStorage.setItem(this.storageKeys.current, qId); } catch {}
+    try { sessionStorage.setItem(this.storageKeys.current, qId); } catch { }
 
     if (pushHistory) {
       const last = this.navHistory[this.navHistory.length - 1];
@@ -591,7 +599,7 @@ class DynamicSurvey {
   /* Persistence (session) + prune hidden answers after branching */
   persistAnswers() {
     this.pruneHiddenAnswers();
-    try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch {}
+    try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
   }
   pruneHiddenAnswers() {
     const visible = new Set(this.getVisibleIds());
@@ -600,7 +608,7 @@ class DynamicSurvey {
       if (!visible.has(qid)) { delete this.answers[qid]; changed = true; }
     });
     if (changed) {
-      try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch {}
+      try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
       this.questions.forEach(q => {
         if (!visible.has(q.id)) this.getContainer(q.id)?.querySelectorAll('.option.selected').forEach(b => b.classList.remove('selected'));
       });
@@ -714,13 +722,13 @@ class DynamicSurvey {
 
     grid.innerHTML = cards.length
       ? cards.map(card => {
-          const actions = (card.actions || []).map(a => {
-            const icon = a.icon || (a.kind === 'sms' ? 'fas fa-comment-dots' : a.kind === 'web' ? 'fas fa-globe' : 'fas fa-phone');
-            const href = a.href || '#';
-            const blank = a.targetBlank ? 'target="_blank" rel="noopener noreferrer"' : '';
-            return `<a class="chip" href="${href}" ${blank}><i class="${icon}"></i> ${a.label}</a>`;
-          }).join('');
-            return `
+        const actions = (card.actions || []).map(a => {
+          const icon = a.icon || (a.kind === 'sms' ? 'fas fa-comment-dots' : a.kind === 'web' ? 'fas fa-globe' : 'fas fa-phone');
+          const href = a.href || '#';
+          const blank = a.targetBlank ? 'target="_blank" rel="noopener noreferrer"' : '';
+          return `<a class="chip" href="${href}" ${blank}><i class="${icon}"></i> ${a.label}</a>`;
+        }).join('');
+        return `
             <div class="help-card">
                 <h4>${card.title}</h4>
                 ${card.description ? `<div class="help-description">${card.description}</div>` : ''}
@@ -728,27 +736,106 @@ class DynamicSurvey {
                 <div class="help-actions">${actions}</div>
             </div>
             `;
-        }).join('')
+      }).join('')
       : `
         <div class="help-card">
           <h4>No resources matched.</h4>
           <div class="help-meta">Check back later. In the meantime, consider checking in on your friends!</div>
         </div>
       `;
+
+    if (!all) {
+      this.renderWhySection();
+      if (this.dom.whySection) this.dom.whySection.style.display = 'block';
+    } else {
+      if (this.dom.whySection) this.dom.whySection.style.display = 'none';
+    }
   }
-  computeSelectedTopics() {
-    const topics = new Set(), removes = new Set(), a = this.answers;
+
+  renderWhySection() {
+    const topicsMap = this.computeSelectedTopicsWithReasons();
+    const content = this.dom.whyContent;
+    if (!content) return;
+
+    let html = '<p class="why-lead">Your responses indicated the following information:</p>';
+    topicsMap.forEach((entry, tag) => {
+      const mergedReasons = new Set([...entry.groupReasons, ...entry.reasons]);
+      if (mergedReasons.size > 0) {
+        const tagLabel = tag.charAt(0).toUpperCase() + tag.slice(1);
+        html += `<div class="why-group">
+          <strong>${tagLabel} Support:</strong>
+          <ul>
+            ${Array.from(mergedReasons).map(r => `<li>${r}</li>`).join('')}
+          </ul>
+        </div>`;
+      }
+    });
+
+    content.innerHTML = html.length > 70 ? html : '<p>Your responses suggest general wellbeing support.</p>';
+  }
+
+  toggleWhySection() {
+    const container = this.dom.whyContent;
+    const link = this.dom.whyLink;
+    if (!container || !link) return;
+
+    const isHidden = container.style.display === 'none' || !container.style.display;
+    container.style.display = isHidden ? 'block' : 'none';
+    link.textContent = isHidden ? 'Hide details' : 'Why are we showing you these resources?';
+  }
+  selectedTopicsObject() {
+    const set = this.computeSelectedTopics();
+    const known = new Set((RESOURCES_DB || []).flatMap(r => Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []));
+    if (!known.size) ['depression', 'alcohol', 'opioids'].forEach(t => known.add(t));
+    const obj = {}; known.forEach(t => { obj[t] = set.has(t); }); return obj;
+  }
+  computeUrgencyLevel() {
+    const a = this.answers;
+    let highest = 'low';
+    const urgencyMap = { 'low': 0, 'moderate': 1, 'urgent': 2 };
+    const revMap = ['low', 'moderate', 'urgent'];
+
+    Object.keys(a).forEach(qid => {
+      const q = this.getQuestion(qid); if (!q) return;
+      const val = a[qid];
+      const check = (oid) => {
+        const o = (q.options || []).find(opt => String(opt.id) === String(oid));
+        if (o && o.urgency && urgencyMap[o.urgency] > urgencyMap[highest]) {
+          highest = o.urgency;
+        }
+      };
+      if (Array.isArray(val)) val.forEach(check);
+      else if (val != null) check(val);
+    });
+    return highest;
+  }
+
+  computeSelectedTopicsWithReasons() {
+    const topics = new Map(), removes = new Set(), a = this.answers;
     const getOpt = (q, id) => (q.options || []).find(o => String(o.id) === String(id)) || null;
-    const addTags = (o) => {
-      const cands = [o?.indicates, o?.topics, o?.topicAdds, o?.tagsAdd];
-      for (const c of cands) if (Array.isArray(c) && c.length) return c.map(x => String(x).toLowerCase());
-      return [];
+
+    const addTopic = (tag, reason, groupReason) => {
+      tag = tag.toLowerCase();
+      if (!topics.has(tag)) topics.set(tag, { reasons: new Set(), groupReasons: new Set() });
+      const entry = topics.get(tag);
+      if (groupReason) entry.groupReasons.add(groupReason);
+      else if (reason) entry.reasons.add(reason);
     };
+
+    const addTags = (o, q) => {
+      const cands = [o?.indicates, o?.topics, o?.topicAdds, o?.tagsAdd];
+      const tags = [];
+      for (const c of cands) if (Array.isArray(c) && c.length) tags.push(...c.map(x => String(x).toLowerCase()));
+
+      tags.forEach(t => addTopic(t, o.reason, o.groupReason));
+    };
+
     const remTags = (o) => {
       const cands = [o?.indicatesRemove, o?.topicRemoves, o?.tagsRemove];
       for (const c of cands) if (Array.isArray(c) && c.length) return c.map(x => String(x).toLowerCase());
       return [];
     };
+
     const evalCond = (cond) => {
       if (!cond) return false;
       if (Array.isArray(cond.all)) return cond.all.every(evalCond);
@@ -762,31 +849,27 @@ class DynamicSurvey {
       const v = a[qid], arr = Array.isArray(v) ? v : v != null ? [v] : [];
       if (cond.equals !== undefined) return v === cond.equals;
       if (Array.isArray(cond.anyOf)) return arr.some(x => cond.anyOf.includes(x));
-      // if (Array.isArray(cond.noneOf)) return arr.every(x => !cond.noneOf.includes(x));
       if (cond.notEquals !== undefined) return v !== cond.notEquals;
       return false;
     };
-    const ruleAdds = (() => {
-      const rules = Array.isArray(this.config?.topicRules) ? this.config.topicRules
-        : Array.isArray(this.config?.settings?.topicRules) ? this.config.settings.topicRules : [];
-      const add = new Set(), remove = new Set();
-      rules.forEach(r => {
-        const when = r.when || r.if || r.condition; if (!when) return;
-        if (evalCond(when)) {
-          (r.add || []).forEach(t => add.add(String(t).toLowerCase()));
-          (r.remove || []).forEach(t => remove.add(String(t).toLowerCase()));
-        }
-      });
-      remove.forEach(t => add.delete(t));
-      return add;
-    })();
+
+    const rules = Array.isArray(this.config?.topicRules) ? this.config.topicRules
+      : Array.isArray(this.config?.settings?.topicRules) ? this.config.settings.topicRules : [];
+
+    rules.forEach(r => {
+      const when = r.when || r.if || r.condition; if (!when) return;
+      if (evalCond(when)) {
+        (r.add || []).forEach(t => addTopic(t, r.reason, r.groupReason));
+        (r.remove || []).forEach(t => removes.add(String(t).toLowerCase()));
+      }
+    });
 
     Object.keys(a).forEach(qid => {
       const q = this.getQuestion(qid); if (!q) return;
       const val = a[qid];
       if (q.type === 'single' && typeof val === 'string') {
         const o = getOpt(q, val); if (!o) return;
-        addTags(o).forEach(t => topics.add(t));
+        addTags(o, q);
         remTags(o).forEach(t => removes.add(t));
       }
       if (q.type === 'multiple' && Array.isArray(val)) {
@@ -794,44 +877,30 @@ class DynamicSurvey {
         const isExcl = (id) => ex.has(String(id)) || !!getOpt(q, id)?.exclusive;
         const onlyExcl = val.length > 0 && val.every(isExcl);
         if (onlyExcl) {
-        val.forEach(id => {
-            const o = getOpt(q, id);
-            if (!o) return;
+          val.forEach(id => {
+            const o = getOpt(q, id); if (!o) return;
             remTags(o).forEach(t => removes.add(t));
-        });
-        return;
+          });
+          return;
         }
         val.forEach(id => {
           if (isExcl(id)) return;
           const o = getOpt(q, id); if (!o) return;
-          addTags(o).forEach(t => topics.add(t));
+          addTags(o, q);
           remTags(o).forEach(t => removes.add(t));
         });
       }
     });
 
-    ruleAdds.forEach(t => topics.add(t));
     removes.forEach(t => topics.delete(t));
-    if (topics.size === 0) (this.settings.defaultTopics || []).forEach(t => topics.add(String(t).toLowerCase()));
+    if (topics.size === 0) {
+      (this.settings.defaultTopics || []).forEach(t => addTopic(t, null, null));
+    }
     return topics;
   }
-  selectedTopicsObject() {
-    const set = this.computeSelectedTopics();
-    const known = new Set((RESOURCES_DB || []).flatMap(r => Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []));
-    if (!known.size) ['depression', 'alcohol', 'opioids'].forEach(t => known.add(t));
-    const obj = {}; known.forEach(t => { obj[t] = set.has(t); }); return obj;
-  }
-  computeUrgencyLevel() {
-    const a = this.answers;
-    const q1 = a['q1']; const su = q1 === 'su_current', mh = q1 === 'mh_current';
-    const severeMood = ['depressed', 'hopeless', 'worthless'];
-    const hasSevereMood = (Array.isArray(a['q2']) ? a['q2'] : []).some(x => severeMood.includes(x));
-    const q9Yes = a['q9'] === 'yes';
-    const q10 = a['q10']; const highDrug = q10 === 'non_prescribed' || q10 === 'both';
-    const q11Daily = a['q11'] === 'daily';
-    if (su || highDrug || q11Daily || q9Yes || hasSevereMood) return 'urgent';
-    if (mh || (Array.isArray(a['q3']) && a['q3'].length) || (Array.isArray(a['q5']) && a['q5'].length)) return 'moderate';
-    return 'low';
+
+  computeSelectedTopics() {
+    return new Set(this.computeSelectedTopicsWithReasons().keys());
   }
   helpCopyFromResponses(topicsSet) {
     const level = this.computeUrgencyLevel();
@@ -904,7 +973,7 @@ class DynamicSurvey {
 
     // Lock UI and move to completion immediately
     this.submitting = true;
-    try { sessionStorage.setItem(this.storageKeys.current, 'complete'); } catch {}
+    try { sessionStorage.setItem(this.storageKeys.current, 'complete'); } catch { }
     this.showCompletion(); // show "All done" right away
 
     // Save local copy (best effort)
@@ -914,7 +983,7 @@ class DynamicSurvey {
       const all = raw ? JSON.parse(raw) : [];
       all.push({ timestamp: new Date().toISOString(), answers: { ...this.answers } });
       localStorage.setItem(key, JSON.stringify(all));
-    } catch {}
+    } catch { }
 
     // Post to backend in background
     const payload = this.buildSurveyPayload();
@@ -941,7 +1010,7 @@ class DynamicSurvey {
       sessionStorage.removeItem(this.storageKeys.current);
       localStorage.removeItem(this.storageKeys.answers);
       localStorage.removeItem(this.storageKeys.current);
-    } catch {}
+    } catch { }
     this.dom.root.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
     if (this.dom.completion) { this.dom.completion.style.display = 'none'; this.dom.completion.classList.remove('active'); }
     if (this.dom.help) { this.dom.help.style.display = 'none'; this.dom.help.classList.remove('active'); }
@@ -981,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const openIntro = () => { document.body.classList.add('intro-open'); startOverlay?.classList.add('show'); };
   const closeIntro = persist => {
-    if (persist) { try { localStorage.setItem('dyn:introSeen', 'yes'); } catch {} }
+    if (persist) { try { localStorage.setItem('dyn:introSeen', 'yes'); } catch { } }
     startOverlay?.classList.remove('show');
     document.body.classList.remove('intro-open');
   };
@@ -990,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeMode = () => { modeOverlay?.classList.remove('show'); };
 
   const proceedFromMode = (modeValue) => {
-    try { sessionStorage.setItem('dyn:mode', modeValue); } catch {}
+    try { sessionStorage.setItem('dyn:mode', modeValue); } catch { }
     closeMode();
     openIntro();
   };
@@ -1008,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ask for GPS once the user starts
     await retryGPS(); // better than a single strict attempt
 
-    try { const step = sessionStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch {}
+    try { const step = sessionStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch { }
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   });
   startDismiss?.addEventListener('click', () => { closeIntro(false); showCookieIfNeeded(); });
