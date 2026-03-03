@@ -1,241 +1,973 @@
 [
-{
-    "title": "988 Lifeline",
-    "risk": 1,
-    "tags": ["depression"],
-    "meta": "24/7 • Press 2 / say “Ayuda” for Español",
-    "description": "Immediate crisis support for suicide, mental health, and emotional distress.",
-    "actions": [
-      { "kind": "tel", "label": "Call 988", "href": "tel:988" },
-      { "kind": "sms", "label": "Text 988", "href": "sms:988" },
-      { "kind": "web", "label": "988lifeline.org", "href": "https://988lifeline.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Crisis Text Line",
-    "risk": 1,
-    "tags": ["depression"],
-    "description": "Free, confidential crisis counseling by text message with trained counselors.",
-    "actions": [
-      { "kind": "sms", "label": "Text HELLO to 741-741", "href": "sms:741741?&body=HELLO" },
-      { "kind": "sms", "label": "Textea HOLA al 741-741", "href": "sms:741741?&body=HOLA" },
-      { "kind": "web", "label": "crisistextline.org", "href": "https://www.crisistextline.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "SAMHSA Disaster Distress Helpline",
-    "risk": 1,
-    "tags": ["depression", "alcohol", "opioids"],
-    "meta": "24/7 • Disaster-related distress • Press 2 for Español",
-    "description": "Immediate counseling for emotional distress related to natural or human-caused disasters.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-800-985-5990", "href": "tel:18009855990" },
-      { "kind": "sms", "label": "Text 1-800-985-5990", "href": "sms:18009855990" },
-      { "kind": "web", "label": "samhsa.gov/disaster-distress-helpline", "href": "https://www.samhsa.gov/find-help/helplines/disaster-distress-helpline", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "SAMHSA National Helpline",
-    "risk": 1,
-    "tags": ["depression", "alcohol", "opioids"],
-    "meta": "24/7 • Treatment referral & information service",
-    "description": "Confidential referral service for mental health and substance use treatment programs.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-800-662-HELP", "href": "tel:18006624357" },
-      { "kind": "sms", "label": "Text ZIP to 435748", "href": "sms:435748" },
-      { "kind": "web", "label": "samhsa.gov/national-helpline", "href": "https://www.samhsa.gov/find-help/helplines/national-helpline", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Reach NJ Addiction Helpline",
-    "risk": 1,
-    "tags": ["alcohol", "opioids"],
-    "meta": "New Jersey • 24/7",
-    "description": "New Jersey’s centralized addiction treatment referral and support line.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-844-732-2465", "href": "tel:18447322465" },
-      { "kind": "web", "label": "nj.gov/humanservices/reachnj", "href": "https://nj.gov/humanservices/reachnj/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "211 United Way",
-    "risk": 2,
-    "tags": ["depression", "alcohol", "opioids"],
-    "description": "Connects you to community services for mental health, housing, food, and basic needs.",
-    "actions": [
-      { "kind": "tel", "label": "Call 211", "href": "tel:211" },
-      { "kind": "web", "label": "211.org", "href": "https://www.211.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "American Foundation for Suicide Prevention (AFSP)",
-    "risk": 2,
-    "tags": ["depression"],
-    "description": "Suicide prevention education, community programs, and support resources.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-888-333-2377", "href": "tel:18883332377" },
-      { "kind": "web", "label": "afsp.org", "href": "https://afsp.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Construction Industry Alliance for Suicide Prevention (CIASP)",
-    "risk": 2,
-    "tags": ["depression"],
-    "description": "Suicide prevention training and workplace resources tailored to the construction industry.",
-    "actions": [
-      { "kind": "web", "label": "preventconstructionsuicide.com", "href": "https://www.preventconstructionsuicide.com/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Mental Health America (MHA)",
-    "risk": 2,
-    "tags": ["depression"],
-    "description": "Free mental health screening tools, education, and referral resources.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-800-969-6642", "href": "tel:18009696642" },
-      { "kind": "web", "label": "mhanational.org", "href": "https://mhanational.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "NAMI Helpline",
-    "risk": 2,
-    "tags": ["depression"],
-    "meta": "Not a crisis line",
-    "description": "Information, education, and referrals provided by trained NAMI staff and volunteers.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-800-950-NAMI", "href": "tel:18009506264" },
-      { "kind": "sms", "label": "Text 62640", "href": "sms:62640" },
-      { "kind": "web", "label": "nami.org/helpline", "href": "https://www.nami.org/support-education/nami-helpline/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Alcoholics Anonymous (AA)",
-    "risk": 2,
-    "tags": ["alcohol"],
-    "description": "Peer-led recovery meetings for alcohol use.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-212-870-3400", "href": "tel:12128703400" },
-      { "kind": "web", "label": "aa.org", "href": "https://www.aa.org/", "targetBlank": true },
-      { "kind": "web", "label": "Online intergroup", "href": "https://aa-intergroup.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Al‑Anon",
-    "risk": 2,
-    "tags": ["alcohol"],
-    "description": "Support groups for families and friends of people with alcohol use.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-888-4AL-ANON", "href": "tel:18884252666" },
-      { "kind": "web", "label": "al-anon.org", "href": "https://al-anon.org/", "targetBlank": true },
-      { "kind": "web", "label": "Find meetings", "href": "https://al-anon.org/al-anon-meetings/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "NJ Mental Health Cares",
-    "risk": 2,
-    "tags": ["depression", "alcohol", "opioids"],
-    "description": "NJ mental health information, referrals, and peer support.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-866-202-4357", "href": "tel:18662024357" },
-      { "kind": "web", "label": "njmentalhealthcares.org", "href": "https://www.njmentalhealthcares.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "NJ Connect for Recovery",
-    "risk": 2,
-    "tags": ["alcohol", "opioids"],
-    "description": "NJ support line for alcohol and drug recovery services.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-855-652-3737", "href": "tel:18556523737" },
-      { "kind": "web", "label": "njconnectforrecovery.org", "href": "https://www.njconnectforrecovery.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "NJ Self‑Help Clearinghouse",
-    "risk": 2,
-    "tags": ["depression", "alcohol", "opioids"],
-    "meta": "Outside NJ call: 1-973-571-4100",
-    "description": "Directory of peer support and self-help groups across NJ.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-800-367-6274", "href": "tel:18003676274" },
-      { "kind": "web", "label": "njgroups.org", "href": "https://www.njgroups.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "SAFE Locator",
-    "risk": 2,
-    "tags": ["alcohol", "opioids"],
-    "description": "Searchable directory for substance use treatment and recovery resources.",
-    "actions": [
-      { "kind": "web", "label": "safelocator.org", "href": "https://safelocator.org/en/search", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "SAFE Project",
-    "risk": 2,
-    "tags": ["alcohol", "opioids"],
-    "description": "Education, advocacy, and support for addiction recovery.",
-    "actions": [
-      { "kind": "web", "label": "safeproject.us", "href": "https://www.safeproject.us/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "SAFE Solutions",
-    "risk": 2,
-    "tags": ["alcohol", "opioids"],
-    "description": "Recovery resources and tools for individuals and families.",
-    "actions": [
-      { "kind": "web", "label": "yoursafesolutions.us", "href": "https://www.yoursafesolutions.us", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "SMART Recovery",
-    "risk": 3,
-    "tags": ["alcohol", "opioids"],
-    "description": "Science-based mutual support meetings for addiction recovery.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-440-951-5357", "href": "tel:14409515357" },
-      { "kind": "web", "label": "smartrecovery.org", "href": "https://smartrecovery.org/", "targetBlank": true },
-      { "kind": "web", "label": "Find meetings", "href": "https://smartrecovery.org/meeting", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Narcotics Anonymous (NA)",
-    "risk": 3,
-    "tags": ["opioids"],
-    "description": "Peer-led recovery meetings for drug use.",
-    "actions": [
-      { "kind": "tel", "label": "Call 1-818-773-9999", "href": "tel:18187739999" },
-      { "kind": "web", "label": "na.org", "href": "https://na.org/", "targetBlank": true },
-      { "kind": "web", "label": "Meeting search", "href": "https://na.org/meetingsearch/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "IUOE Local 825 Sober Sunday",
-    "risk": 3,
-    "tags": ["alcohol"],
-    "meta": "Open to everyone, weekly",
-    "description": "Weekly virtual recovery meeting open to everyone.",
-    "actions": [
-      { "kind": "web", "label": "Virtual meeting: Sundays 8am EST", "href": "https://zoom.us/j/82251608337?pwd=625319", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Alliance for Naloxone Safety in the Workplace (ANSW)",
-    "risk": 4,
-    "tags": ["opioids"],
-    "description": "Workplace naloxone training and overdose prevention resources.",
-    "actions": [
-      { "kind": "web", "label": "answ.org", "href": "https://www.answ.org/", "targetBlank": true }
-    ]
-  },
-  {
-    "title": "Construction Suicide Prevention Week (CSPW)",
-    "risk": 4,
-    "tags": ["depression"],
-    "description": "Awareness campaign with prevention tools for construction teams.",
-    "actions": [
-      { "kind": "web", "label": "constructionsuicideprevention.com", "href": "https://constructionsuicideprevention.com/", "targetBlank": true }
-    ]
-  }
+    {
+        "title": "988 Lifeline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "24/7 \u2022 Press 2 / say \u201cAyuda\u201d for Espa\u00f1ol",
+        "description": "Immediate crisis support for suicide, mental health, and emotional distress.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 988",
+                "href": "tel:988"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 988",
+                "href": "sms:988"
+            },
+            {
+                "kind": "web",
+                "label": "988lifeline.org",
+                "href": "https://988lifeline.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Veterans Crisis Line",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "meta": "For all veterans & families \u2022 24/7",
+        "description": "Confidential crisis support for veterans, service members, and their families.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 988, press 1",
+                "href": "tel:988"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 838-255",
+                "href": "sms:838255"
+            },
+            {
+                "kind": "web",
+                "label": "veteranscrisisline.net",
+                "href": "https://www.veteranscrisisline.net/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Crisis Text Line",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "description": "Free, confidential crisis counseling by text message with trained counselors.",
+        "actions": [
+            {
+                "kind": "sms",
+                "label": "Text HELLO to 741-741",
+                "href": "sms:741741?&body=HELLO"
+            },
+            {
+                "kind": "sms",
+                "label": "Textea HOLA al 741-741",
+                "href": "sms:741741?&body=HOLA"
+            },
+            {
+                "kind": "web",
+                "label": "crisistextline.org",
+                "href": "https://www.crisistextline.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "The Trevor Project",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "meta": "LGBTQ+ \u2022 24/7",
+        "description": "Crisis intervention and suicide prevention for LGBTQ+ young people.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-866-488-7356",
+                "href": "tel:18664887356"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 678-678",
+                "href": "sms:678678"
+            },
+            {
+                "kind": "web",
+                "label": "thetrevorproject.org",
+                "href": "https://www.thetrevorproject.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Boys Town National Hotline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "meta": "Children & Teens \u2022 24/7",
+        "description": "Crisis support for children, teens, and families dealing with mental health, abuse, or substance issues.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-448-3000",
+                "href": "tel:18004483000"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 20121",
+                "href": "sms:20121"
+            },
+            {
+                "kind": "web",
+                "label": "boystown.org",
+                "href": "https://www.boystown.org/child-family-services/crisis#hotline",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "National Domestic Violence Hotline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "24/7 \u2022 Text \u201cStart\u201d",
+        "description": "Confidential support for anyone affected by domestic violence.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-799-7233",
+                "href": "tel:18007997233"
+            },
+            {
+                "kind": "sms",
+                "label": "Text START to 88788",
+                "href": "sms:88788?&body=Start"
+            },
+            {
+                "kind": "web",
+                "label": "thehotline.org",
+                "href": "https://www.thehotline.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "National Sexual Assault Hotline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "24/7 \u2022 Text \u201cHope\u201d \u2022 Operated by RAINN",
+        "description": "Confidential support for sexual assault survivors and their loved ones.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-656-4673",
+                "href": "tel:18006564673"
+            },
+            {
+                "kind": "sms",
+                "label": "Text HOPE to 64673",
+                "href": "sms:64673?&body=Hope"
+            },
+            {
+                "kind": "web",
+                "label": "rainn.org",
+                "href": "https://rainn.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Childhelp National Child Abuse Hotline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "24/7 \u2022 Text \u201cGo\u201d to 1-800-422-4453",
+        "description": "Crisis intervention and support for child abuse victims, perpetrators, and at-risk individuals.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-422-4453",
+                "href": "tel:18004224453"
+            },
+            {
+                "kind": "sms",
+                "label": "Text GO to 1-800-422-4453",
+                "href": "sms:18004224453?&body=Go"
+            },
+            {
+                "kind": "web",
+                "label": "childhelphotline.org",
+                "href": "https://www.childhelphotline.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "National Human Trafficking Hotline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "24/7",
+        "description": "Confidential support and resources for human trafficking victims and those who suspect trafficking.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-888-373-7888",
+                "href": "tel:18883737888"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 233733",
+                "href": "sms:233733"
+            },
+            {
+                "kind": "web",
+                "label": "humantraffickinghotline.org",
+                "href": "https://humantraffickinghotline.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "DoD Safe Helpline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "US military & families \u2022 Operated by RAINN \u2022 24/7",
+        "description": "Confidential crisis support for sexual assault within the Department of Defense community.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-877-995-5247",
+                "href": "tel:18779955247"
+            },
+            {
+                "kind": "web",
+                "label": "safehelpline.org",
+                "href": "https://safehelpline.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "National Grad Crisis Line",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "Graduate & college students \u2022 24/7",
+        "description": "Crisis support line dedicated to graduate and college students.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-877-472-3457",
+                "href": "tel:18774723457"
+            },
+            {
+                "kind": "web",
+                "label": "gradresources.org",
+                "href": "https://gradresources.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "NY HOPEline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "meta": "24/7",
+        "description": "New York State's addiction and crisis support line for substance use and mental health.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-877-846-7369",
+                "href": "tel:18778467369"
+            },
+            {
+                "kind": "sms",
+                "label": "Text HOPENY to 467369",
+                "href": "sms:467369?&body=HOPENY"
+            },
+            {
+                "kind": "web",
+                "label": "oasas.ny.gov/hopeline",
+                "href": "https://oasas.ny.gov/hopeline",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Gambler Helpline",
+        "risk": 1,
+        "tags": [
+            "depression"
+        ],
+        "meta": "24/7",
+        "description": "Confidential help for individuals and families affected by problem gambling.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-426-2537",
+                "href": "tel:18004262537"
+            },
+            {
+                "kind": "web",
+                "label": "800gambler.org",
+                "href": "https://800gambler.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "SAMHSA Disaster Distress Helpline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "meta": "24/7 \u2022 Disaster-related distress \u2022 Press 2 for Espa\u00f1ol",
+        "description": "Immediate counseling for emotional distress related to natural or human-caused disasters.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-985-5990",
+                "href": "tel:18009855990"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 1-800-985-5990",
+                "href": "sms:18009855990"
+            },
+            {
+                "kind": "web",
+                "label": "samhsa.gov/disaster-distress-helpline",
+                "href": "https://www.samhsa.gov/find-help/helplines/disaster-distress-helpline",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "SAMHSA National Helpline",
+        "risk": 1,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "meta": "24/7 \u2022 Treatment referral & information service",
+        "description": "Confidential referral service for mental health and substance use treatment programs.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-662-HELP",
+                "href": "tel:18006624357"
+            },
+            {
+                "kind": "sms",
+                "label": "Text ZIP to 435748",
+                "href": "sms:435748"
+            },
+            {
+                "kind": "web",
+                "label": "samhsa.gov/national-helpline",
+                "href": "https://www.samhsa.gov/find-help/helplines/national-helpline",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Reach NJ Addiction Helpline",
+        "risk": 1,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "meta": "New Jersey \u2022 24/7",
+        "description": "New Jersey\u2019s centralized addiction treatment referral and support line.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-844-732-2465",
+                "href": "tel:18447322465"
+            },
+            {
+                "kind": "web",
+                "label": "nj.gov/humanservices/reachnj",
+                "href": "https://nj.gov/humanservices/reachnj/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "211 United Way",
+        "risk": 2,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "description": "Connects you to community services for mental health, housing, food, and basic needs.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 211",
+                "href": "tel:211"
+            },
+            {
+                "kind": "web",
+                "label": "211.org",
+                "href": "https://www.211.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Alcoholics Anonymous (AA)",
+        "risk": 2,
+        "tags": [
+            "alcohol"
+        ],
+        "description": "Peer-led recovery meetings for alcohol use.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-212-870-3400",
+                "href": "tel:12128703400"
+            },
+            {
+                "kind": "web",
+                "label": "aa.org",
+                "href": "https://www.aa.org/",
+                "targetBlank": true
+            },
+            {
+                "kind": "web",
+                "label": "Online intergroup",
+                "href": "https://aa-intergroup.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Al\u2011Anon",
+        "risk": 2,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "description": "Support groups for families and friends of people with alcohol use.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-888-4AL-ANON",
+                "href": "tel:18884252666"
+            },
+            {
+                "kind": "web",
+                "label": "al-anon.org",
+                "href": "https://al-anon.org/",
+                "targetBlank": true
+            },
+            {
+                "kind": "web",
+                "label": "Find meetings",
+                "href": "https://al-anon.org/al-anon-meetings/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Alateen",
+        "risk": 2,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "meta": "Children & Teens",
+        "description": "Al-Anon program for teens affected by someone else\u2019s drinking or drug use.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-888-4AL-ANON",
+                "href": "tel:18884252666"
+            },
+            {
+                "kind": "web",
+                "label": "al-anon.org/alateen",
+                "href": "https://al-anon.org/newcomers/teen-corner-alateen/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "American Foundation for Suicide Prevention (AFSP)",
+        "risk": 4,
+        "tags": [
+            "depression"
+        ],
+        "description": "Suicide prevention education, community programs, and support resources.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-888-333-2377",
+                "href": "tel:18883332377"
+            },
+            {
+                "kind": "web",
+                "label": "afsp.org",
+                "href": "https://afsp.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Mental Health America (MHA)",
+        "risk": 2,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances"
+        ],
+        "description": "Free mental health screening tools, education, and referral resources.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-969-6642",
+                "href": "tel:18009696642"
+            },
+            {
+                "kind": "web",
+                "label": "mhanational.org",
+                "href": "https://mhanational.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "NAMI Helpline",
+        "risk": 2,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances"
+        ],
+        "meta": "Not a crisis line",
+        "description": "Information, education, and referrals provided by trained NAMI staff and volunteers.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-950-NAMI",
+                "href": "tel:18009506264"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 62640",
+                "href": "sms:62640"
+            },
+            {
+                "kind": "web",
+                "label": "nami.org/helpline",
+                "href": "https://www.nami.org/support-education/nami-helpline/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Narcotics Anonymous (NA)",
+        "risk": 2,
+        "tags": [
+            "substances"
+        ],
+        "description": "Peer-led recovery meetings for drug use.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-818-773-9999",
+                "href": "tel:18187739999"
+            },
+            {
+                "kind": "web",
+                "label": "na.org",
+                "href": "https://na.org/",
+                "targetBlank": true
+            },
+            {
+                "kind": "web",
+                "label": "Meeting search",
+                "href": "https://na.org/meetingsearch/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "NJ Mental Health Cares",
+        "risk": 2,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances"
+        ],
+        "description": "NJ mental health information, referrals, and peer support.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-866-202-4357",
+                "href": "tel:18662024357"
+            },
+            {
+                "kind": "web",
+                "label": "njmentalhealthcares.org",
+                "href": "https://www.njmentalhealthcares.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "NJ Connect for Recovery",
+        "risk": 2,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "description": "NJ support line for alcohol and drug recovery services.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-855-652-3737",
+                "href": "tel:18556523737"
+            },
+            {
+                "kind": "web",
+                "label": "njconnectforrecovery.org",
+                "href": "https://www.njconnectforrecovery.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "NJ Self\u2011Help Clearinghouse",
+        "risk": 2,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances"
+        ],
+        "meta": "Outside NJ call: 1-973-571-4100",
+        "description": "Directory of peer support and self-help groups across NJ.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-367-6274",
+                "href": "tel:18003676274"
+            },
+            {
+                "kind": "web",
+                "label": "njgroups.org",
+                "href": "https://www.njgroups.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "SAFE Locator",
+        "risk": 2,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "description": "Searchable directory for substance use treatment and recovery resources.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "safelocator.org",
+                "href": "https://safelocator.org/en/search",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "SAFE Solutions",
+        "risk": 2,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "description": "Recovery resources and tools for individuals and families.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "yoursafesolutions.us",
+                "href": "https://www.yoursafesolutions.us",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Courage First Athlete Helpline",
+        "risk": 3,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "meta": "Off hours answered by Childhelp",
+        "description": "Mental health and abuse support line specifically for athletes.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-888-279-1026",
+                "href": "tel:18882791026"
+            },
+            {
+                "kind": "sms",
+                "label": "Text 1-888-279-1026",
+                "href": "sms:18882791026"
+            },
+            {
+                "kind": "web",
+                "label": "athletehelpline.org",
+                "href": "https://www.athletehelpline.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "National Institute of Mental Health",
+        "risk": 3,
+        "tags": [
+            "depression",
+            "abuse"
+        ],
+        "description": "Research-based mental health information, resources, and referrals from the NIMH.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "nimh.nih.gov",
+                "href": "https://www.nimh.nih.gov/",
+                "targetBlank": true
+            },
+            {
+                "kind": "web",
+                "label": "Find help",
+                "href": "https://www.nimh.nih.gov/health/find-help",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Peer Recovery Warm Line",
+        "risk": 3,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "description": "Peer-to-peer support line for individuals in recovery from alcohol or drug use in NJ.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-877-292-5588",
+                "href": "tel:18772925588"
+            },
+            {
+                "kind": "web",
+                "label": "mhanj.org",
+                "href": "https://www.mhanj.org/people-in-recovery-warmline/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "IUOE Local 825 Sober Sunday",
+        "risk": 3,
+        "tags": [
+            "alcohol"
+        ],
+        "meta": "Open to everyone, weekly",
+        "description": "Weekly virtual recovery meeting open to everyone.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "Virtual meeting: Sundays 8am EST",
+                "href": "https://zoom.us/j/82251608337?pwd=625319",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "SAFE Virtual Veteran\u2019s Recovery Meeting",
+        "risk": 3,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "meta": "Weekly \u2022 Tuesdays 6pm EST",
+        "description": "Weekly virtual recovery meeting for veterans dealing with alcohol or substance use.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "Virtual meeting: Tuesdays 6pm EST",
+                "href": "https://www.safeproject.us/veterans/recovery-meetings/#Reminder",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "SMART Recovery",
+        "risk": 3,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "description": "Science-based mutual support meetings for addiction recovery.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-440-951-5357",
+                "href": "tel:14409515357"
+            },
+            {
+                "kind": "web",
+                "label": "smartrecovery.org",
+                "href": "https://smartrecovery.org/",
+                "targetBlank": true
+            },
+            {
+                "kind": "web",
+                "label": "Find meetings",
+                "href": "https://smartrecovery.org/meeting",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Alliance for Naloxone Safety in the Workplace (ANSW)",
+        "risk": 4,
+        "tags": [
+            "substances"
+        ],
+        "description": "Workplace naloxone training and overdose prevention resources.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "answ.org",
+                "href": "https://www.answ.org/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "CDC Info",
+        "risk": 4,
+        "tags": [
+            "depression",
+            "alcohol",
+            "substances",
+            "abuse"
+        ],
+        "meta": "1-800-CDC-INFO",
+        "description": "General health information and referrals from the Centers for Disease Control and Prevention.",
+        "actions": [
+            {
+                "kind": "tel",
+                "label": "Call 1-800-232-4636",
+                "href": "tel:18002324636"
+            },
+            {
+                "kind": "web",
+                "label": "cdc.gov",
+                "href": "https://www.cdc.gov/cdc-info/about-us/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Construction Industry Alliance for Suicide Prevention (CIASP)",
+        "risk": 4,
+        "tags": [
+            "depression"
+        ],
+        "description": "Suicide prevention training and workplace resources tailored to the construction industry.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "preventconstructionsuicide.com",
+                "href": "https://www.preventconstructionsuicide.com/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "Construction Suicide Prevention Week (CSPW)",
+        "risk": 4,
+        "tags": [
+            "depression"
+        ],
+        "description": "Awareness campaign with prevention tools for construction teams.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "constructionsuicideprevention.com",
+                "href": "https://constructionsuicideprevention.com/",
+                "targetBlank": true
+            }
+        ]
+    },
+    {
+        "title": "SAFE Project",
+        "risk": 4,
+        "tags": [
+            "alcohol",
+            "substances"
+        ],
+        "description": "Education, advocacy, and support for addiction recovery.",
+        "actions": [
+            {
+                "kind": "web",
+                "label": "safeproject.us",
+                "href": "https://www.safeproject.us/",
+                "targetBlank": true
+            }
+        ]
+    }
 ]

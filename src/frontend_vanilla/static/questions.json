@@ -1,9 +1,10 @@
 {
-  "title": "Protecting Under the Hard Hat Survey",
+  "title": "Protecting Under the Hard Hat",
   "version": "3.0.0",
   "settings": {
     "autoAdvanceSingle": true,
     "requireNextOnMultiple": true,
+    "showAbsoluteProgress": false,
     "defaultTopics": []
   },
   "questions": [
@@ -68,28 +69,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -108,28 +113,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -148,28 +157,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -188,28 +201,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -228,28 +245,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -268,28 +289,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -308,28 +333,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -348,28 +377,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -388,28 +421,32 @@
           "label": "Rarely",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "3",
           "label": "Sometimes",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "4",
           "label": "Usually",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         },
         {
           "id": "5",
           "label": "Always",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Frequent distress symptoms"
         }
       ]
     },
@@ -433,7 +470,7 @@
           "label": "Experiencing substance use challenges",
           "indicates": [
             "alcohol",
-            "opioids"
+            "substances"
           ],
           "reason": "Current substance use challenges",
           "urgency": "urgent"
@@ -451,7 +488,7 @@
           "label": "In recovery from substance use",
           "indicates": [
             "alcohol",
-            "opioids"
+            "substances"
           ],
           "reason": "Maintaining substance use recovery"
         },
@@ -471,7 +508,7 @@
     },
     {
       "id": "t2",
-      "text": "In the past 30 days, which of the following did you sometimes feel? (Select all that apply)",
+      "text": "In the past 30 days, which of the following did you generally feel? (Select all that apply)",
       "type": "multiple",
       "required": false,
       "options": [
@@ -571,28 +608,32 @@
           "label": "Restlessness",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Experiencing restlessness recently"
         },
         {
           "id": "irritability",
           "label": "Irritability",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Experiencing irritability recently"
         },
         {
           "id": "trouble_concentrating",
           "label": "Trouble concentrating",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Trouble concentrating recently"
         },
         {
           "id": "trouble_sleeping",
           "label": "Trouble sleeping",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Trouble sleeping recently"
         },
         {
           "id": "none",
@@ -630,7 +671,19 @@
           "id": "own_coping",
           "label": "Used my own coping methods (e.g., exercise, reading)"
         }
-      ]
+      ],
+      "showIf": {
+        "or": [
+          {
+            "questionId": "t2",
+            "notEquals": "none"
+          },
+          {
+            "questionId": "t3",
+            "notEquals": "none"
+          }
+        ]
+      }
     },
     {
       "id": "t5",
@@ -643,56 +696,64 @@
           "label": "Increased heart rate",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "rapid_breathing",
           "label": "Rapid breathing",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "muscle_tension",
           "label": "Muscle tension",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "sweating",
           "label": "Sweating",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "dry_mouth",
           "label": "Dry mouth",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "headache",
           "label": "Headache",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "stomachache",
           "label": "Stomachache",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "dizziness",
           "label": "Dizziness",
           "indicates": [
             "depression"
-          ]
+          ],
+          "groupReason": "Physical stress symptoms"
         },
         {
           "id": "none",
@@ -730,198 +791,11 @@
           "id": "own_coping",
           "label": "Used my own coping methods (e.g., exercise, reading)"
         }
-      ]
-    },
-    {
-      "id": "t7",
-      "text": "In the past 30 days, have you consumed alcohol?",
-      "type": "single",
-      "required": true,
-      "options": [
-        {
-          "id": "yes",
-          "label": "Yes",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "no",
-          "label": "No",
-          "indicatesRemove": [
-            "alcohol"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "t8",
-      "text": "In the past 30 days, how often did you drink alcohol?",
-      "type": "single",
-      "required": true,
-      "options": [
-        {
-          "id": "daily",
-          "label": "Daily",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "weekly",
-          "label": "Weekly",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "monthly",
-          "label": "Monthly",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "socially",
-          "label": "Socially (Less than three times a month)",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "rarely",
-          "label": "Rarely",
-          "indicates": [
-            "alcohol"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "t9",
-      "text": "In the past 30 days, was alcohol one of your coping methods?",
-      "type": "single",
-      "required": true,
-      "options": [
-        {
-          "id": "yes",
-          "label": "Yes",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "no",
-          "label": "No"
-        }
-      ]
-    },
-    {
-      "id": "t10",
-      "text": "In the past 30 days, have you used drugs?",
-      "type": "single",
-      "required": true,
-      "options": [
-        {
-          "id": "prescribed",
-          "label": "Prescribed",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Prescribed drug use"
-        },
-        {
-          "id": "non_prescribed",
-          "label": "Non-prescribed",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Non-prescribed drug use",
-          "urgency": "urgent"
-        },
-        {
-          "id": "both",
-          "label": "Both prescribed and non-prescribed",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Prescribed and non-prescribed drug use",
-          "urgency": "urgent"
-        },
-        {
-          "id": "none",
-          "label": "None"
-        }
-      ]
-    },
-    {
-      "id": "t11",
-      "text": "In the past 30 days, how often did you use drugs?",
-      "type": "single",
-      "required": true,
-      "options": [
-        {
-          "id": "daily",
-          "label": "Daily",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Daily drug use",
-          "urgency": "urgent"
-        },
-        {
-          "id": "weekly",
-          "label": "Weekly",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Weekly drug use",
-          "urgency": "moderate"
-        },
-        {
-          "id": "rarely",
-          "label": "Rarely",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Rare drug use"
-        },
-        {
-          "id": "socially",
-          "label": "Socially (Less than three times a month)",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Social drug use"
-        },
-        {
-          "id": "prescribed",
-          "label": "Only as prescribed",
-          "indicates": [
-            "opioids"
-          ],
-          "reason": "Drug use as prescribed"
-        }
-      ]
-    },
-    {
-      "id": "jama1",
-      "text": "How many times in the past year have you used an illegal drug or used a prescription medication for nonmedical reasons?",
-      "type": "single",
-      "required": true,
-      "options": [
-        {
-          "id": "0",
-          "label": "0 times"
-        },
-        {
-          "id": "1",
-          "label": "1 or more times",
-          "indicates": [
-            "opioids"
-          ]
-        }
-      ]
+      ],
+      "showIf": {
+        "questionId": "t5",
+        "notEquals": "none"
+      }
     },
     {
       "id": "notes1",
@@ -942,14 +816,16 @@
           "label": "Have a drink",
           "indicates": [
             "alcohol"
-          ]
+          ],
+          "reason": "Drinking as a personal activity"
         },
         {
           "id": "substances",
           "label": "Use other substances",
           "indicates": [
-            "opioids"
-          ]
+            "substances"
+          ],
+          "reason": "Using substances as a personal activity"
         },
         {
           "id": "meditate",
@@ -966,7 +842,110 @@
       ]
     },
     {
+      "id": "t7",
+      "text": "In the past 30 days, have you consumed alcohol?",
+      "type": "single",
+      "required": true,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Recent alcohol consumption"
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "indicatesRemove": [
+            "alcohol"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "t8",
+      "showIf": {
+        "questionId": "t7",
+        "equals": "yes"
+      },
+      "text": "In the past 30 days, how often did you drink alcohol?",
+      "type": "single",
+      "required": true,
+      "options": [
+        {
+          "id": "daily",
+          "label": "Daily",
+          "indicates": [
+            "alcohol"
+          ],
+          "groupReason": "Alcohol consumption frequency"
+        },
+        {
+          "id": "weekly",
+          "label": "Weekly",
+          "indicates": [
+            "alcohol"
+          ],
+          "groupReason": "Alcohol consumption frequency"
+        },
+        {
+          "id": "monthly",
+          "label": "Monthly",
+          "indicates": [
+            "alcohol"
+          ],
+          "groupReason": "Alcohol consumption frequency"
+        },
+        {
+          "id": "socially",
+          "label": "Socially (Less than three times a month)",
+          "indicates": [
+            "alcohol"
+          ],
+          "groupReason": "Alcohol consumption frequency"
+        },
+        {
+          "id": "rarely",
+          "label": "Rarely",
+          "indicates": [
+            "alcohol"
+          ],
+          "groupReason": "Alcohol consumption frequency"
+        }
+      ]
+    },
+    {
+      "id": "t9",
+      "showIf": {
+        "questionId": "t7",
+        "equals": "yes"
+      },
+      "text": "In the past 30 days, was alcohol one of your coping methods?",
+      "type": "single",
+      "required": true,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Using alcohol as a coping method"
+        },
+        {
+          "id": "no",
+          "label": "No"
+        }
+      ]
+    },
+    {
       "id": "notes2",
+      "showIf": {
+        "questionId": "t7",
+        "equals": "yes"
+      },
       "text": "In the past 30 days, on how many days did you drink more than one alcoholic beverage?",
       "type": "single",
       "required": true,
@@ -976,70 +955,256 @@
           "label": "1–2 days",
           "indicates": [
             "alcohol"
-          ]
+          ],
+          "groupReason": "Multi-day alcohol consumption"
         },
         {
           "id": "3-5",
           "label": "3–5 days",
           "indicates": [
             "alcohol"
-          ]
+          ],
+          "groupReason": "Multi-day alcohol consumption"
         },
         {
           "id": "6-9",
           "label": "6–9 days",
           "indicates": [
             "alcohol"
-          ]
+          ],
+          "groupReason": "Multi-day alcohol consumption"
         },
         {
           "id": "10-19",
           "label": "10–19 days",
           "indicates": [
             "alcohol"
-          ]
+          ],
+          "groupReason": "Multi-day alcohol consumption"
         },
         {
           "id": "20-29",
           "label": "20–29 days",
           "indicates": [
             "alcohol"
-          ]
+          ],
+          "groupReason": "Multi-day alcohol consumption"
         },
         {
           "id": "30",
           "label": "All 30 days",
           "indicates": [
             "alcohol"
-          ]
+          ],
+          "groupReason": "Multi-day alcohol consumption"
         }
       ]
     },
     {
-      "id": "notes_q4",
-      "text": "Do you take prescription or non-prescription medication?",
+      "id": "alcohol_reasons",
+      "showIf": {
+        "questionId": "t7",
+        "equals": "yes"
+      },
+      "text": "What are some reasons you drink alcohol? (Select all that apply)",
+      "type": "multiple",
+      "required": false,
+      "options": [
+        {
+          "id": "forget_worries",
+          "label": "To forget your worries",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking to forget worries"
+        },
+        {
+          "id": "peer_pressure",
+          "label": "Because your friends pressure you to drink",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking due to peer pressure"
+        },
+        {
+          "id": "enjoy_party",
+          "label": "Because it helps you enjoy a party",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking to enjoy social events"
+        },
+        {
+          "id": "cope_mood",
+          "label": "Because it helps you when you feel depressed or nervous",
+          "indicates": [
+            "alcohol",
+            "depression"
+          ],
+          "reason": "Drinking to cope with mood"
+        },
+        {
+          "id": "sociable",
+          "label": "To be sociable",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking to be sociable"
+        }
+      ]
+    },
+    {
+      "id": "t10",
+      "text": "In the past 30 days, excluding alcohol, have you used any substances or medications?",
       "type": "single",
       "required": true,
       "options": [
         {
-          "id": "never",
-          "label": "Never"
+          "id": "prescribed",
+          "label": "Prescribed",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Prescribed drug use"
         },
         {
-          "id": "prescribed",
-          "label": "If it is prescribed",
+          "id": "non_prescribed",
+          "label": "Non-prescribed",
           "indicates": [
-            "opioids"
-          ]
+            "substances"
+          ],
+          "reason": "Non-prescribed drug use",
+          "urgency": "urgent"
         },
+        {
+          "id": "both",
+          "label": "Both prescribed and non-prescribed",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Prescribed and non-prescribed drug use",
+          "urgency": "urgent"
+        },
+        {
+          "id": "none",
+          "label": "None"
+        }
+      ]
+    },
+    {
+      "id": "t11",
+      "text": "In the past 30 days, how often did you use drugs?",
+      "type": "single",
+      "required": true,
+      "options": [
         {
           "id": "daily",
           "label": "Daily",
           "indicates": [
-            "opioids"
-          ]
+            "substances"
+          ],
+          "reason": "Daily drug use",
+          "urgency": "urgent"
+        },
+        {
+          "id": "weekly",
+          "label": "Weekly",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Weekly drug use",
+          "urgency": "moderate"
+        },
+        {
+          "id": "rarely",
+          "label": "Rarely",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Rare drug use"
+        },
+        {
+          "id": "socially",
+          "label": "Socially (Less than three times a month)",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Social drug use"
+        },
+        {
+          "id": "prescribed",
+          "label": "Only as prescribed",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Drug use as prescribed"
         }
-      ]
+      ],
+      "showIf": {
+        "questionId": "t10",
+        "anyOf": [
+          "non_prescribed",
+          "both"
+        ]
+      }
+    },
+    {
+      "id": "jama1",
+      "text": "How many times in the past year have you used an illegal drug or used a prescription medication for nonmedical reasons?",
+      "type": "single",
+      "required": true,
+      "options": [
+        {
+          "id": "0",
+          "label": "0 times"
+        },
+        {
+          "id": "1",
+          "label": "1 or more times",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Past-year illegal or non-medical drug use"
+        }
+      ],
+      "showIf": {
+        "questionId": "t10",
+        "anyOf": [
+          "non_prescribed",
+          "both"
+        ]
+      }
+    },
+    {
+      "id": "notes_q4",
+      "text": "How often do you take your medication?",
+      "type": "single",
+      "required": true,
+      "options": [
+        {
+          "id": "daily",
+          "label": "Daily",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "Daily medication use"
+        },
+        {
+          "id": "as_needed",
+          "label": "As needed",
+          "indicates": [
+            "substances"
+          ],
+          "reason": "As-needed medication use"
+        }
+      ],
+      "showIf": {
+        "questionId": "t10",
+        "anyOf": [
+          "prescribed",
+          "both"
+        ]
+      }
     },
     {
       "id": "notes_q4_followup",
@@ -1052,76 +1217,56 @@
           "label": "Pain",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Taking medication for pain"
         },
         {
           "id": "anxiety",
           "label": "Anxiety",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Taking medication for anxiety"
         },
         {
           "id": "depression",
           "label": "Depression",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Taking medication for depression"
         },
         {
           "id": "sleep",
           "label": "Sleep",
           "indicates": [
             "depression"
-          ]
+          ],
+          "reason": "Taking medication for sleep"
         },
         {
           "id": "other",
           "label": "Other"
         }
-      ]
+      ],
+      "showIf": {
+        "questionId": "notes_q4",
+        "equals": "daily"
+      }
     },
     {
-      "id": "alcohol_reasons",
-      "text": "What are some reasons you drink alcohol? (Select all that apply)",
-      "type": "multiple",
-      "required": false,
+      "id": "g0",
+      "text": "In the past 12 months, have you gambled (e.g., lottery, sports betting, casino)?",
+      "type": "single",
+      "required": true,
       "options": [
         {
-          "id": "forget_worries",
-          "label": "To forget your worries",
-          "indicates": [
-            "alcohol"
-          ]
+          "id": "yes",
+          "label": "Yes"
         },
         {
-          "id": "peer_pressure",
-          "label": "Because your friends pressure you to drink",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "enjoy_party",
-          "label": "Because it helps you enjoy a party",
-          "indicates": [
-            "alcohol"
-          ]
-        },
-        {
-          "id": "cope_mood",
-          "label": "Because it helps you when you feel depressed or nervous",
-          "indicates": [
-            "alcohol",
-            "depression"
-          ]
-        },
-        {
-          "id": "sociable",
-          "label": "To be sociable",
-          "indicates": [
-            "alcohol"
-          ]
+          "id": "no",
+          "label": "No"
         }
       ]
     },
@@ -1136,13 +1281,18 @@
           "label": "Yes",
           "indicates": [
             "gambling"
-          ]
+          ],
+          "reason": "Restless or anxious when reducing gambling"
         },
         {
           "id": "no",
           "label": "No"
         }
-      ]
+      ],
+      "showIf": {
+        "questionId": "g0",
+        "equals": "yes"
+      }
     },
     {
       "id": "g2",
@@ -1155,13 +1305,18 @@
           "label": "Yes",
           "indicates": [
             "gambling"
-          ]
+          ],
+          "reason": "Hiding gambling from family or friends"
         },
         {
           "id": "no",
           "label": "No"
         }
-      ]
+      ],
+      "showIf": {
+        "questionId": "g0",
+        "equals": "yes"
+      }
     },
     {
       "id": "g3",
@@ -1174,13 +1329,18 @@
           "label": "Yes",
           "indicates": [
             "gambling"
-          ]
+          ],
+          "reason": "Financial trouble from gambling"
         },
         {
           "id": "no",
           "label": "No"
         }
-      ]
+      ],
+      "showIf": {
+        "questionId": "g0",
+        "equals": "yes"
+      }
     },
     {
       "id": "g4",
@@ -1197,30 +1357,38 @@
           "label": "Sometimes I think about gambling less.",
           "indicates": [
             "gambling"
-          ]
+          ],
+          "reason": "Thinking about gambling less"
         },
         {
           "id": "decided_less",
           "label": "I have decided to gamble less.",
           "indicates": [
             "gambling"
-          ]
+          ],
+          "reason": "Decided to gamble less"
         },
         {
           "id": "cutting_back",
           "label": "I am already trying to cut back on my gambling.",
           "indicates": [
             "gambling"
-          ]
+          ],
+          "reason": "Actively cutting back on gambling"
         },
         {
           "id": "changed",
           "label": "I changed my gambling. I now do not gamble, or gamble less than before.",
           "indicates": [
             "gambling"
-          ]
+          ],
+          "reason": "Changed gambling behavior"
         }
-      ]
+      ],
+      "showIf": {
+        "questionId": "g0",
+        "equals": "yes"
+      }
     }
   ]
 }

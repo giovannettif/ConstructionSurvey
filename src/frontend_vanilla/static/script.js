@@ -81,13 +81,59 @@ function showToast(message) {
 function isVisible(question, answers) {
   const c = question.showIf;
   if (!c) return true;
-  const a = answers[c.questionId];
-  const arr = Array.isArray(a) ? a : a != null ? [a] : [];
-  if (c.equals !== undefined) return a === c.equals;
-  if (Array.isArray(c.anyOf)) return arr.some(v => c.anyOf.includes(v));
-  // if (Array.isArray(c.noneOf)) return arr.every(v => !c.noneOf.includes(v));
-  if (c.notEquals !== undefined) return a !== c.notEquals;
-  return true;
+
+  const evalCond = (cond) => {
+    if (!cond) return true;
+    if (Array.isArray(cond.and)) return cond.and.every(evalCond);
+    if (Array.isArray(cond.or)) return cond.or.some(evalCond);
+    if (cond.not) return !evalCond(cond.not);
+
+    const qid = cond.questionId || cond.q;
+    if (!qid) return true;
+
+    const a = answers[qid];
+    if (a === undefined || a === null || (Array.isArray(a) && a.length === 0)) return false;
+
+    const arr = Array.isArray(a) ? a : [a];
+
+    if (cond.equals !== undefined) return a === cond.equals;
+    if (Array.isArray(cond.anyOf)) return arr.some(v => cond.anyOf.includes(v));
+    if (cond.notEquals !== undefined) return a !== cond.notEquals;
+    if (cond.contains !== undefined) return arr.includes(cond.contains);
+
+    return true;
+  };
+
+  return evalCond(c);
+}
+
+function isPotentiallyVisible(question, answers) {
+  const c = question.showIf;
+  if (!c) return true;
+
+  const evalCond = (cond) => {
+    if (!cond) return true;
+    if (Array.isArray(cond.and)) return cond.and.every(evalCond);
+    if (Array.isArray(cond.or)) return cond.or.some(evalCond);
+    if (cond.not) return !evalCond(cond.not);
+
+    const qid = cond.questionId || cond.q;
+    if (!qid) return true;
+
+    const a = answers[qid];
+    if (a === undefined || a === null || (Array.isArray(a) && a.length === 0)) return true;
+
+    const arr = Array.isArray(a) ? a : [a];
+
+    if (cond.equals !== undefined) return a === cond.equals;
+    if (Array.isArray(cond.anyOf)) return arr.some(v => cond.anyOf.includes(v));
+    if (cond.notEquals !== undefined) return a !== cond.notEquals;
+    if (cond.contains !== undefined) return arr.includes(cond.contains);
+
+    return true;
+  };
+
+  return evalCond(c);
 }
 
 async function captureBrowserGPS({
@@ -168,6 +214,7 @@ class DynamicSurvey {
       requireNextOnMultiple: typeof config?.settings?.requireNextOnMultiple === 'boolean'
         ? config.settings.requireNextOnMultiple
         : true,
+      showAbsoluteProgress: !!config?.settings?.showAbsoluteProgress,
       legacyQuestionTags: !!config?.settings?.legacyQuestionTags,
       defaultTopics: (config?.settings?.defaultTopics || []).map(s => String(s).toLowerCase())
     };
@@ -512,6 +559,34 @@ class DynamicSurvey {
 
   /* Visible flow and branching */
   getVisibleIds() { return this.questions.filter(q => isVisible(q, this.answers)).map(q => q.id); }
+  _extractShowIfRefs(cond) {
+    if (!cond) return [];
+    const refs = [];
+    if (Array.isArray(cond.and)) cond.and.forEach(c => refs.push(...this._extractShowIfRefs(c)));
+    if (Array.isArray(cond.or)) cond.or.forEach(c => refs.push(...this._extractShowIfRefs(c)));
+    if (cond.not) refs.push(...this._extractShowIfRefs(cond.not));
+    const qid = cond.questionId || cond.q;
+    if (qid) refs.push(qid);
+    return refs;
+  }
+  getPotentiallyVisibleIds() {
+    const potVisSet = new Set();
+    for (const q of this.questions) {
+      if (!q.showIf) { potVisSet.add(q.id); continue; }
+      if (!isPotentiallyVisible(q, this.answers)) continue;
+      // Ensure all referenced parent questions are themselves reachable
+      const refs = this._extractShowIfRefs(q.showIf);
+      const reachable = refs.every(refId => {
+        const a = this.answers[refId];
+        // If the parent has a definite answer the condition was evaluated normally
+        if (a !== undefined && a !== null && (!Array.isArray(a) || a.length > 0)) return true;
+        // If parent answer was pruned, it must itself be potentially visible
+        return potVisSet.has(refId);
+      });
+      if (reachable) potVisSet.add(q.id);
+    }
+    return this.questions.filter(q => potVisSet.has(q.id)).map(q => q.id);
+  }
   maybeSkipImmediateNext(currentId, nextId) {
     const q = this.getQuestion(currentId);
     if (!q || !nextId || !Array.isArray(q.nextVisibleIfAnyOf)) return nextId;
@@ -539,13 +614,25 @@ class DynamicSurvey {
     return i > 0 ? visible[i - 1] : null;
   }
 
-  /* Badges, progress, and screen activation */
   updateQuestionNumberBadges() {
     const visible = this.getVisibleIds();
-    const total = visible.length;
+    const potVis = this.getPotentiallyVisibleIds();
+
     visible.forEach((id, i) => {
       const span = this.getContainer(id)?.querySelector('.question-number span');
-      if (span) span.textContent = `Question ${i + 1}/${total}`;
+      if (span) {
+        if (this.settings.showAbsoluteProgress) {
+          // Absolute mode: show physical question number in JSON array vs Total Fixed Questions (e.g. 17/31 -> 20/31)
+          const qNum = this.questions.findIndex(q => q.id === id) + 1;
+          const total = this.questions.length;
+          span.textContent = `Question ${qNum}/${total}`;
+        } else {
+          // Relative Decreasing mode: show linear 1,2,3,4 vs Shrinking Total (e.g. 17/31 -> 18/27)
+          const qNum = i + 1;
+          const total = potVis.length;
+          span.textContent = `Question ${qNum}/${total}`;
+        }
+      }
     });
   }
   showQuestion(qId, { pushHistory = true } = {}) {
@@ -585,9 +672,18 @@ class DynamicSurvey {
   }
   updateProgress() {
     const visible = this.getVisibleIds();
-    const total = visible.length || 1;
-    const idx = Math.max(visible.indexOf(this.currentId), 0);
-    const pct = ((idx + 1) / total) * 100;
+    const potVis = this.getPotentiallyVisibleIds();
+
+    let currentIdx, total;
+    if (this.settings.showAbsoluteProgress) {
+      currentIdx = Math.max(this.questions.findIndex(q => q.id === this.currentId), 0);
+      total = this.questions.length || 1;
+    } else {
+      currentIdx = Math.max(visible.indexOf(this.currentId), 0);
+      total = potVis.length || 1;
+    }
+
+    const pct = ((currentIdx + 1) / total) * 100;
     if (this.dom.progressBar) this.dom.progressBar.style.width = `${pct}%`;
   }
   updateBackButtonState() {
@@ -786,7 +882,7 @@ class DynamicSurvey {
   selectedTopicsObject() {
     const set = this.computeSelectedTopics();
     const known = new Set((RESOURCES_DB || []).flatMap(r => Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []));
-    if (!known.size) ['depression', 'alcohol', 'opioids'].forEach(t => known.add(t));
+    if (!known.size) ['depression', 'alcohol', 'substances', 'abuse'].forEach(t => known.add(t));
     const obj = {}; known.forEach(t => { obj[t] = set.has(t); }); return obj;
   }
   computeUrgencyLevel() {
