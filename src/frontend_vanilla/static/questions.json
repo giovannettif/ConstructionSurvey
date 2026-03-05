@@ -538,6 +538,11 @@
           "urgency": "moderate"
         },
         {
+          "id": "hopeful",
+          "label": "Hopeful",
+          "reason": "Feeling hopeful recently"
+        },
+        {
           "id": "lonely",
           "label": "Lonely",
           "indicates": [
@@ -560,6 +565,11 @@
             "depression"
           ],
           "reason": "Feeling fidgety recently"
+        },
+        {
+          "id": "happy",
+          "label": "Happy",
+          "reason": "Feeling happy recently"
         },
         {
           "id": "sad",
