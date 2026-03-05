@@ -10,7 +10,9 @@
 </head>
 
 <body>
-  <button id="themeToggle" class="theme-toggle" type="button">
+  <a href="#questionsRoot" class="skip-link">Skip to main content</a>
+
+  <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">
     <span id="themeIcon">🌙</span>
   </button>
 
@@ -26,7 +28,7 @@
       </div>
     </header>
 
-    <button id="backBtn" class="back-btn" type="button">← Back</button>
+    <button id="backBtn" class="back-btn" type="button" aria-label="Go back to previous question">← Back</button>
 
     <main id="questionsRoot"></main>
 
@@ -35,7 +37,8 @@
       <div class="completion-title">All Done!</div>
       <div class="completion-text">Thank you for completing the survey! This isn’t a diagnosis.</div>
       <button id="helpBtn" class="help-nav-btn" type="button">View Resources</button>
-      <button id="restartBtn" class="restart-btn light-red" type="button">Do it again</button>
+      <button id="restartBtn" class="restart-btn light-red" type="button" aria-label="Restart survey">Do it
+        again</button>
       <div class="footer-note">If you’re concerned about your wellbeing, consider talking to a qualified professional.
       </div>
     </section>
@@ -51,8 +54,10 @@
 
       <div id="helpGrid" class="help-grid"></div>
       <div class="help-back-row">
-        <button id="helpBackBtn" class="help-nav-btn light-red" type="button">Back to summary</button>
-        <button id="helpRestartBtn" class="help-nav-btn" type="button">Restart survey</button>
+        <button id="helpBackBtn" class="help-nav-btn light-red" type="button" aria-label="Back to results summary">Back
+          to summary</button>
+        <button id="helpRestartBtn" class="help-nav-btn" type="button" aria-label="Restart survey">Restart
+          survey</button>
       </div>
       <div class="footer-branding">
         <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-footer">
