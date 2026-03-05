@@ -410,7 +410,7 @@ class DynamicSurvey {
       .map(o => `<button class="option" type="button" data-value="${String(o.id)}">${o.label}</button>`)
       .join('');
     const nextRow = q.type === 'multiple'
-      ? `<div class="submit-row"><button class="submit-btn" type="button" data-role="next" ${this.settings.requireNextOnMultiple ? 'disabled' : ''}>Next</button></div>`
+      ? `<div class="submit-row"><button class="submit-btn" type="button" data-role="next" ${this.settings.requireNextOnMultiple ? 'disabled' : ''} aria-label="Next question">Next</button></div>`
       : '';
     return `
       <section class="question-container" data-qid="${q.id}" style="display:none">
@@ -435,7 +435,7 @@ class DynamicSurvey {
       row = document.createElement('div');
       row.className = 'submit-row';
       row.dataset.role = 'single-nav';
-      row.innerHTML = `<button class="submit-btn" type="button" data-role="single-nav-btn">Next</button>`;
+      row.innerHTML = `<button class="submit-btn" type="button" data-role="single-nav-btn" aria-label="Next question">Next</button>`;
       c.appendChild(row);
     }
     return row;
@@ -455,7 +455,11 @@ class DynamicSurvey {
         if (answered && !nextId) {
           const ensured = this.ensureSingleNavRow(qId);
           const btn = ensured?.querySelector('.submit-btn');
-          if (btn) { btn.textContent = 'Submit'; btn.disabled = false; }
+          if (btn) {
+            btn.textContent = 'Submit';
+            btn.ariaLabel = 'Submit survey';
+            btn.disabled = false;
+          }
           ensured.style.display = '';
         } else if (row) {
           row.style.display = 'none';
@@ -465,7 +469,9 @@ class DynamicSurvey {
         const btn = ensured?.querySelector('.submit-btn');
         const nextId = answered ? this.getNextId(qId) : null;
         if (btn) {
-          btn.textContent = (answered && !nextId) ? 'Submit' : 'Next';
+          const isSubmit = answered && !nextId;
+          btn.textContent = isSubmit ? 'Submit' : 'Next';
+          btn.ariaLabel = isSubmit ? 'Submit survey' : 'Next question';
           btn.disabled = !answered;
         }
         ensured.style.display = '';
@@ -477,8 +483,10 @@ class DynamicSurvey {
       const val = this.answers[qId];
       const hasAnswer = Array.isArray(val) && val.length > 0;
       if (nextBtn) {
+        const isSubmit = hasAnswer && !this.getNextId(qId);
         nextBtn.disabled = this.settings.requireNextOnMultiple ? !hasAnswer : false;
-        nextBtn.textContent = hasAnswer && !this.getNextId(qId) ? 'Submit' : 'Next';
+        nextBtn.textContent = isSubmit ? 'Submit' : 'Next';
+        nextBtn.ariaLabel = isSubmit ? 'Submit survey' : 'Next question';
       }
     }
 

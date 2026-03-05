@@ -52,10 +52,41 @@ body.dark-mode {
   --submit-glow: 0 0 20px rgba(249, 115, 22, 0.25);
 }
 
+body.dark-mode .theme-toggle,
+body.dark-mode .back-btn,
+body.dark-mode .option {
+  border-color: var(--text-secondary);
+}
+
+body.dark-mode .progress-container {
+  background: rgba(255, 255, 255, 0.12);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 0 0 16px 16px;
+  z-index: 9999;
+  font-weight: 800;
+  text-decoration: none;
+  transition: top 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: none;
 }
 
 body {
@@ -78,7 +109,7 @@ body {
   z-index: 2000;
   background: var(--bg-secondary);
   color: var(--text-primary);
-  border: none;
+  border: 1.5px solid var(--text-secondary);
   padding: 12px 14px;
   border-radius: 999px;
   cursor: pointer;
@@ -238,7 +269,7 @@ body.dark-mode .progress-container {
 .option {
   padding: 16px 18px;
   background: var(--bg-primary);
-  border: none;
+  border: 1.5px solid var(--text-secondary);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -404,7 +435,7 @@ body.dark-mode .progress-container {
   bottom: 8px;
   background: var(--bg-primary);
   color: var(--text-primary);
-  border: none;
+  border: 1.5px solid var(--text-secondary);
   border-radius: 999px;
   padding: 10px 14px;
   font-weight: 800;
