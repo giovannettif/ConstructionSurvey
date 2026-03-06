@@ -10,7 +10,7 @@
   "questions": [
     {
       "id": "k10_1",
-      "text": "In the past 30 days, about how often did you feel tired out for no good reason?",
+      "text": "In the past 30 days, how often did you feel tired out for no good reason?",
       "type": "single",
       "required": true,
       "options": [
@@ -56,7 +56,7 @@
     },
     {
       "id": "k10_2",
-      "text": "In the past 30 days, about how often did you feel nervous?",
+      "text": "In the past 30 days, how often did you feel nervous?",
       "type": "single",
       "required": true,
       "options": [
@@ -100,7 +100,7 @@
     },
     {
       "id": "k10_3",
-      "text": "In the past 30 days, about how often did you feel so nervous that nothing could calm you down?",
+      "text": "In the past 30 days, how often did you feel so nervous that nothing could calm you down?",
       "type": "single",
       "required": true,
       "options": [
@@ -144,7 +144,7 @@
     },
     {
       "id": "k10_4",
-      "text": "In the past 30 days, about how often did you feel hopeless?",
+      "text": "In the past 30 days, how often did you feel hopeless?",
       "type": "single",
       "required": true,
       "options": [
@@ -188,7 +188,7 @@
     },
     {
       "id": "k10_5",
-      "text": "In the past 30 days, about how often did you feel restless or fidgety?",
+      "text": "In the past 30 days, how often did you feel restless or fidgety?",
       "type": "single",
       "required": true,
       "options": [
@@ -232,7 +232,7 @@
     },
     {
       "id": "k10_6",
-      "text": "In the past 30 days, about how often did you feel so restless you could not sit still?",
+      "text": "In the past 30 days, how often did you feel so restless you could not sit still?",
       "type": "single",
       "required": true,
       "options": [
@@ -276,7 +276,7 @@
     },
     {
       "id": "k10_7",
-      "text": "In the past 30 days, about how often did you feel depressed?",
+      "text": "In the past 30 days, how often did you feel depressed?",
       "type": "single",
       "required": true,
       "options": [
@@ -320,7 +320,7 @@
     },
     {
       "id": "k10_8",
-      "text": "In the past 30 days, about how often did you feel that everything was an effort?",
+      "text": "In the past 30 days, how often did you feel that everything was an effort?",
       "type": "single",
       "required": true,
       "options": [
@@ -364,7 +364,7 @@
     },
     {
       "id": "k10_9",
-      "text": "In the past 30 days, about how often did you feel so sad that nothing could cheer you up?",
+      "text": "In the past 30 days, how often did you feel so sad that nothing could cheer you up?",
       "type": "single",
       "required": true,
       "options": [
@@ -408,7 +408,7 @@
     },
     {
       "id": "k10_10",
-      "text": "In the past 30 days, about how often did you feel worthless?",
+      "text": "In the past 30 days, how often did you feel worthless?",
       "type": "single",
       "required": true,
       "options": [
