@@ -18,7 +18,7 @@
   </button>
 
   <div class="container">
-    <header class="header">
+    <header class="header" role="banner">
       <div class="header-logo">
         <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-small">
       </div>
@@ -31,12 +31,64 @@
 
     <button id="backBtn" class="back-btn" type="button"><span aria-hidden="true">←</span> Back</button>
 
-    <main id="mainContent">
+    <main id="mainContent" role="main">
+      <!-- Mode Selection Overlay (Who is this for?) -->
+      <div id="modeOverlay" class="start-overlay">
+        <div class="mode-card">
+          <h2>Who are you completing this for?</h2>
+          <div class="mode-grid">
+            <button id="modeSelf" class="mode-option" type="button">
+              <div class="mode-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              </div>
+              <div class="mode-title">For Myself</div>
+            </button>
+
+            <button id="modeOther" class="mode-option" type="button">
+              <div class="mode-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                </svg>
+              </div>
+              <div class="mode-title">For Someone Else</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start overlay (welcome) -->
+      <div id="startOverlay" class="start-overlay">
+        <div class="start-card">
+          <div id="startMedia" class="start-media">
+            <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat logo" />
+          </div>
+          <div class="start-content">
+            <h2>Welcome</h2>
+            <p class="start-lead">
+              This quick check takes about 1–2 minutes. It’s not a diagnosis, but it can point you to helpful resources.
+            </p>
+
+            <p class="start-anon">
+              <strong><em>This survey is anonymous and responses will not be shared with employers.</em></strong>
+            </p>
+            <div class="start-actions">
+              <button id="startBegin" class="begin-btn" type="button">Begin</button>
+              <button id="startResources" class="help-nav-btn light-red" type="button">Go directly to the list of
+                Resources</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="questionsRoot"></div>
 
       <section class="completion-screen" data-question="complete" style="display:none;">
         <div class="completion-icon">✓</div>
-        <div class="completion-title">All Done!</div>
+        <h2 class="completion-title">All Done!</h2>
         <div class="completion-text">Thank you for completing the survey! This isn’t a diagnosis.</div>
         <button id="helpBtn" class="help-nav-btn" type="button">View Resources</button>
         <button id="restartBtn" class="restart-btn light-red" type="button">Do it
@@ -46,7 +98,7 @@
       </section>
 
       <section class="help-container" data-question="help">
-        <div class="help-title">Resources</div>
+        <h2 class="help-title">Resources</h2>
         <div class="help-subtitle">Based on your responses, here are some options.</div>
 
         <div id="whySection" class="why-section" style="display:none;">
@@ -61,63 +113,12 @@
           <button id="helpRestartBtn" class="help-nav-btn" type="button">Restart
             survey</button>
         </div>
-        <footer class="footer-branding">
-          <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-footer">
-        </footer>
       </section>
     </main>
-  </div>
 
-  <!-- NEW: Mode Selection Overlay (Who is this for?) -->
-  <div id="modeOverlay" class="start-overlay">
-    <div class="mode-card">
-      <h2>Who are you completing this for?</h2>
-      <div class="mode-grid">
-        <button id="modeSelf" class="mode-option" type="button">
-          <div class="mode-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            </svg>
-          </div>
-          <div class="mode-title">For Myself</div>
-        </button>
-
-        <button id="modeOther" class="mode-option" type="button">
-          <div class="mode-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-            </svg>
-          </div>
-          <div class="mode-title">For Someone Else</div>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Start overlay (welcome) -->
-  <div id="startOverlay" class="start-overlay">
-    <div class="start-card">
-      <div id="startMedia" class="start-media">
-        <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat logo" />
-      </div>
-      <div class="start-content">
-        <h2>Welcome</h2>
-        <p class="start-lead">
-          This quick check takes about 1–2 minutes. It’s not a diagnosis, but it can point you to helpful resources.
-        </p>
-
-        <p class="start-anon">
-          <strong><em>This survey is anonymous and responses will not be shared with employers.</em></strong>
-        </p>
-        <div class="start-actions">
-          <button id="startBegin" class="begin-btn" type="button">Begin</button>
-          <button id="startResources" class="help-nav-btn light-red" type="button">Go directly to the list of
-            Resources</button>
-        </div>
-      </div>
-    </div>
+    <footer class="footer-branding">
+      <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-footer">
+    </footer>
   </div>
 
   <!-- Cookie banner -->

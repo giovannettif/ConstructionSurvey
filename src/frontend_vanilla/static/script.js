@@ -415,7 +415,7 @@ class DynamicSurvey {
     return `
       <section class="question-container" data-qid="${q.id}" style="display:none">
         <div class="question-number"><span>Question ?/?</span></div>
-        <div class="question-text">${q.text}</div>
+        <h2 class="question-text">${q.text}</h2>
         <div class="options">${opts}</div>
         ${nextRow}
       </section>
