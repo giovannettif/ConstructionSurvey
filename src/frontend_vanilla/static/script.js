@@ -1054,14 +1054,19 @@ class DynamicSurvey {
     const query = this.getStoredQuery();
     const gps = getStoredGPS();
     return {
-      sessionId: this.sessionId,
-      answers: { ...this.answers },
-      timestamp: new Date().toISOString(),
-      mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
-      language: getLanguage(),
-      urlParams: query,                      // full set of captured query params
-      gps,
-      completed: completed
+      data: {
+        timestamp: new Date().toISOString(),
+        surveyTitle: this.config.title,
+        surveyVersion: this.config.version,
+        mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
+        site: query.site || null,   // common param bubbled up for convenience
+        query,                      // full set of captured query params
+        gps,
+        answers: { ...this.answers },
+        sessionId: this.sessionId,
+        language: getLanguage(),
+        completed: completed
+      }
     };
   }
 
@@ -1187,15 +1192,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Send "survey started" to server
     try {
+      const query = (() => { try { return JSON.parse(sessionStorage.getItem('dyn:query') || '{}'); } catch { return {}; } })();
       submitSurvey({
-        sessionId: window.survey?.sessionId || 'unknown',
-        answers: {},
-        timestamp: new Date().toISOString(),
-        mode: sessionStorage.getItem('dyn:mode') || 'unknown',
-        language: getLanguage(),
-        urlParams: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:query') || '{}'); } catch { return {}; } })(),
-        gps: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:gps') || '{}'); } catch { return {}; } })(),
-        completed: false
+        data: {
+          timestamp: new Date().toISOString(),
+          surveyTitle: window.survey?.config?.title || 'Unknown',
+          surveyVersion: window.survey?.config?.version || 'Unknown',
+          mode: sessionStorage.getItem('dyn:mode') || 'unknown',
+          site: query.site || null,
+          query,
+          gps: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:gps') || '{}'); } catch { return {}; } })(),
+          answers: {},
+          sessionId: window.survey?.sessionId || 'unknown',
+          language: getLanguage(),
+          completed: false
+        }
       }).catch(e => console.error('Failed to notify server of start:', e));
     } catch (err) { }
 
