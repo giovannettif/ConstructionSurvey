@@ -964,7 +964,8 @@ body.dark-mode .footer-branding {
   box-shadow: 0 6px 14px rgba(210, 38, 48, 0.15);
 }
 
-.help-nav-btn.secondary {
+.help-nav-btn.secondary,
+.restart-btn.secondary {
   background: var(--bg-primary);
   color: var(--text-primary);
   box-shadow: var(--shadow-inset);
