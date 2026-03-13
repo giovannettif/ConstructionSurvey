@@ -205,6 +205,11 @@ async function retryGPS() {
   return await captureBrowserGPS({ highAccuracy: true, timeoutMs: 20000 });
 }
 
+// Placeholder for getLanguage function, as it's used in the new payload structure
+function getLanguage() {
+  return navigator.language || navigator.userLanguage || 'en-US';
+}
+
 /* Dynamic survey controller */
 class DynamicSurvey {
   constructor(config) {
@@ -222,6 +227,7 @@ class DynamicSurvey {
     this.answers = {};
     this.currentId = null;
     this.navHistory = [];
+    this.sessionId = crypto.randomUUID(); // Generate a unique session ID
 
     // Navigation + interaction throttles
     this.navCooldownMs = 100;        // rate-limit for Next/Back/Submit
@@ -1044,20 +1050,18 @@ class DynamicSurvey {
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  buildSurveyPayload() {
+  buildSurveyPayload(completed = false) {
     const query = this.getStoredQuery();
     const gps = getStoredGPS();
     return {
-      data: {
-        timestamp: new Date().toISOString(),
-        surveyTitle: this.config.title,
-        surveyVersion: this.config.version,
-        mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
-        site: query.site || null,   // common param bubbled up for convenience
-        query,                      // full set of captured query params
-        gps,
-        answers: { ...this.answers }
-      }
+      sessionId: this.sessionId,
+      answers: { ...this.answers },
+      timestamp: new Date().toISOString(),
+      mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
+      language: getLanguage(),
+      urlParams: query,                      // full set of captured query params
+      gps,
+      completed: completed
     };
   }
 
@@ -1090,7 +1094,7 @@ class DynamicSurvey {
     } catch { }
 
     // Post to backend in background
-    const payload = this.buildSurveyPayload();
+    const payload = this.buildSurveyPayload(true); // Pass true for completed
     try { await submitSurvey(payload); showToast('Submitted!'); }
     catch (e) { console.error('Submit error:', e); showToast('Submit failed (saved locally).'); }
   }
@@ -1180,6 +1184,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Ask for GPS once the user starts
     await retryGPS(); // better than a single strict attempt
+
+    // Send "survey started" to server
+    try {
+      submitSurvey({
+        sessionId: window.survey?.sessionId || 'unknown',
+        answers: {},
+        timestamp: new Date().toISOString(),
+        mode: sessionStorage.getItem('dyn:mode') || 'unknown',
+        language: getLanguage(),
+        urlParams: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:query') || '{}'); } catch { return {}; } })(),
+        gps: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:gps') || '{}'); } catch { return {}; } })(),
+        completed: false
+      }).catch(e => console.error('Failed to notify server of start:', e));
+    } catch (err) { }
 
     try { const step = sessionStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch { }
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });

@@ -968,6 +968,7 @@ body.dark-mode .footer-branding {
   background: var(--bg-primary);
   color: var(--text-primary);
   box-shadow: var(--shadow-inset);
+  border-color: var(--text-secondary);
 }
 
 .help-nav-btn:hover {
