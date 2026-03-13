@@ -7,138 +7,57 @@
   <title>Protecting Under the Hard Hat</title>
   <link rel="stylesheet" href="static/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* Custom styles for the landing page */
+    .landing-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .landing-card {
+      background: var(--bg-secondary);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-a);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .landing-logo {
+      max-width: 200px;
+      margin-bottom: 30px;
+    }
+
+    .landing-text {
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
 
 <body>
-  <a href="#mainContent" class="skip-link">Skip to main content</a>
+  <div class="landing-container">
+    <div class="landing-card">
+      <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat Logo" class="landing-logo">
+      <h1>Protecting Under the Hard Hat</h1>
+      <p class="landing-text">
+        Welcome to the Construction Industry Wellbeing Survey. This quick check takes about 1–2 minutes. It’s not a
+        diagnosis, but it can point you to helpful resources.
+      </p>
+      <a href="/questionnaire" class="begin-btn" style="text-decoration: none; display: inline-block;">Take the
+        Survey</a>
+    </div>
 
-  <button id="themeToggle" class="theme-toggle" type="button">
-    <span class="sr-only">Toggle dark mode</span>
-    <span id="themeIcon" aria-hidden="true">🌙</span>
-  </button>
-
-  <div class="container">
-    <header class="header" role="banner">
-      <div class="header-logo">
-        <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-small">
-      </div>
-      <h1 id="appTitle">Protecting Under the Hard Hat</h1>
-      <p id="appSubtitle">Loading survey…</p>
-      <div class="progress-container" aria-hidden="true">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
-    </header>
-
-    <button id="backBtn" class="back-btn" type="button"><span aria-hidden="true">←</span> Back</button>
-
-    <main id="mainContent" role="main">
-      <!-- Mode Selection Overlay (Who is this for?) -->
-      <div id="modeOverlay" class="start-overlay">
-        <div class="mode-card">
-          <h2>Who are you completing this for?</h2>
-          <div class="mode-grid">
-            <button id="modeSelf" class="mode-option" type="button">
-              <div class="mode-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
-              </div>
-              <div class="mode-title">For Myself</div>
-            </button>
-
-            <button id="modeOther" class="mode-option" type="button">
-              <div class="mode-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                </svg>
-              </div>
-              <div class="mode-title">For Someone Else</div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Start overlay (welcome) -->
-      <div id="startOverlay" class="start-overlay">
-        <div class="start-card">
-          <div id="startMedia" class="start-media">
-            <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat logo" />
-          </div>
-          <div class="start-content">
-            <h2>Welcome</h2>
-            <p class="start-lead">
-              This quick check takes about 1–2 minutes. It’s not a diagnosis, but it can point you to helpful resources.
-            </p>
-
-            <p class="start-anon">
-              <strong><em>This survey is anonymous and responses will not be shared with employers.</em></strong>
-            </p>
-            <div class="start-actions">
-              <button id="startBegin" class="begin-btn" type="button">Begin</button>
-              <button id="startResources" class="help-nav-btn secondary" type="button">Go directly to the list of
-                Resources</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="questionsRoot"></div>
-
-      <section class="completion-screen" data-question="complete" style="display:none;">
-        <div class="completion-icon">✓</div>
-        <h2 class="completion-title">All Done!</h2>
-        <div class="completion-text">Thank you for completing the survey! This isn’t a diagnosis.</div>
-        <button id="helpBtn" class="help-nav-btn" type="button">View Resources</button>
-        <button id="restartBtn" class="restart-btn light-red" type="button">Do it
-          again</button>
-        <div class="footer-note">If you’re concerned about your wellbeing, consider talking to a qualified professional.
-        </div>
-      </section>
-
-      <section class="help-container" data-question="help">
-        <h2 class="help-title">Resources</h2>
-        <div class="help-subtitle">Based on your responses, here are some options.</div>
-
-        <div id="whySection" class="why-section" style="display:none;">
-          <a href="#" id="whyLink" class="why-link">Why are we showing you these resources?</a>
-          <div id="whyContent" class="why-content" style="display:none;"></div>
-        </div>
-
-        <div id="helpGrid" class="help-grid"></div>
-        <div class="help-back-row">
-          <button id="helpBackBtn" class="help-nav-btn secondary" type="button">Back
-            to beginning</button>
-          <button id="helpRestartBtn" class="help-nav-btn" type="button">Restart
-            survey</button>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer-branding">
+    <footer class="footer-branding" style="border: none; margin-top: 50px;">
       <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-footer">
     </footer>
   </div>
-
-  <!-- Cookie banner -->
-  <div id="cookieOverlay" class="cookie-overlay">
-    <div class="cookie-banner">
-      <h3>🍪 We use cookies 🍪</h3>
-      <p>
-        We store your theme choice and survey progress locally to make your experience smoother.
-        No personally identifiable data is sent to our server. To show region-appropriate help resources,
-        our server may use your IP address to approximate your region. We don’t use advertising cookies,
-        and we minimize and retain this data only briefly.
-      </p>
-      <div class="cookie-actions">
-        <button id="cookieAccept" class="cookie-btn primary" type="button">Accept</button>
-        <button id="cookieDismiss" class="cookie-btn secondary" type="button">Not now</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="static/script.js" defer></script>
 </body>
 
 </html>
