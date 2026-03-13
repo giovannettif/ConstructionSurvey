@@ -28,7 +28,7 @@ function captureQueryParams(allowedKeys = null) {
 let RESOURCES_DB = [];
 const loadResourcesJSON = async () => {
   try {
-    const r = await fetch('static/resources.json', { cache: 'no-cache' });
+    const r = await fetch('../static/resources.json', { cache: 'no-cache' });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     RESOURCES_DB = await r.json();
   } catch (e) {
@@ -37,7 +37,7 @@ const loadResourcesJSON = async () => {
   }
 };
 const loadQuestionsJSON = async () => {
-  const url = 'static/questions.json';
+  const url = '../static/questions.json';
   const r = await fetch(url, { cache: 'no-cache' });
   if (!r.ok) throw new Error(`Failed to load ${url}: HTTP ${r.status}`);
   return r.json();
@@ -1156,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modeOther = document.getElementById('modeOther');
 
   // Welcome banner visuals
-  startMedia.style.backgroundImage = "url('static/Logo.jpg')";
+  startMedia.style.backgroundImage = "url('../static/Logo.jpg')";
   startMedia.style.backgroundSize = 'contain';
   startMedia.style.backgroundRepeat = 'no-repeat';
   startMedia.style.backgroundPosition = 'center';
