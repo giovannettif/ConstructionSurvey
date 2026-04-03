@@ -22,15 +22,15 @@ if [ -z "$1" ]; then
 fi
 
 # --- Step 3: Identify Directory and Function Name ---
-AWS_FUNCTION_NAME=$1
+# process_response/ -> process_response
+DIR_NAME=$(echo "$1" | sed 's|/$||')
 
-# Smart conversion: camelCase/acronyms to snake_case
-# processURL -> process_url, getS3Object -> get_s3_object
-# dirnames are in snake_case, and func names are in camelCase
-DIR_NAME=$(echo "$AWS_FUNCTION_NAME" | perl -pe 's/([a-z0-9])([A-Z])/$1_$2/g; s/([A-Z]+)([A-Z][a-z])/$1_$2/g; $_=lc($_)')
-ZIP_NAME="${AWS_FUNCTION_NAME}.zip"
+# Smart conversion: snake_case (dir name) to camelCase (func name)
+# process_response -> processResponse
+AWS_FUNC_NAME=$(echo "$DIR_NAME" | sed 's/_\([a-z]\)/\U\1/g')
+ZIP_NAME="${AWS_FUNC_NAME}.zip"
 
-echo -e "${YELLOW}--- 🚀 Starting Deployment for $AWS_FUNCTION_NAME ---${NC}"
+echo -e "${YELLOW}--- 🚀 Starting Deployment for $AWS_FUNC_NAME ---${NC}"
 
 if [ ! -d "$DIR_NAME" ]; then
     echo -e "${RED}❌ Error: Local directory '$DIR_NAME' not found.${NC}"
@@ -65,7 +65,7 @@ fi
 echo -e "${YELLOW}Merging .env to Lambda environment...${NC}"
 # Fetch current environment variables from AWS
 CURRENT_VARS=$(aws lambda get-function-configuration \
-    --function-name "$AWS_FUNCTION_NAME" \
+    --function-name "$AWS_FUNC_NAME" \
     --query 'Environment.Variables' \
     --output json)
 
@@ -85,7 +85,7 @@ FINAL_JSON=$(jq -n --argjson vars "$MERGED_VARS" '{Variables: $vars}')
 
 # Push the update back to AWS
 aws lambda update-function-configuration \
-    --function-name "$AWS_FUNCTION_NAME" \
+    --function-name "$AWS_FUNC_NAME" \
     --environment "$FINAL_JSON" > /dev/null
 
 if [ $? -ne 0 ]; then
@@ -113,7 +113,7 @@ echo -e "${GREEN}✅ No secrets or SDKs detected in package.${NC}"
 # --- Step 7: Upload to AWS Lambda ---
 echo -e "${YELLOW}☁️  Uploading to Lambda...${NC}"
 UPLOAD_OUTPUT=$(aws lambda update-function-code \
-    --function-name "$AWS_FUNCTION_NAME" \
+    --function-name "$AWS_FUNC_NAME" \
     --zip-file "fileb://$ZIP_NAME" 2>&1)
 
 if [ $? -ne 0 ]; then
@@ -127,7 +127,7 @@ echo -e "${GREEN}✅ Upload successful!${NC}"
 
 # --- Wait for the update to finish propagating ---
 echo -e "${YELLOW}⏳ Waiting for function update to complete...${NC}"
-PROPAGATION_OUTPUT=$(aws lambda wait function-updated --function-name "$AWS_FUNCTION_NAME" 2>&1)
+PROPAGATION_OUTPUT=$(aws lambda wait function-updated --function-name "$AWS_FUNC_NAME" 2>&1)
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Error: Propagation failed!${NC}"
@@ -141,7 +141,7 @@ echo -e "${GREEN}✅ Propagation successful!${NC}"
 # --- Step 8: Smoke Test (Invoke) ---
 echo -e "${YELLOW}🧪 Running smoke test...${NC}"
 aws lambda invoke \
-    --function-name "$AWS_FUNCTION_NAME" \
+    --function-name "$AWS_FUNC_NAME" \
     --payload "$(node $DIR_NAME/test_input.js)" \
     --cli-binary-format raw-in-base64-out \
     response.json > /dev/null
@@ -157,13 +157,13 @@ else
     
     # Get the latest log stream name
     STREAM=$(aws logs describe-log-streams \
-        --log-group-name "/aws/lambda/$AWS_FUNCTION_NAME" \
+        --log-group-name "/aws/lambda/$AWS_FUNC_NAME" \
         --order-by LastEventTime --descending --limit 1 \
         --query 'logStreams[0].logStreamName' --output text)
 
     # Print the last 10 lines of that stream
     aws logs get-log-events \
-        --log-group-name "/aws/lambda/$AWS_FUNCTION_NAME" \
+        --log-group-name "/aws/lambda/$AWS_FUNC_NAME" \
         --log-stream-name "$STREAM" \
         --limit 10 --query 'events[*].message' --output text
     
