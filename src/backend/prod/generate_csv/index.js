@@ -70,6 +70,10 @@ export const handler = async () => {
             for (const entry of entries) {
                 // exclude internal upload tracking field
                 const { uploaded_to_drive, ...rest } = entry;
+                // normalize malformed data field: [{...}] -> {...}
+                if (Array.isArray(rest.data) && rest.data.length === 1) {
+                    rest.data = rest.data[0];
+                }
                 masterData.push(flattenObj(rest, ''));
             }
         } catch (e) {
