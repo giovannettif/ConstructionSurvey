@@ -3,6 +3,7 @@
 // TODO: make this code efficient using AI
 // leave here or put inside function?
 const FOLDER_ID = PropertiesService.getScriptProperties().getProperty("FolderID");
+const IGNORE_ID = PropertiesService.getScriptProperties().getProperty("IgnoreFolderID");
 const SHEET = SpreadsheetApp.getActiveSpreadsheet().getSheetById(0);
 
 function updateSheet() {
@@ -20,7 +21,10 @@ function updateSheet() {
 
             // push folders onto queue
             while (foldersIt.hasNext()) {
-                queue.push(foldersIt.next());
+              const folder = foldersIt.next();
+                if (folder.getId() != IGNORE_ID) {
+                  queue.push(folder);
+                }
             }
 
             // process files
@@ -32,13 +36,13 @@ function updateSheet() {
 
                 // flatten data 
                 // bring out survey data from under 'data' field
-                const surveyData = JSON.parse(JSON.stringify(data.data[0] ?? data.data));
+                const surveyData = JSON.parse(JSON.stringify(data.data));
                 delete data.data;
                 // bring out answers from under 'answers' field
                 const answerData = JSON.parse(JSON.stringify(surveyData.answers));
                 delete surveyData.answers;
                 // bring out answers from under 'answers' field
-                const queryParamsData = JSON.parse(JSON.stringify(surveyData.queryParams ?? {}));
+                const queryParamsData = JSON.parse(JSON.stringify(surveyData.query ?? {}));
                 delete surveyData.queryParams;
 
                 masterData.push(Object.assign(surveyData, data, answerData, queryParamsData, {

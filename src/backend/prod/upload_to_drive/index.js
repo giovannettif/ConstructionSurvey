@@ -37,7 +37,7 @@ export const handler = async () => {
         }
 
         // Key is the path to the file
-        files = objects.map(item => item.Key);
+        files = objects.map(item => item.Key).filter(key => !key.endsWith('/'));
     } catch (e) {
         message = 'Error listing S3 data files';
         console.error(message, e);
