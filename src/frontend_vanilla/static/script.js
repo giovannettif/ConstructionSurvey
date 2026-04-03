@@ -572,7 +572,11 @@ class DynamicSurvey {
   }
 
   /* Visible flow and branching */
-  getVisibleIds() { return this.questions.filter(q => isVisible(q, this.answers)).map(q => q.id); }
+  getVisibleIds() {
+    const query = this.getStoredQuery();
+    if (query.branching === 'false' || query.branching === 'no') return this.questions.map(q => q.id);
+    return this.questions.filter(q => isVisible(q, this.answers)).map(q => q.id); 
+  }
   _extractShowIfRefs(cond) {
     if (!cond) return [];
     const refs = [];
@@ -584,6 +588,9 @@ class DynamicSurvey {
     return refs;
   }
   getPotentiallyVisibleIds() {
+    const query = this.getStoredQuery();
+    if (query.branching === 'false' || query.branching === 'no') return this.questions.map(q => q.id);
+
     const potVisSet = new Set();
     for (const q of this.questions) {
       if (!q.showIf) { potVisSet.add(q.id); continue; }
@@ -1065,7 +1072,9 @@ class DynamicSurvey {
         answers: { ...this.answers },
         sessionId: this.sessionId,
         language: getLanguage(),
-        completed: completed
+        completed: completed,
+        isTest: query.test === 'true' || query.test === 'yes',
+        isBranching: query.branching !== 'false' && query.branching !== 'no'
       }
     };
   }
@@ -1205,7 +1214,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           answers: {},
           sessionId: window.survey?.sessionId || 'unknown',
           language: getLanguage(),
-          completed: false
+          completed: false,
+          isTest: query.test === 'true' || query.test === 'yes',
+          isBranching: query.branching !== 'false' && query.branching !== 'no'
         }
       }).catch(e => console.error('Failed to notify server of start:', e));
     } catch (err) { }
