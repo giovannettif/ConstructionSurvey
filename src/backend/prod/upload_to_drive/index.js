@@ -4,7 +4,6 @@ import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } fr
 import pLimit from 'p-limit';
 import { authorize, createFolders, uploadJsonToDrive } from './driveManager.js';
 
-// Step 1: Set up
 // env vars
 const FOLDER_ID = process.env.FOLDER_ID;
 
@@ -73,7 +72,7 @@ export const handler = async () => {
     console.log('3. Uploading files to Google Drive...');
     const promises1 = Object.entries(unuploadedS3Data).map(async ([filePath, data]) => {
         // if the file name contains a path, create / retrieve the folders first
-        // test/2026-04.json -> test/2026-04 (folder)
+        // test/2026-04.json (file) -> test/2026-04 (folder)
         const folderId = await createFolders(authClient, FOLDER_ID, filePath.replace(/\.json$/, ''));
 
         const promises2 = data.filter(entry => !entry.uploaded_to_drive).map((entry) => {
