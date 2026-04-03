@@ -104,7 +104,7 @@ if [ ! -z "$FORBIDDEN_FILES" ]; then
     echo -e "${RED}⚠️  WARNING: Forbidden files found in zip!${NC}"
     echo "$FORBIDDEN_FILES"
     echo -e "${RED}Aborting deployment for safety.${NC}"
-    rm "../$ZIP_NAME"
+    rm "$ZIP_NAME"
     exit 7
 fi
 echo -e "${GREEN}✅ No secrets or SDKs detected in package.${NC}"
@@ -139,9 +139,14 @@ echo -e "${GREEN}✅ Propagation successful!${NC}"
 
 # --- Step 8: Smoke Test (Invoke) ---
 echo -e "${YELLOW}🧪 Running smoke test...${NC}"
+if [ -f "$DIR_NAME/test_input.js" ]; then
+    PAYLOAD=$(node $DIR_NAME/test_input.js)
+else
+    PAYLOAD="{}"
+fi
 aws lambda invoke \
     --function-name "$AWS_FUNC_NAME" \
-    --payload "$(node $DIR_NAME/test_input.js)" \
+    --payload "$PAYLOAD" \
     --cli-binary-format raw-in-base64-out \
     response.json > /dev/null
 

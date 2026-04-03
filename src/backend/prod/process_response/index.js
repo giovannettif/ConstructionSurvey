@@ -3,6 +3,7 @@
 import express from 'express';
 import serverless from 'serverless-http';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { randomUUID } from 'crypto';
 // S3 Configuration
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
 const s3 = new S3Client({ region: process.env.AWS_REGION });
@@ -36,9 +37,10 @@ app.post('/survey', async (req, res) => {
     }
 
     console.log('2. Appending new response...');
+    const now = new Date();
     currFileData.push({
-        id: new Date().getTime(),
-        s3_timestamp: new Date().toISOString(),
+        id: randomUUID(),
+        s3_timestamp: now.toISOString(),
         uploaded_to_drive: false,
         data: newResponse,
     });

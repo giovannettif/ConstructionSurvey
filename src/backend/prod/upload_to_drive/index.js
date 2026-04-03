@@ -25,13 +25,13 @@ export const handler = async () => {
     try {
         for (const prefix of ['data/', 'test/']) {
             let response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix }));
-            let objects = response.Contents;
+            let objects = response.Contents ?? [];
             let nextToken = response.NextContinuationToken;
 
             // handle pagination
             while (response.IsTruncated) {
                 response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix, ContinuationToken: nextToken }));
-                objects = objects.concat(response.Contents);
+                objects = objects.concat(response.Contents ?? []);
                 nextToken = response.NextContinuationToken;
             }
 
@@ -96,9 +96,8 @@ export const handler = async () => {
                         entry.drive_timestamp = timestamp;
                     }
                 } catch (e) {
-                    message = `Error uploading entry ${entry.id} to Drive`;
-                    console.error(message, e);
-                    return { message };
+                    console.error(`Error uploading entry ${entry.id} to Drive:`, e);
+                    return { message: `Error uploading entry ${entry.id} to Drive` };
                 }
             });
         });
