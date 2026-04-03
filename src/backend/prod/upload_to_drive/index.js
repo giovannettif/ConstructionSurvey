@@ -24,7 +24,7 @@ export const handler = async () => {
 
     try {
         for (const prefix of ['data/', 'test/']) {
-            const response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix }));
+            let response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix }));
             let objects = response.Contents;
             let nextToken = response.NextContinuationToken;
 
