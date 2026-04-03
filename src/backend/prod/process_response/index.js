@@ -16,13 +16,13 @@ app.post('/survey', async (req, res) => {
     const { data: newResponse } = req.body;
 
     const currDate = new Date();
-    // default to yyyy-mm
-    let fileName = currDate.getFullYear() + "-" + String(currDate.getMonth() + 1).padStart(2, '0');
+    const yyyymm = currDate.getFullYear() + "-" + String(currDate.getMonth() + 1).padStart(2, '0');
+    const filePath = newResponse.test ? `test/${yyyymm}.json` : `data/${yyyymm}.json`;
 
     console.log('1. Fetching current file from S3...');
     let currFileData = [];
     try {
-        const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: `data/${fileName}.json` }));
+        const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: filePath }));
         const bodyContents = await response.Body.transformToString();
         currFileData = JSON.parse(bodyContents);
     } catch (e) {
@@ -47,7 +47,7 @@ app.post('/survey', async (req, res) => {
     try {
         await s3.send(new PutObjectCommand({
             Bucket: S3_BUCKET,
-            Key: `data/${fileName}.json`,
+            Key: filePath,
             ContentType: 'application/json',
             Body: JSON.stringify(currFileData),
         }));

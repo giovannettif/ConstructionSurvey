@@ -46,7 +46,6 @@ cd "$DIR_NAME" || exit 4
 zip -qr "../$ZIP_NAME" . \
     -x "*.git*" \
     -x "test_input.js" \
-    -x "validResponse.json" \
     -x "**/.env" \
     -x "**/service_account.json" "**/service-account.json" \
     -x "package-lock.json" \
@@ -99,7 +98,7 @@ cd ..
 echo -e "${YELLOW}🔍 Verifying package contents...${NC}"
 FORBIDDEN_FILES=$(unzip -l "$ZIP_NAME" | \
     grep -v "node_modules" | \
-    grep -E ".env|service_account.json|service-account.json|private|aws-sdk|package-lock.json|test_input.js|validResponse.json")
+    grep -E ".env|service_account.json|service-account.json|private|aws-sdk|package-lock.json|test_input.js")
 
 if [ ! -z "$FORBIDDEN_FILES" ]; then
     echo -e "${RED}⚠️  WARNING: Forbidden files found in zip!${NC}"
