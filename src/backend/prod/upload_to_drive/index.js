@@ -92,6 +92,7 @@ export const handler = async () => {
                     const dataToUpload = JSON.parse(JSON.stringify(entry));
                     dataToUpload.drive_timestamp = timestamp;
                     delete dataToUpload.uploaded_to_drive;
+                    delete dataToUpload.generated_as_csv;
 
                     const fileId = await uploadJsonToDrive(authClient, folderId, fileName, dataToUpload);
 

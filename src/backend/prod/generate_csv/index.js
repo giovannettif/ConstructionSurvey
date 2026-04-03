@@ -50,7 +50,7 @@ export const handler = async () => {
                 objects = objects.concat(response.Contents ?? []);
             }
 
-            files = files.concat(objects.map(item => item.Key).filter(key => !key.endsWith('/')));
+            files = files.concat(objects.map(item => item.Key).filter(key => key.endsWith('.json')));
         }
     } catch (e) {
         console.error('Error listing S3 files:', e);
@@ -190,4 +190,3 @@ export const handler = async () => {
     console.log(`CSV uploaded to s3://${S3_BUCKET}/${csvKey}`);
     return { message: `CSV uploaded to s3://${S3_BUCKET}/${csvKey}` };
 };
-// TODO: auto-upload CSV to Drive - how to mark as "uploaded"?
