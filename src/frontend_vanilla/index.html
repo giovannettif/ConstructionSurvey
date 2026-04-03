@@ -1,125 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Load saved theme early -->
-  <script>
-    try {
-      const saved = localStorage.getItem('k10:theme');
-      const shouldDark = saved ? (saved === 'dark') : true;
-      if (shouldDark) document.documentElement.classList.add('pre-dark');
-    } catch {
-      document.documentElement.classList.add('pre-dark');
-    }
-  </script>
-  <style>
-    /* Basic pre-dark paint to avoid light flash */
-    .pre-dark body { background: #1a202c; color: #e2e8f0; }
-  </style>
-
-  <!-- Load main CSS -->
-  <title>Protecting Under the Hard Hat Survey</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protecting Under the Hard Hat</title>
   <link rel="stylesheet" href="static/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* Custom styles for the landing page */
+    .landing-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .landing-card {
+      background: var(--bg-secondary);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-a);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .landing-logo {
+      max-width: 200px;
+      margin-bottom: 30px;
+    }
+
+    .landing-text {
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
+
 <body>
-  <script>
-    (function () {
-      const root = document.documentElement;
-      if (root.classList.contains('pre-dark')) {
-        document.addEventListener('DOMContentLoaded', () => {
-          document.body.classList.add('dark-mode');
-          root.classList.remove('pre-dark');
-        });
-      }
-    })();
-  </script>
-
-  <!-- Theme toggle -->
-  <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-    <span id="themeIcon" aria-hidden="true">🌙</span>
-  </button>
-
-  <div class="container">
-    <!-- Header -->
-    <div class="header">
-      <h1 id="appTitle">Protecting Under the Hard Hat Survey</h1>
-      <p id="appSubtitle">Loading survey…</p>
-      <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
-    </div>
-
-    <!-- Dynamic questions mount point -->
-    <main id="questionsRoot" aria-live="polite"></main>
-
-    <!-- Completion -->
-    <section class="question-container" data-question="complete" style="display:none">
-      <div class="completion-screen">
-        <div class="completion-icon" aria-hidden="true">✓</div>
-        <h2 class="completion-title">All Done!</h2>
-        <p class="completion-text">Thank you for completing the survey! This isn’t a diagnosis.</p>
-        <button id="helpBtn" class="help-nav-btn orange">View Resources</button>
-        <button id="restartBtn" class="restart-btn">Do it again</button>
-        <div class="footer-note">
-          If you’re concerned about your wellbeing, consider talking to a qualified professional.
-        </div>
-      </div>
-    </section>
-
-    <!-- Help page -->
-    <section class="help-container question-container" data-question="help" style="display:none">
-      <div class="help-title">Resources</div>
-      <div class="help-subtitle">Based on your responses, here are some options.</div>
-      <div id="helpGrid" class="help-grid"></div>
-      <div class="help-back-row">
-        <button id="helpBackBtn" class="help-nav-btn secondary">Back to summary</button>
-        <button id="helpRestartBtn" class="help-nav-btn">Restart survey</button>
-      </div>
-    </section>
-
-    <!-- Back button -->
-    <button id="backBtn" class="back-btn" type="button">← Back</button>
-  </div>
-
-  <!-- Start overlay (welcome) -->
-  <div id="startOverlay" class="start-overlay" role="dialog" aria-modal="true" aria-labelledby="startTitle">
-    <div class="start-card">
-      <div class="start-media" id="startMedia" aria-hidden="true">
-        <img src="static/Logo.jpg" alt="Site logo" class="start-logo">
-      </div>
-
-      <div class="start-content">
-        <h2 id="startTitle">Welcome</h2>
-        <p class="start-lead">
-          This quick check takes about 1–2 minutes. It’s not a diagnosis, but it can point you to
-          helpful resources.
-        </p>
-        <div class="start-actions">
-          <button id="startBegin" class="begin-btn">Begin</button>
-          <!-- <button id="startDismiss" class="cookie-btn secondary">Not now</button> -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cookie overlay -->
-  <div id="cookieOverlay" class="cookie-overlay" role="dialog" aria-modal="true" aria-labelledby="cookieTitle">
-    <div class="cookie-banner">
-      <h3 id="cookieTitle">🍪 We use cookies 🍪</h3>
-      <p>
-        We store your theme choice and survey progress locally to make your experience smoother.
-        No personally identifiable data is sent to our server. To show region-appropriate help resources,
-        our server may use your IP address to approximate your region. We don’t use advertising cookies,
-        and we minimize and retain this data only briefly.
+  <div class="landing-container">
+    <div class="landing-card">
+      <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat Logo" class="landing-logo">
+      <h1>Protecting Under the Hard Hat</h1>
+      <p class="landing-text">
+        Welcome to the Protecting Under the Hard Hat Wellbeing Survey. This quick check takes about 1–2 minutes. It’s not a
+        diagnosis, but it can point you to helpful resources.
       </p>
-      <div class="cookie-actions">
-        <button id="cookieAccept" class="cookie-btn primary">Accept</button>
-        <button id="cookieDismiss" class="cookie-btn secondary">Not now</button>
-      </div>
+      <a href="/questionnaire" class="begin-btn" style="text-decoration: none; display: inline-block;">Take the
+        Survey</a>
     </div>
-  </div>
 
-  <script src="static/script.js" defer></script>
+    <footer class="footer-branding" style="border: none; margin-top: 50px;">
+      <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-footer">
+    </footer>
+  </div>
 </body>
+
+
 </html>

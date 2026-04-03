@@ -5,18 +5,30 @@
   try {
     localStorage.removeItem('dyn:answers');
     localStorage.removeItem('dyn:currentId');
-  } catch {}
+  } catch { }
   try {
     sessionStorage.removeItem('dyn:answers');
     sessionStorage.removeItem('dyn:currentId');
-  } catch {}
+    sessionStorage.removeItem('dyn:mode');
+  } catch { }
 })();
+
+/* store query params into sessionStorage */
+function captureQueryParams(allowedKeys = null) {
+  const params = new URLSearchParams(window.location.search);
+  const obj = {};
+  for (const [k, v] of params.entries()) {
+    if (!allowedKeys || allowedKeys.includes(k)) obj[k] = v;
+  }
+  try { sessionStorage.setItem('dyn:query', JSON.stringify(obj)); } catch { }
+  return obj;
+}
 
 /* Data loading */
 let RESOURCES_DB = [];
 const loadResourcesJSON = async () => {
   try {
-    const r = await fetch('static/resources.json', { cache: 'no-cache' });
+    const r = await fetch('../static/resources.json', { cache: 'no-cache' });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     RESOURCES_DB = await r.json();
   } catch (e) {
@@ -25,7 +37,7 @@ const loadResourcesJSON = async () => {
   }
 };
 const loadQuestionsJSON = async () => {
-  const url = 'static/questions.json';
+  const url = '../static/questions.json';
   const r = await fetch(url, { cache: 'no-cache' });
   if (!r.ok) throw new Error(`Failed to load ${url}: HTTP ${r.status}`);
   return r.json();
@@ -69,13 +81,133 @@ function showToast(message) {
 function isVisible(question, answers) {
   const c = question.showIf;
   if (!c) return true;
-  const a = answers[c.questionId];
-  const arr = Array.isArray(a) ? a : a != null ? [a] : [];
-  if (c.equals !== undefined) return a === c.equals;
-  if (Array.isArray(c.anyOf)) return arr.some(v => c.anyOf.includes(v));
-  // if (Array.isArray(c.noneOf)) return arr.every(v => !c.noneOf.includes(v));
-  if (c.notEquals !== undefined) return a !== c.notEquals;
-  return true;
+
+  const evalCond = (cond) => {
+    if (!cond) return true;
+    if (Array.isArray(cond.and)) return cond.and.every(evalCond);
+    if (Array.isArray(cond.or)) return cond.or.some(evalCond);
+    if (cond.not) return !evalCond(cond.not);
+
+    const qid = cond.questionId || cond.q;
+    if (!qid) return true;
+
+    const a = answers[qid];
+    if (a === undefined || a === null || (Array.isArray(a) && a.length === 0)) return false;
+
+    const arr = Array.isArray(a) ? a : [a];
+
+    if (cond.equals !== undefined) return a === cond.equals;
+    if (Array.isArray(cond.anyOf)) return arr.some(v => cond.anyOf.includes(v));
+    if (cond.notEquals !== undefined) return a !== cond.notEquals;
+    if (cond.contains !== undefined) return arr.includes(cond.contains);
+
+    return true;
+  };
+
+  return evalCond(c);
+}
+
+function isPotentiallyVisible(question, answers) {
+  const c = question.showIf;
+  if (!c) return true;
+
+  const evalCond = (cond) => {
+    if (!cond) return true;
+    if (Array.isArray(cond.and)) return cond.and.every(evalCond);
+    if (Array.isArray(cond.or)) return cond.or.some(evalCond);
+    if (cond.not) return !evalCond(cond.not);
+
+    const qid = cond.questionId || cond.q;
+    if (!qid) return true;
+
+    const a = answers[qid];
+    if (a === undefined || a === null || (Array.isArray(a) && a.length === 0)) return true;
+
+    const arr = Array.isArray(a) ? a : [a];
+
+    if (cond.equals !== undefined) return a === cond.equals;
+    if (Array.isArray(cond.anyOf)) return arr.some(v => cond.anyOf.includes(v));
+    if (cond.notEquals !== undefined) return a !== cond.notEquals;
+    if (cond.contains !== undefined) return arr.includes(cond.contains);
+
+    return true;
+  };
+
+  return evalCond(c);
+}
+
+async function captureBrowserGPS({
+  highAccuracy = false,      // false reduces timeouts indoors; you can retry with true if needed
+  timeoutMs = 30000,
+  maximumAgeMs = 600000      // allow cached position up to 10 min
+} = {}) {
+  const write = (obj) => { try { sessionStorage.setItem('dyn:gps', JSON.stringify(obj)); } catch { } };
+
+  if (!('geolocation' in navigator)) {
+    write({ supported: false, status: 'unsupported', capturedAt: new Date().toISOString() });
+    return null;
+  }
+
+  const getPosition = () =>
+    new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: highAccuracy,
+        timeout: timeoutMs,
+        maximumAge: maximumAgeMs
+      });
+    });
+
+  try {
+    const pos = await getPosition();
+    const gps = {
+      supported: true,
+      status: 'ok',
+      capturedAt: new Date().toISOString(),
+      coords: {
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        accuracy: pos.coords.accuracy
+      }
+    };
+    write(gps);
+    return gps;
+  } catch (err) {
+    // Standard codes: 1=PERMISSION_DENIED, 2=POSITION_UNAVAILABLE, 3=TIMEOUT
+    const code = err?.code;
+    const status =
+      code === 1 ? 'denied' :
+        code === 2 ? 'unavailable' :
+          code === 3 ? 'timeout' :
+            'error';
+
+    const gps = {
+      supported: true,
+      status,
+      capturedAt: new Date().toISOString(),
+      error: { code, message: err?.message }
+    };
+    write(gps);
+    return null;
+  }
+}
+
+function getStoredGPS() {
+  try { return JSON.parse(sessionStorage.getItem('dyn:gps') || 'null'); }
+  catch { return null; }
+}
+
+async function retryGPS() {
+  // First attempt: reliable
+  let gps = await captureBrowserGPS({ highAccuracy: false });
+  if (gps) return gps;
+
+  // Second attempt: more precise but may be slower
+  return await captureBrowserGPS({ highAccuracy: true, timeoutMs: 20000 });
+}
+
+// Placeholder for getLanguage function, as it's used in the new payload structure
+function getLanguage() {
+  return navigator.language || navigator.userLanguage || 'en-US';
 }
 
 /* Dynamic survey controller */
@@ -87,6 +219,7 @@ class DynamicSurvey {
       requireNextOnMultiple: typeof config?.settings?.requireNextOnMultiple === 'boolean'
         ? config.settings.requireNextOnMultiple
         : true,
+      showAbsoluteProgress: !!config?.settings?.showAbsoluteProgress,
       legacyQuestionTags: !!config?.settings?.legacyQuestionTags,
       defaultTopics: (config?.settings?.defaultTopics || []).map(s => String(s).toLowerCase())
     };
@@ -94,6 +227,7 @@ class DynamicSurvey {
     this.answers = {};
     this.currentId = null;
     this.navHistory = [];
+    this.sessionId = crypto.randomUUID(); // Generate a unique session ID
 
     // Navigation + interaction throttles
     this.navCooldownMs = 100;        // rate-limit for Next/Back/Submit
@@ -106,6 +240,7 @@ class DynamicSurvey {
     this._interactUnlockTimer = null;
 
     this.submitting = false;         // lock UI during submit
+    this.helpOrigin = 'summary';     // where help was opened from
 
     this.dom = {
       root: document.getElementById('questionsRoot'),
@@ -121,20 +256,28 @@ class DynamicSurvey {
       helpBackBtn: document.getElementById('helpBackBtn'),
       helpRestartBtn: document.getElementById('helpRestartBtn'),
       helpBtn: document.getElementById('helpBtn'),
-      restartBtn: document.getElementById('restartBtn')
+      restartBtn: document.getElementById('restartBtn'),
+      whyLink: document.getElementById('whyLink'),
+      whyContent: document.getElementById('whyContent'),
+      whySection: document.getElementById('whySection')
     };
 
     this.bindGlobalEvents();
     this.initUI();
 
-    this.dom.helpBtn?.addEventListener('click', () => { this.renderHelpResources(); this.showHelpPage(); });
+    this.dom.helpBtn?.addEventListener('click', () => { this.renderHelpResources({ all: false, from: 'summary' }); this.showHelpPage(); });
     this.dom.restartBtn?.addEventListener('click', () => this.restart());
     this.dom.helpBackBtn?.addEventListener('click', () => this.backToSummary());
     this.dom.helpRestartBtn?.addEventListener('click', () => this.restart());
+
+    this.dom.whyLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleWhySection();
+    });
   }
 
   get storageKeys() {
-    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions' };
+    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions', mode: 'dyn:mode', query: 'dyn:query' };
   }
 
   // Throttle helpers
@@ -165,24 +308,38 @@ class DynamicSurvey {
         // options.style.opacity = '';
       }, ms);
     } else {
-      this._interactUnlockTimer = setTimeout(() => {}, ms);
+      this._interactUnlockTimer = setTimeout(() => { }, ms);
     }
   }
 
   /* Global UI: theme, cookies, back, keys, and event delegation for clicks */
   bindGlobalEvents() {
+
+    // Apply saved theme, or default to dark if none saved
+    try {
+      const savedTheme = localStorage.getItem('k10:theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+      } else if (savedTheme === 'light') {
+        document.body.classList.remove('dark-mode');
+      } else {
+        // No saved preference → default to dark
+        document.body.classList.add('dark-mode');
+      }
+    } catch { }
+
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const syncThemeIcon = () => { if (themeIcon) themeIcon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙'; };
     themeToggle?.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
-      try { localStorage.setItem('k10:theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch {}
+      try { localStorage.setItem('k10:theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch { }
       syncThemeIcon();
     });
     syncThemeIcon();
 
     const cookieOverlay = document.getElementById('cookieOverlay');
-    document.getElementById('cookieAccept')?.addEventListener('click', () => { try { localStorage.setItem('k10:cookiesAccepted', 'yes'); } catch {} cookieOverlay?.classList.remove('show'); });
+    document.getElementById('cookieAccept')?.addEventListener('click', () => { try { localStorage.setItem('k10:cookiesAccepted', 'yes'); } catch { } cookieOverlay?.classList.remove('show'); });
     document.getElementById('cookieDismiss')?.addEventListener('click', () => cookieOverlay?.classList.remove('show'));
 
     this.dom.backBtn?.addEventListener('click', () => {
@@ -264,7 +421,7 @@ class DynamicSurvey {
     return `
       <section class="question-container" data-qid="${q.id}" style="display:none">
         <div class="question-number"><span>Question ?/?</span></div>
-        <div class="question-text">${q.text}</div>
+        <h2 class="question-text">${q.text}</h2>
         <div class="options">${opts}</div>
         ${nextRow}
       </section>
@@ -304,7 +461,11 @@ class DynamicSurvey {
         if (answered && !nextId) {
           const ensured = this.ensureSingleNavRow(qId);
           const btn = ensured?.querySelector('.submit-btn');
-          if (btn) { btn.textContent = 'Submit'; btn.disabled = false; }
+          if (btn) {
+            btn.textContent = 'Submit';
+            btn.removeAttribute('aria-label');
+            btn.disabled = false;
+          }
           ensured.style.display = '';
         } else if (row) {
           row.style.display = 'none';
@@ -314,7 +475,9 @@ class DynamicSurvey {
         const btn = ensured?.querySelector('.submit-btn');
         const nextId = answered ? this.getNextId(qId) : null;
         if (btn) {
-          btn.textContent = (answered && !nextId) ? 'Submit' : 'Next';
+          const isSubmit = answered && !nextId;
+          btn.textContent = isSubmit ? 'Submit' : 'Next';
+          btn.removeAttribute('aria-label');
           btn.disabled = !answered;
         }
         ensured.style.display = '';
@@ -326,8 +489,10 @@ class DynamicSurvey {
       const val = this.answers[qId];
       const hasAnswer = Array.isArray(val) && val.length > 0;
       if (nextBtn) {
+        const isSubmit = hasAnswer && !this.getNextId(qId);
         nextBtn.disabled = this.settings.requireNextOnMultiple ? !hasAnswer : false;
-        nextBtn.textContent = hasAnswer && !this.getNextId(qId) ? 'Submit' : 'Next';
+        nextBtn.textContent = isSubmit ? 'Submit' : 'Next';
+        nextBtn.removeAttribute('aria-label');
       }
     }
 
@@ -408,6 +573,34 @@ class DynamicSurvey {
 
   /* Visible flow and branching */
   getVisibleIds() { return this.questions.filter(q => isVisible(q, this.answers)).map(q => q.id); }
+  _extractShowIfRefs(cond) {
+    if (!cond) return [];
+    const refs = [];
+    if (Array.isArray(cond.and)) cond.and.forEach(c => refs.push(...this._extractShowIfRefs(c)));
+    if (Array.isArray(cond.or)) cond.or.forEach(c => refs.push(...this._extractShowIfRefs(c)));
+    if (cond.not) refs.push(...this._extractShowIfRefs(cond.not));
+    const qid = cond.questionId || cond.q;
+    if (qid) refs.push(qid);
+    return refs;
+  }
+  getPotentiallyVisibleIds() {
+    const potVisSet = new Set();
+    for (const q of this.questions) {
+      if (!q.showIf) { potVisSet.add(q.id); continue; }
+      if (!isPotentiallyVisible(q, this.answers)) continue;
+      // Ensure all referenced parent questions are themselves reachable
+      const refs = this._extractShowIfRefs(q.showIf);
+      const reachable = refs.every(refId => {
+        const a = this.answers[refId];
+        // If the parent has a definite answer the condition was evaluated normally
+        if (a !== undefined && a !== null && (!Array.isArray(a) || a.length > 0)) return true;
+        // If parent answer was pruned, it must itself be potentially visible
+        return potVisSet.has(refId);
+      });
+      if (reachable) potVisSet.add(q.id);
+    }
+    return this.questions.filter(q => potVisSet.has(q.id)).map(q => q.id);
+  }
   maybeSkipImmediateNext(currentId, nextId) {
     const q = this.getQuestion(currentId);
     if (!q || !nextId || !Array.isArray(q.nextVisibleIfAnyOf)) return nextId;
@@ -435,17 +628,31 @@ class DynamicSurvey {
     return i > 0 ? visible[i - 1] : null;
   }
 
-  /* Badges, progress, and screen activation */
   updateQuestionNumberBadges() {
     const visible = this.getVisibleIds();
-    const total = visible.length;
+    const potVis = this.getPotentiallyVisibleIds();
+
     visible.forEach((id, i) => {
       const span = this.getContainer(id)?.querySelector('.question-number span');
-      if (span) span.textContent = `Question ${i + 1}/${total}`;
+      if (span) {
+        if (this.settings.showAbsoluteProgress) {
+          // Absolute mode: show physical question number in JSON array vs Total Fixed Questions (e.g. 17/31 -> 20/31)
+          const qNum = this.questions.findIndex(q => q.id === id) + 1;
+          const total = this.questions.length;
+          span.textContent = `Question ${qNum}/${total}`;
+        } else {
+          // Relative Decreasing mode: show linear 1,2,3,4 vs Shrinking Total (e.g. 17/31 -> 18/27)
+          const qNum = i + 1;
+          const total = potVis.length;
+          span.textContent = `Question ${qNum}/${total}`;
+        }
+      }
     });
   }
   showQuestion(qId, { pushHistory = true } = {}) {
     if (this.submitting) return;
+
+    if (this.dom.root) this.dom.root.style.display = '';
 
     this.dom.completion?.classList.remove('active');
     if (this.dom.completion) this.dom.completion.style.display = 'none';
@@ -461,7 +668,7 @@ class DynamicSurvey {
     this.updateQuestionNumberBadges();
 
     this.currentId = qId;
-    try { sessionStorage.setItem(this.storageKeys.current, qId); } catch {}
+    try { sessionStorage.setItem(this.storageKeys.current, qId); } catch { }
 
     if (pushHistory) {
       const last = this.navHistory[this.navHistory.length - 1];
@@ -479,9 +686,18 @@ class DynamicSurvey {
   }
   updateProgress() {
     const visible = this.getVisibleIds();
-    const total = visible.length || 1;
-    const idx = Math.max(visible.indexOf(this.currentId), 0);
-    const pct = ((idx + 1) / total) * 100;
+    const potVis = this.getPotentiallyVisibleIds();
+
+    let currentIdx, total;
+    if (this.settings.showAbsoluteProgress) {
+      currentIdx = Math.max(this.questions.findIndex(q => q.id === this.currentId), 0);
+      total = this.questions.length || 1;
+    } else {
+      currentIdx = Math.max(visible.indexOf(this.currentId), 0);
+      total = potVis.length || 1;
+    }
+
+    const pct = ((currentIdx + 1) / total) * 100;
     if (this.dom.progressBar) this.dom.progressBar.style.width = `${pct}%`;
   }
   updateBackButtonState() {
@@ -492,8 +708,8 @@ class DynamicSurvey {
 
   /* Persistence (session) + prune hidden answers after branching */
   persistAnswers() {
-    try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch {}
     this.pruneHiddenAnswers();
+    try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
   }
   pruneHiddenAnswers() {
     const visible = new Set(this.getVisibleIds());
@@ -502,7 +718,7 @@ class DynamicSurvey {
       if (!visible.has(qid)) { delete this.answers[qid]; changed = true; }
     });
     if (changed) {
-      try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch {}
+      try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
       this.questions.forEach(q => {
         if (!visible.has(q.id)) this.getContainer(q.id)?.querySelectorAll('.option.selected').forEach(b => b.classList.remove('selected'));
       });
@@ -525,6 +741,11 @@ class DynamicSurvey {
     });
   }
   getStoredCurrent() { try { return sessionStorage.getItem(this.storageKeys.current) || null; } catch { return null; } }
+  getStoredMode() { try { return sessionStorage.getItem(this.storageKeys.mode) || null; } catch { return null; } }
+  getStoredQuery() {
+    try { return JSON.parse(sessionStorage.getItem(this.storageKeys.query) || '{}'); }
+    catch { return {}; }
+  }
 
   /* Next/Submit flows */
   onNextFrom(qId) {
@@ -570,54 +791,161 @@ class DynamicSurvey {
     if (prevId) this.showQuestion(prevId, { pushHistory: true });
   }
 
-  /* Help/resources derivation */
-  renderHelpResources() {
-    const grid = this.dom.helpGrid; if (!grid) return;
-    const topics = this.computeSelectedTopics();
-    const copy = this.helpCopyFromResponses(topics);
-    if (this.dom.helpTitle) this.dom.helpTitle.textContent = copy.title;
-    if (this.dom.helpSubtitle) this.dom.helpSubtitle.textContent = copy.subtitle;
+  updateHelpNavButtons() {
+    const back = this.dom.helpBackBtn;
+    const restart = this.dom.helpRestartBtn;
+    if (!back) return;
 
-    const cards = (RESOURCES_DB || [])
-      .filter(r => (Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []).some(t => topics.has(t)))
-      .sort((a, b) => (a.risk || 999) - (b.risk || 999));
+    if (this.helpOrigin === 'start') {
+      back.textContent = 'Back to beginning';
+      if (restart) restart.style.display = 'none';
+    } else {
+      back.textContent = 'Back to summary';
+      if (restart) restart.style.display = '';
+    }
+  }
+
+  /* Help/resources derivation */
+  renderHelpResources({ all = false, from = 'summary' } = {}) {
+    this.helpOrigin = from;
+    this.updateHelpNavButtons();
+
+    const grid = this.dom.helpGrid; if (!grid) return;
+
+    let cards = [];
+    if (all) {
+      if (this.dom.helpTitle) this.dom.helpTitle.textContent = 'Resources';
+      if (this.dom.helpSubtitle) this.dom.helpSubtitle.textContent = 'Browse the full list of available resources.';
+      cards = (RESOURCES_DB || [])
+        .slice()
+        .sort((a, b) => (a.risk || 999) - (b.risk || 999));
+    } else {
+      const topics = this.computeSelectedTopics();
+      const copy = this.helpCopyFromResponses(topics);
+      if (this.dom.helpTitle) this.dom.helpTitle.textContent = copy.title;
+      if (this.dom.helpSubtitle) this.dom.helpSubtitle.textContent = copy.subtitle;
+
+      cards = (RESOURCES_DB || [])
+        .filter(r => (Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []).some(t => topics.has(t)))
+        .sort((a, b) => (a.risk || 999) - (b.risk || 999));
+    }
 
     grid.innerHTML = cards.length
       ? cards.map(card => {
-          const actions = (card.actions || []).map(a => {
-            const icon = a.icon || (a.kind === 'sms' ? 'fas fa-comment-dots' : a.kind === 'web' ? 'fas fa-globe' : 'fas fa-phone');
-            const href = a.href || '#';
-            const blank = a.targetBlank ? 'target="_blank" rel="noopener noreferrer"' : '';
-            return `<a class="chip" href="${href}" ${blank}><i class="${icon}"></i> ${a.label}</a>`;
-          }).join('');
-          return `
+        const actions = (card.actions || []).map(a => {
+          const icon = a.icon || (a.kind === 'sms' ? 'fas fa-comment-dots' : a.kind === 'web' ? 'fas fa-globe' : 'fas fa-phone');
+          const href = a.href || '#';
+          const blank = a.targetBlank ? 'target="_blank" rel="noopener noreferrer"' : '';
+          return `<a class="chip" href="${href}" ${blank}><i class="${icon}"></i> ${a.label}</a>`;
+        }).join('');
+        return `
             <div class="help-card">
-              <h4>${card.title}</h4>
-              ${card.meta ? `<div class="help-meta">${card.meta}</div>` : ''}
-              <div class="help-actions">${actions}</div>
+                <h4>${card.title}</h4>
+                ${card.description ? `<div class="help-description">${card.description}</div>` : ''}
+                ${card.meta ? `<div class="help-meta">${card.meta}</div>` : ''}
+                <div class="help-actions">${actions}</div>
             </div>
-          `;
-        }).join('')
+            `;
+      }).join('')
       : `
         <div class="help-card">
           <h4>No resources matched.</h4>
           <div class="help-meta">Check back later. In the meantime, consider checking in on your friends!</div>
         </div>
       `;
+
+    if (!all) {
+      this.renderWhySection();
+      if (this.dom.whySection) this.dom.whySection.style.display = 'block';
+    } else {
+      if (this.dom.whySection) this.dom.whySection.style.display = 'none';
+    }
   }
-  computeSelectedTopics() {
-    const topics = new Set(), removes = new Set(), a = this.answers;
+
+  renderWhySection() {
+    const topicsMap = this.computeSelectedTopicsWithReasons();
+    const content = this.dom.whyContent;
+    if (!content) return;
+
+    let html = '<p class="why-lead">Your responses indicated the following information:</p>';
+    topicsMap.forEach((entry, tag) => {
+      const mergedReasons = new Set([...entry.groupReasons, ...entry.reasons]);
+      if (mergedReasons.size > 0) {
+        const tagLabel = tag.charAt(0).toUpperCase() + tag.slice(1);
+        html += `<div class="why-group">
+          <strong>${tagLabel} Support:</strong>
+          <ul>
+            ${Array.from(mergedReasons).map(r => `<li>${r}</li>`).join('')}
+          </ul>
+        </div>`;
+      }
+    });
+
+    content.innerHTML = html.length > 70 ? html : '<p>Your responses suggest general wellbeing support.</p>';
+  }
+
+  toggleWhySection() {
+    const container = this.dom.whyContent;
+    const link = this.dom.whyLink;
+    if (!container || !link) return;
+
+    const isHidden = container.style.display === 'none' || !container.style.display;
+    container.style.display = isHidden ? 'block' : 'none';
+    link.textContent = isHidden ? 'Hide details' : 'Why are we showing you these resources?';
+  }
+  selectedTopicsObject() {
+    const set = this.computeSelectedTopics();
+    const known = new Set((RESOURCES_DB || []).flatMap(r => Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []));
+    if (!known.size) ['depression', 'alcohol', 'substances', 'abuse'].forEach(t => known.add(t));
+    const obj = {}; known.forEach(t => { obj[t] = set.has(t); }); return obj;
+  }
+  computeUrgencyLevel() {
+    const a = this.answers;
+    let highest = 'low';
+    const urgencyMap = { 'low': 0, 'moderate': 1, 'urgent': 2 };
+    const revMap = ['low', 'moderate', 'urgent'];
+
+    Object.keys(a).forEach(qid => {
+      const q = this.getQuestion(qid); if (!q) return;
+      const val = a[qid];
+      const check = (oid) => {
+        const o = (q.options || []).find(opt => String(opt.id) === String(oid));
+        if (o && o.urgency && urgencyMap[o.urgency] > urgencyMap[highest]) {
+          highest = o.urgency;
+        }
+      };
+      if (Array.isArray(val)) val.forEach(check);
+      else if (val != null) check(val);
+    });
+    return highest;
+  }
+
+  computeSelectedTopicsWithReasons() {
+    const topics = new Map(), removes = new Set(), a = this.answers;
     const getOpt = (q, id) => (q.options || []).find(o => String(o.id) === String(id)) || null;
-    const addTags = (o) => {
-      const cands = [o?.indicates, o?.topics, o?.topicAdds, o?.tagsAdd];
-      for (const c of cands) if (Array.isArray(c) && c.length) return c.map(x => String(x).toLowerCase());
-      return [];
+
+    const addTopic = (tag, reason, groupReason) => {
+      tag = tag.toLowerCase();
+      if (!topics.has(tag)) topics.set(tag, { reasons: new Set(), groupReasons: new Set() });
+      const entry = topics.get(tag);
+      if (groupReason) entry.groupReasons.add(groupReason);
+      else if (reason) entry.reasons.add(reason);
     };
+
+    const addTags = (o, q) => {
+      const cands = [o?.indicates, o?.topics, o?.topicAdds, o?.tagsAdd];
+      const tags = [];
+      for (const c of cands) if (Array.isArray(c) && c.length) tags.push(...c.map(x => String(x).toLowerCase()));
+
+      tags.forEach(t => addTopic(t, o.reason, o.groupReason));
+    };
+
     const remTags = (o) => {
       const cands = [o?.indicatesRemove, o?.topicRemoves, o?.tagsRemove];
       for (const c of cands) if (Array.isArray(c) && c.length) return c.map(x => String(x).toLowerCase());
       return [];
     };
+
     const evalCond = (cond) => {
       if (!cond) return false;
       if (Array.isArray(cond.all)) return cond.all.every(evalCond);
@@ -631,69 +959,58 @@ class DynamicSurvey {
       const v = a[qid], arr = Array.isArray(v) ? v : v != null ? [v] : [];
       if (cond.equals !== undefined) return v === cond.equals;
       if (Array.isArray(cond.anyOf)) return arr.some(x => cond.anyOf.includes(x));
-      // if (Array.isArray(cond.noneOf)) return arr.every(x => !cond.noneOf.includes(x));
       if (cond.notEquals !== undefined) return v !== cond.notEquals;
       return false;
     };
-    const ruleAdds = (() => {
-      const rules = Array.isArray(this.config?.topicRules) ? this.config.topicRules
-        : Array.isArray(this.config?.settings?.topicRules) ? this.config.settings.topicRules : [];
-      const add = new Set(), remove = new Set();
-      rules.forEach(r => {
-        const when = r.when || r.if || r.condition; if (!when) return;
-        if (evalCond(when)) {
-          (r.add || []).forEach(t => add.add(String(t).toLowerCase()));
-          (r.remove || []).forEach(t => remove.add(String(t).toLowerCase()));
-        }
-      });
-      remove.forEach(t => add.delete(t));
-      return add;
-    })();
+
+    const rules = Array.isArray(this.config?.topicRules) ? this.config.topicRules
+      : Array.isArray(this.config?.settings?.topicRules) ? this.config.settings.topicRules : [];
+
+    rules.forEach(r => {
+      const when = r.when || r.if || r.condition; if (!when) return;
+      if (evalCond(when)) {
+        (r.add || []).forEach(t => addTopic(t, r.reason, r.groupReason));
+        (r.remove || []).forEach(t => removes.add(String(t).toLowerCase()));
+      }
+    });
 
     Object.keys(a).forEach(qid => {
       const q = this.getQuestion(qid); if (!q) return;
       const val = a[qid];
       if (q.type === 'single' && typeof val === 'string') {
         const o = getOpt(q, val); if (!o) return;
-        addTags(o).forEach(t => topics.add(t));
+        addTags(o, q);
         remTags(o).forEach(t => removes.add(t));
       }
       if (q.type === 'multiple' && Array.isArray(val)) {
         const ex = new Set((q.exclusiveOptionIds || []).map(String));
         const isExcl = (id) => ex.has(String(id)) || !!getOpt(q, id)?.exclusive;
         const onlyExcl = val.length > 0 && val.every(isExcl);
-        if (onlyExcl) return;
+        if (onlyExcl) {
+          val.forEach(id => {
+            const o = getOpt(q, id); if (!o) return;
+            remTags(o).forEach(t => removes.add(t));
+          });
+          return;
+        }
         val.forEach(id => {
           if (isExcl(id)) return;
           const o = getOpt(q, id); if (!o) return;
-          addTags(o).forEach(t => topics.add(t));
+          addTags(o, q);
           remTags(o).forEach(t => removes.add(t));
         });
       }
     });
 
-    ruleAdds.forEach(t => topics.add(t));
     removes.forEach(t => topics.delete(t));
-    if (topics.size === 0) (this.settings.defaultTopics || []).forEach(t => topics.add(String(t).toLowerCase()));
+    if (topics.size === 0) {
+      (this.settings.defaultTopics || []).forEach(t => addTopic(t, null, null));
+    }
     return topics;
   }
-  selectedTopicsObject() {
-    const set = this.computeSelectedTopics();
-    const known = new Set((RESOURCES_DB || []).flatMap(r => Array.isArray(r.tags) ? r.tags.map(t => String(t).toLowerCase()) : []));
-    if (!known.size) ['depression', 'alcohol', 'opiods'].forEach(t => known.add(t));
-    const obj = {}; known.forEach(t => { obj[t] = set.has(t); }); return obj;
-  }
-  computeUrgencyLevel() {
-    const a = this.answers;
-    const q1 = a['q1']; const su = q1 === 'su_current', mh = q1 === 'mh_current';
-    const severeMood = ['depressed', 'hopeless', 'worthless'];
-    const hasSevereMood = (Array.isArray(a['q2']) ? a['q2'] : []).some(x => severeMood.includes(x));
-    const q9Yes = a['q9'] === 'yes';
-    const q10 = a['q10']; const highDrug = q10 === 'non_prescribed' || q10 === 'both';
-    const q11Daily = a['q11'] === 'daily';
-    if (su || highDrug || q11Daily || q9Yes || hasSevereMood) return 'urgent';
-    if (mh || (Array.isArray(a['q3']) && a['q3'].length) || (Array.isArray(a['q5']) && a['q5'].length)) return 'moderate';
-    return 'low';
+
+  computeSelectedTopics() {
+    return new Set(this.computeSelectedTopicsWithReasons().keys());
   }
   helpCopyFromResponses(topicsSet) {
     const level = this.computeUrgencyLevel();
@@ -706,26 +1023,50 @@ class DynamicSurvey {
   showHelpPage() {
     const c = this.dom.completion, h = this.dom.help; if (!h) return;
     c?.classList.remove('active'); if (c) c.style.display = 'none';
+
+    if (this.dom.root) this.dom.root.style.display = 'none';
+
     h.style.display = 'flex'; h.classList.add('active');
     this.dom.backBtn?.style?.setProperty('display', 'none');
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   }
   backToSummary() {
-    const c = this.dom.completion, h = this.dom.help; if (!c) return;
+    const h = this.dom.help; if (!h) return;
     h?.classList.remove('active'); if (h) h.style.display = 'none';
-    c.style.display = 'block'; c.classList.add('active');
-    this.dom.backBtn?.style?.removeProperty('display');
+
+    if (this.dom.root) this.dom.root.style.display = '';
+
+    if (this.helpOrigin === 'start') {
+      const startOverlay = document.getElementById('startOverlay');
+      startOverlay?.classList.add('show');
+      document.body.classList.add('intro-open');
+      this.dom.backBtn?.style?.setProperty('display', 'none');
+    } else {
+      const c = this.dom.completion; if (!c) return;
+      c.style.display = 'block'; c.classList.add('active');
+      this.dom.backBtn?.style?.removeProperty('display');
+    }
+
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  buildSurveyPayload() {
+  buildSurveyPayload(completed = false) {
+    const query = this.getStoredQuery();
+    const gps = getStoredGPS();
     return {
-      data: [{
+      data: {
         timestamp: new Date().toISOString(),
         surveyTitle: this.config.title,
         surveyVersion: this.config.version,
-        answers: { ...this.answers }
-      }]
+        mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
+        site: query.site || null,   // common param bubbled up for convenience
+        query,                      // full set of captured query params
+        gps,
+        answers: { ...this.answers },
+        sessionId: this.sessionId,
+        language: getLanguage(),
+        completed: completed
+      }
     };
   }
 
@@ -745,7 +1086,7 @@ class DynamicSurvey {
 
     // Lock UI and move to completion immediately
     this.submitting = true;
-    try { sessionStorage.setItem(this.storageKeys.current, 'complete'); } catch {}
+    try { sessionStorage.setItem(this.storageKeys.current, 'complete'); } catch { }
     this.showCompletion(); // show "All done" right away
 
     // Save local copy (best effort)
@@ -755,10 +1096,10 @@ class DynamicSurvey {
       const all = raw ? JSON.parse(raw) : [];
       all.push({ timestamp: new Date().toISOString(), answers: { ...this.answers } });
       localStorage.setItem(key, JSON.stringify(all));
-    } catch {}
+    } catch { }
 
     // Post to backend in background
-    const payload = this.buildSurveyPayload();
+    const payload = this.buildSurveyPayload(true); // Pass true for completed
     try { await submitSurvey(payload); showToast('Submitted!'); }
     catch (e) { console.error('Submit error:', e); showToast('Submit failed (saved locally).'); }
   }
@@ -782,7 +1123,7 @@ class DynamicSurvey {
       sessionStorage.removeItem(this.storageKeys.current);
       localStorage.removeItem(this.storageKeys.answers);
       localStorage.removeItem(this.storageKeys.current);
-    } catch {}
+    } catch { }
     this.dom.root.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
     if (this.dom.completion) { this.dom.completion.style.display = 'none'; this.dom.completion.classList.remove('active'); }
     if (this.dom.help) { this.dom.help.style.display = 'none'; this.dom.help.classList.remove('active'); }
@@ -795,8 +1136,11 @@ class DynamicSurvey {
   }
 }
 
-/* Boot: intro + cookies + data load + survey */
+/* boot up order: intro + cookies + data load + survey */
 document.addEventListener('DOMContentLoaded', async () => {
+  // capturing all query params (e.g., ?site=123) into sessionStorage
+  captureQueryParams();
+
   const cookieOverlay = document.getElementById('cookieOverlay');
   const cookiesAccepted = () => { try { return localStorage.getItem('k10:cookiesAccepted') === 'yes'; } catch { return false; } };
   const showCookieIfNeeded = () => { if (!cookiesAccepted()) cookieOverlay?.classList.add('show'); };
@@ -804,31 +1148,80 @@ document.addEventListener('DOMContentLoaded', async () => {
   const startOverlay = document.getElementById('startOverlay');
   const startBegin = document.getElementById('startBegin');
   const startDismiss = document.getElementById('startDismiss');
+  const startResources = document.getElementById('startResources');
   const startMedia = document.getElementById('startMedia');
 
+  const modeOverlay = document.getElementById('modeOverlay');
+  const modeSelf = document.getElementById('modeSelf');
+  const modeOther = document.getElementById('modeOther');
+
   // Welcome banner visuals
-  startMedia.style.backgroundImage = "url('static/Logo.jpg')";
+  startMedia.style.backgroundImage = "url('../static/Logo.jpg')";
   startMedia.style.backgroundSize = 'contain';
   startMedia.style.backgroundRepeat = 'no-repeat';
   startMedia.style.backgroundPosition = 'center';
 
   const openIntro = () => { document.body.classList.add('intro-open'); startOverlay?.classList.add('show'); };
   const closeIntro = persist => {
-    if (persist) { try { localStorage.setItem('dyn:introSeen', 'yes'); } catch {} }
+    if (persist) { try { localStorage.setItem('dyn:introSeen', 'yes'); } catch { } }
     startOverlay?.classList.remove('show');
     document.body.classList.remove('intro-open');
   };
 
-  // Always show intro on load
-  openIntro();
+  const openMode = () => { document.body.classList.add('intro-open'); modeOverlay?.classList.add('show'); };
+  const closeMode = () => { modeOverlay?.classList.remove('show'); };
 
-  startBegin?.addEventListener('click', () => {
+  const proceedFromMode = (modeValue) => {
+    try { sessionStorage.setItem('dyn:mode', modeValue); } catch { }
+    closeMode();
+    openIntro();
+  };
+
+  modeSelf?.addEventListener('click', () => proceedFromMode('self'));
+  modeOther?.addEventListener('click', () => proceedFromMode('someoneElse'));
+
+  // Always show mode selection on load
+  openMode();
+
+  startBegin?.addEventListener('click', async () => {
     closeIntro(true);
     showCookieIfNeeded();
-    try { const step = sessionStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch {}
+
+    // Ask for GPS once the user starts
+    await retryGPS(); // better than a single strict attempt
+
+    // Send "survey started" to server
+    try {
+      const query = (() => { try { return JSON.parse(sessionStorage.getItem('dyn:query') || '{}'); } catch { return {}; } })();
+      submitSurvey({
+        data: {
+          timestamp: new Date().toISOString(),
+          surveyTitle: window.survey?.config?.title || 'Unknown',
+          surveyVersion: window.survey?.config?.version || 'Unknown',
+          mode: sessionStorage.getItem('dyn:mode') || 'unknown',
+          site: query.site || null,
+          query,
+          gps: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:gps') || '{}'); } catch { return {}; } })(),
+          answers: {},
+          sessionId: window.survey?.sessionId || 'unknown',
+          language: getLanguage(),
+          completed: false
+        }
+      }).catch(e => console.error('Failed to notify server of start:', e));
+    } catch (err) { }
+
+    try { const step = sessionStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch { }
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   });
   startDismiss?.addEventListener('click', () => { closeIntro(false); showCookieIfNeeded(); });
+
+  startResources?.addEventListener('click', () => {
+    closeIntro(false);
+    showCookieIfNeeded();
+    if (!window.survey) return showToast('Loading resources…');
+    window.survey.renderHelpResources({ all: true, from: 'start' });
+    window.survey.showHelpPage();
+  });
 
   await loadResourcesJSON();
 
