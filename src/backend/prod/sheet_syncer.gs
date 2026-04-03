@@ -4,7 +4,6 @@
 // TODO: Fix undefined
 // leave here or put inside function?
 const FOLDER_ID = PropertiesService.getScriptProperties().getProperty("FolderID");
-const IGNORE_ID = PropertiesService.getScriptProperties().getProperty("IgnoreFolderID");    // for old/test data
 const SHEET = SpreadsheetApp.getActiveSpreadsheet().getSheetById(0);
 
 function updateSheet() {
@@ -22,10 +21,7 @@ function updateSheet() {
 
             // push folders onto queue
             while (foldersIt.hasNext()) {
-              const folder = foldersIt.next();
-                if (folder.getId() != IGNORE_ID) {
-                  queue.push(folder);
-                }
+                queue.push(foldersIt.next());
             }
 
             // process files

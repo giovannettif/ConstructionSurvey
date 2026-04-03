@@ -1,0 +1,22 @@
+sheet_syncer.gs:
+
+Overall:
+It should read all the JSON files within FOLDER_ID (and subfolders) and flatten them into a single table in a sheet.
+
+It should flatten the data by bringing out survey data from under 'data' field, answer data from under 'answers' field, and query params from under 'queryParams' field, etc. When flattening, simply prepend the parent field. For example, if the JSON has a field 'data' with value '{"a": 1, "b": 2}', then the flattened key name (and thus column name) should be 'data.a' and 'data.b'.
+
+It should be in descending order of the date of the survey response (found at the data.time_stamp field, which should be placed first).
+
+It should handle various different formats of surveys by unioning the keys. For example, some have 'queryParams' field, while others have a 'query' field. In such a case, keep both keys in the sheet as column names. For any key that is not present in a particular JSON file, the value should be empty.
+
+The script should only append values to the sheet, not overwrite existing values. Also, after the timestamp column, columns should be added to the right so as to not overwrite existing values while unioning the keys.
+
+Before modifying the table, the script should create of a copy of the current sheet and name it `timestamp_backup`.
+
+Connecting two JSON files via sessionId:
+
+Look at two example JSON files in the examples/ directory to understand the structure:
+2026-04-03T13-00-30-448Z_2026-04-03T13-00-27-992Z_2026-04-03T13-01-17-442Z_1775221227992.json
+2026-04-03T13-00-55-026Z_2026-04-03T13-00-51-930Z_2026-04-03T13-01-17-443Z_1775221251930.json
+
+The first one has a completed: false field, while the second one has a completed: true field. The first one and second one also have a shared data.sessionId value. For such pairs, the completed: false entry should be ignored, and the completed: true entry should be used. However, the timestamp of the completed: false entry should be included in the final table as a separate column (e.g. data.timestamp_started, s3_timestamp_started).
