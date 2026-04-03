@@ -1,10 +1,23 @@
 // Syncs the JSON files in a Google Drive folder to a Google Sheet
 // This script is connected to a Google Sheet via Apps Script
-// TODO: make this code efficient using AI
-// TODO: Fix undefined
-// leave here or put inside function?
 const FOLDER_ID = PropertiesService.getScriptProperties().getProperty("FolderID");
 const SHEET = SpreadsheetApp.getActiveSpreadsheet().getSheetById(0);
+
+// Recursively flattens a nested object using dot-notation keys.
+// Arrays are serialized to JSON strings since cells hold scalar values.
+function flattenObj(obj, prefix) {
+    const result = {};
+    for (const key in obj) {
+        const val = obj[key];
+        const fullKey = prefix ? prefix + '.' + key : key;
+        if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
+            Object.assign(result, flattenObj(val, fullKey));
+        } else {
+            result[fullKey] = Array.isArray(val) ? JSON.stringify(val) : val;
+        }
+    }
+    return result;
+}
 
 function updateSheet() {
     try {
@@ -31,40 +44,69 @@ function updateSheet() {
                 const content = file.getBlob().getDataAsString();
                 const data = JSON.parse(content);
 
-                // flatten data 
-                // bring out survey data from under 'data' field
-                const surveyData = JSON.parse(JSON.stringify(data.data));
-                delete data.data;
-                // bring out answers from under 'answers' field
-                const answerData = JSON.parse(JSON.stringify(surveyData.answers));
-                delete surveyData.answers;
-                // bring out answers from under 'answers' field
-                const queryParamsData = JSON.parse(JSON.stringify(surveyData.query ?? {}));
-                delete surveyData.queryParams;
-
-                masterData.push(Object.assign(surveyData, data, answerData, queryParamsData, {
-                    phase: currFolder.getName()
-                }));
+                masterData.push(Object.assign(flattenObj(data, ''), { phase: currFolder.getName() }));
             }
         }
 
-        // get unique keys
-        const uniqueKeys = new Set();
+        // resolve sessionId pairs: drop completed:false if a completed:true partner exists,
+        // but carry over its timestamps onto the completed entry
+        const bySession = {};
+        const noSession = [];
         for (const entry of masterData) {
+            const sid = entry['data.sessionId'];
+            if (!sid) {
+                noSession.push(entry);
+            } else {
+                (bySession[sid] = bySession[sid] || []).push(entry);
+            }
+        }
+
+        const resolvedData = [...noSession];
+        for (const sid in bySession) {
+            const group = bySession[sid];
+            const complete = group.find(e => e['data.completed'] === true);
+            const incomplete = group.find(e => e['data.completed'] === false);
+            if (complete && incomplete) {
+                const STARTED_KEYS = ['data.timestamp', 's3_timestamp', 'drive_timestamp'];
+                for (const key of STARTED_KEYS) {
+                    complete[key + '_started'] = incomplete[key];
+                }
+                resolvedData.push(complete);
+            } else {
+                resolvedData.push(...group);
+            }
+        }
+
+        // sort descending by data.timestamp
+        resolvedData.sort((a, b) => {
+            const ta = a['data.timestamp'] ?? '';
+            const tb = b['data.timestamp'] ?? '';
+            return tb < ta ? -1 : tb > ta ? 1 : 0;
+        });
+
+        // get unique keys, with data.timestamp pinned first
+        const uniqueKeys = new Set();
+        for (const entry of resolvedData) {
             for (const key in entry) {
                 uniqueKeys.add(key);
             }
         }
-        const headers = [...uniqueKeys];
+        uniqueKeys.delete('data.timestamp');
+        const headers = ['data.timestamp', ...uniqueKeys];
         const rangeData = [headers];
 
-        for (const entry of masterData) {
+        for (const entry of resolvedData) {
             const row = [];
             for (const key of headers) {
                 row.push(entry[key]);
             }
             rangeData.push(row);
         }
+
+        // back up the current sheet before overwriting
+        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const backupName = new Date().toISOString().replace(/[:.]/g, '-') + '_backup';
+        SHEET.copyTo(ss).setName(backupName);
 
         SHEET.clearContents();
 
