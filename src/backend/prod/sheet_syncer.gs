@@ -1,9 +1,10 @@
 // Syncs the JSON files in a Google Drive folder to a Google Sheet
 // This script is connected to a Google Sheet via Apps Script
 // TODO: make this code efficient using AI
+// TODO: Fix undefined
 // leave here or put inside function?
 const FOLDER_ID = PropertiesService.getScriptProperties().getProperty("FolderID");
-const IGNORE_ID = PropertiesService.getScriptProperties().getProperty("IgnoreFolderID");
+const IGNORE_ID = PropertiesService.getScriptProperties().getProperty("IgnoreFolderID");    // for old/test data
 const SHEET = SpreadsheetApp.getActiveSpreadsheet().getSheetById(0);
 
 function updateSheet() {

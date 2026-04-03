@@ -33,7 +33,7 @@ app.post('/survey', async (req, res) => {
     // find current phase
     const currDate = new Date();
     // default to current month and year
-    let currPhase = currDate.getMonth() + 1 + "-" + currDate.getFullYear();
+    let currPhase = currDate.getFullYear() + "-" + String(currDate.getMonth() + 1).padStart(2, '0');
 
     for (const phase of phasesData) {
         if (currDate >= new Date(phase.start) && currDate <= new Date(phase.end)) {
