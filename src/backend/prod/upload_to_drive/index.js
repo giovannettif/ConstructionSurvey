@@ -10,7 +10,6 @@ const FOLDER_ID = process.env.FOLDER_ID;
 
 // S3 configuration
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
-const S3_PREFIX = 'data/';
 const s3 = new S3Client({ region: process.env.AWS_REGION });
 
 // Drive authorization
@@ -20,74 +19,64 @@ const authClient = await authorize(['https://www.googleapis.com/auth/drive']);
 const limit = pLimit(5);
 
 export const handler = async () => {
-    let message;
     console.log('1. Listing all data files from S3...');
+    // ['path/to/file.json', ...]
     let files = [];
 
     try {
-        const response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: S3_PREFIX }));
-        let objects = response.Contents;
-        let nextToken = response.NextContinuationToken;
+        for (const prefix of ['data/', 'test/']) {
+            const response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix }));
+            let objects = response.Contents;
+            let nextToken = response.NextContinuationToken;
 
-        // handle pagination
-        while (response.IsTruncated) {
-            response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: S3_PREFIX, ContinuationToken: nextToken }));
-            objects = objects.concat(response.Contents);
-            nextToken = response.NextContinuationToken;
+            // handle pagination
+            while (response.IsTruncated) {
+                response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix, ContinuationToken: nextToken }));
+                objects = objects.concat(response.Contents);
+                nextToken = response.NextContinuationToken;
+            }
+
+            // Key is the path to the file
+            files = files.concat(objects.map(item => item.Key).filter(key => !key.endsWith('/')));
         }
-
-        // Key is the path to the file
-        files = objects.map(item => item.Key).filter(key => !key.endsWith('/'));
     } catch (e) {
-        message = 'Error listing S3 data files';
-        console.error(message, e);
-        return { message };
+        console.error('Error listing S3 data files:', e);
+        return { message: 'Error listing S3 data files' };
     }
 
     console.log('2. Fetching files with unuploaded entries...');
     // { 'path/to/file.json': [entry1, entry2, ...], ... }
     let unuploadedS3Data = {};
 
-    for (const fileName of files) {
+    for (const filePath of files) {
         try {
-            const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: fileName }));
+            const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: filePath }));
             const jsonStr = await response.Body.transformToString();
             const data = JSON.parse(jsonStr);
             // include even partially unuploaded files (certain entries uploaded, others not)
             const uploaded = data.every(item => item.uploaded_to_drive);
 
             if (!uploaded) {
-                unuploadedS3Data[fileName] = data;
+                unuploadedS3Data[filePath] = data;
             }
         } catch (e) {
-            message = `Error fetching file ${fileName} from S3`;
-            console.error(message, e);
-            return { message };
+            console.error(`Error fetching file ${filePath} from S3:`, e);
+            return { message: `Error fetching file ${filePath} from S3` };
         }
     }
 
     if (Object.keys(unuploadedS3Data).length === 0) {
-        message = 'No new entries to upload';
-        console.log(message);
-        return { message };
+        console.log('No new entries to upload');
+        return { message: 'No new entries to upload' };
     }
 
     console.log('3. Uploading files to Google Drive...');
-    const promises1 = Object.entries(unuploadedS3Data).map(async ([s3FileName, data]) => {
-        // set up folder
-        const fileNameOnly = s3FileName.split('/').pop();
-        let folderId = FOLDER_ID;
-        // based on phase: TEST5.json (file) -> Test 5 (folder)
-        const folderName = fileNameOnly
-            .toLowerCase()
-            .replace(/\.\w+$/, '')
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, l => l.toUpperCase());
-
+    const promises1 = Object.entries(unuploadedS3Data).map(async ([filePath, data]) => {
         // if the file name contains a path, create / retrieve the folders first
-        folderId = await createFolders(authClient, FOLDER_ID, folderName);
+        // test/2026-04.json -> test/2026-04 (folder)
+        const folderId = await createFolders(authClient, FOLDER_ID, filePath.replace(/\.json$/, ''));
 
-        const promises2 = data.filter(item => !item.uploaded_to_drive).map((entry) => {
+        const promises2 = data.filter(entry => !entry.uploaded_to_drive).map((entry) => {
             return limit(async () => {
                 try {
                     const timestamp = new Date().toISOString();
@@ -122,23 +111,20 @@ export const handler = async () => {
     await Promise.all(promises1);
 
     console.log('4. Updating the files in S3 with the new upload statuses...');
-    for (const [s3FileName, data] of Object.entries(unuploadedS3Data)) {
+    for (const [filePath, data] of Object.entries(unuploadedS3Data)) {
         try {
             await s3.send(new PutObjectCommand({
                 Bucket: S3_BUCKET,
-                Prefix: S3_PREFIX,
-                Key: s3FileName,
+                Key: filePath,
                 ContentType: 'application/json',
                 Body: JSON.stringify(data),
             }));
         } catch (e) {
-            message = `Error updating file ${s3FileName} in S3`;
-            console.error(message, e);
-            return { message };
+            console.error(`Error updating file ${filePath} in S3:`, e);
+            return { message: `Error updating file ${filePath} in S3` };
         }
     }
 
-    message = 'Synced S3 bucket contents to Google Drive';
-    console.log(message);
-    return { message };
+    console.log('Synced S3 bucket contents to Google Drive');
+    return { message: 'Synced S3 bucket contents to Google Drive' };
 };
