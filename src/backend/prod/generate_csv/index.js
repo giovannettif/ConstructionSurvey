@@ -60,6 +60,8 @@ export const handler = async () => {
     // 2. Fetch, flatten, and collect all entries
     console.log('2. Fetching and flattening entries...');
     const masterData = [];
+    let hasNewData = false;
+    const filesToUpdate = {}; // files containing un-flagged entries, written back after upload
 
     for (const filePath of files) {
         try {
@@ -67,19 +69,33 @@ export const handler = async () => {
             const jsonStr = await response.Body.transformToString();
             const entries = JSON.parse(jsonStr);
 
+            let fileHasNewData = false;
             for (const entry of entries) {
-                // exclude internal upload tracking field
-                const { uploaded_to_drive, ...rest } = entry;
+                if (!entry.generated_as_csv) {
+                    hasNewData = true;
+                    fileHasNewData = true;
+                }
+                // exclude internal tracking fields
+                const { uploaded_to_drive, generated_as_csv, ...rest } = entry;
                 // normalize malformed data field: [{...}] -> {...}
                 if (Array.isArray(rest.data) && rest.data.length === 1) {
                     rest.data = rest.data[0];
                 }
                 masterData.push(flattenObj(rest, ''));
             }
+
+            if (fileHasNewData) {
+                filesToUpdate[filePath] = entries;
+            }
         } catch (e) {
             console.error(`Error fetching file ${filePath}:`, e);
             return { message: `Error fetching file ${filePath}` };
         }
+    }
+
+    if (!hasNewData) {
+        console.log('No new data since last CSV generation, skipping.');
+        return { message: 'No new data since last CSV generation' };
     }
 
     // 3. Resolve sessionId pairs: drop completed:false if a completed:true partner exists,
@@ -152,6 +168,26 @@ export const handler = async () => {
         return { message: 'Error uploading CSV to S3' };
     }
 
+    // 8. Mark all entries in affected files as generated_as_csv
+    console.log('6. Marking entries as generated_as_csv...');
+    for (const [filePath, entries] of Object.entries(filesToUpdate)) {
+        try {
+            for (const entry of entries) {
+                entry.generated_as_csv = true;
+            }
+            await s3.send(new PutObjectCommand({
+                Bucket: S3_BUCKET,
+                Key: filePath,
+                ContentType: 'application/json',
+                Body: JSON.stringify(entries),
+            }));
+        } catch (e) {
+            console.error(`Error marking entries in ${filePath}:`, e);
+            return { message: `Error marking entries in ${filePath}` };
+        }
+    }
+
     console.log(`CSV uploaded to s3://${S3_BUCKET}/${csvKey}`);
     return { message: `CSV uploaded to s3://${S3_BUCKET}/${csvKey}` };
 };
+// TODO: auto-upload CSV to Drive - how to mark as "uploaded"?

@@ -1,8 +1,8 @@
 // Uploads existing survey responses from S3 to Google Drive folder
 
-import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
-import { authorize, createFolders, uploadJsonToDrive } from './driveManager.js';
+import { authorize, createFolders, uploadJsonToDrive, uploadCsvToDrive } from './driveManager.js';
 
 // env vars
 const FOLDER_ID = process.env.FOLDER_ID;
@@ -19,10 +19,11 @@ const limit = pLimit(5);
 
 export const handler = async () => {
     console.log('1. Listing all data files from S3...');
-    // ['path/to/file.json', ...]
-    let files = [];
+    let jsonFiles = [];
+    let csvFiles = [];
 
     try {
+        // list JSON data files across data/ and test/ prefixes
         for (const prefix of ['data/', 'test/']) {
             let response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix }));
             let objects = response.Contents ?? [];
@@ -35,9 +36,12 @@ export const handler = async () => {
                 nextToken = response.NextContinuationToken;
             }
 
-            // Key is the path to the file
-            files = files.concat(objects.map(item => item.Key).filter(key => !key.endsWith('/')));
+            jsonFiles = jsonFiles.concat(objects.map(item => item.Key).filter(key => key.endsWith('.json')));
         }
+
+        // list unuploaded CSVs: root csv/ only (Delimiter excludes subfoldered/uploaded ones)
+        const csvResponse = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: 'csv/', Delimiter: '/' }));
+        csvFiles = (csvResponse.Contents ?? []).map(item => item.Key).filter(key => key.endsWith('.csv'));
     } catch (e) {
         console.error('Error listing S3 data files:', e);
         return { message: 'Error listing S3 data files' };
@@ -47,7 +51,7 @@ export const handler = async () => {
     // { 'path/to/file.json': [entry1, entry2, ...], ... }
     let unuploadedS3Data = {};
 
-    for (const filePath of files) {
+    for (const filePath of jsonFiles) {
         try {
             const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: filePath }));
             const jsonStr = await response.Body.transformToString();
@@ -64,9 +68,9 @@ export const handler = async () => {
         }
     }
 
-    if (Object.keys(unuploadedS3Data).length === 0) {
-        console.log('No new entries to upload');
-        return { message: 'No new entries to upload' };
+    if (Object.keys(unuploadedS3Data).length === 0 && csvFiles.length === 0) {
+        console.log('No new entries or CSVs to upload');
+        return { message: 'No new entries or CSVs to upload' };
     }
 
     console.log('3. Uploading files to Google Drive...');
@@ -120,6 +124,32 @@ export const handler = async () => {
         } catch (e) {
             console.error(`Error updating file ${filePath} in S3:`, e);
             return { message: `Error updating file ${filePath} in S3` };
+        }
+    }
+
+    console.log('5. Uploading CSVs to Google Drive and moving in S3...');
+    for (const csvKey of csvFiles) {
+        try {
+            const fileName = csvKey.split('/').at(-1);
+            const yyyymm = fileName.slice(0, 7);
+            const destKey = `csv/${yyyymm}/${fileName}`;
+
+            const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: csvKey }));
+            const csvContent = await response.Body.transformToString();
+
+            const folderId = await createFolders(authClient, FOLDER_ID, `csv/${yyyymm}`);
+            const fileId = await uploadCsvToDrive(authClient, folderId, fileName, csvContent);
+
+            if (fileId) {
+                // move in S3: copy to csv/yyyy-mm/ subfolder, then delete from root csv/
+                await s3.send(new CopyObjectCommand({ Bucket: S3_BUCKET, CopySource: `${S3_BUCKET}/${csvKey}`, Key: destKey }));
+                await s3.send(new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: csvKey }));
+            } else {
+                console.error(`Drive upload failed for ${csvKey}, skipping S3 move.`);
+            }
+        } catch (e) {
+            console.error(`Error processing CSV ${csvKey}:`, e);
+            return { message: `Error processing CSV ${csvKey}` };
         }
     }
 

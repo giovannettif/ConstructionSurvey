@@ -140,4 +140,38 @@ async function uploadJsonToDrive(authClient, folderId, fileName, data) {
     }
 }
 
-export { authorize, createFolders, uploadJsonToDrive };
+/**
+ * Uploads a CSV string as a file to a specific Google Drive location.
+ * @param {object} authClient An authorized auth client.
+ * @param {string} folderId The ID of the folder to upload the file to.
+ * @param {string} fileName The name of the file to upload.
+ * @param {string} csvContent The CSV content to upload.
+ * @returns {Promise<string> | null} The ID of the uploaded file or null if an error occurred.
+ */
+async function uploadCsvToDrive(authClient, folderId, fileName, csvContent) {
+    const drive = getDrive(authClient);
+
+    try {
+        console.log(`Uploading '${fileName}' to Google Drive...`);
+        const file = await drive.files.create({
+            requestBody: {
+                name: fileName,
+                parents: [folderId]
+            },
+            fields: 'id',
+            media: {
+                mimeType: 'text/csv',
+                body: csvContent,
+            },
+            supportsAllDrives: true,
+        });
+
+        console.log(`Successfully uploaded file to folder. File ID: ${file.data.id}`);
+        return file.data.id;
+    } catch (e) {
+        console.error(`An error occurred during upload: ${e}`);
+        return null;
+    }
+}
+
+export { authorize, createFolders, uploadJsonToDrive, uploadCsvToDrive };
