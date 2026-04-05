@@ -14,6 +14,7 @@ console.log(JSON.stringify({
     "body": JSON.stringify({
         "data": {
             "test": { "status": true, "type": "smoke test" },
+            "isTest": true,
             "timestamp": "2026-04-03T13:00:55.026Z",
             "surveyTitle": "Protecting Under the Hard Hat",
             "surveyVersion": "3.0.0",
