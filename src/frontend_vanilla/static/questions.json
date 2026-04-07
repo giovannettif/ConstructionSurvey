@@ -1330,7 +1330,7 @@
     },
     {
       "id": "g3",
-      "text": "During the past 12 months, did you have such financial trouble as a result of your gambling that you had to get help with living expenses from family, friends, or welfare?",
+      "text": "During the past 12 months, did you have financial trouble as a result of your gambling that you had to get help with living expenses from family, friends, or welfare?",
       "type": "single",
       "required": true,
       "options": [
