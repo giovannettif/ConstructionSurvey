@@ -1060,6 +1060,47 @@
             "alcohol"
           ],
           "reason": "Drinking to be sociable"
+        },
+        {
+          "id": "taste",
+          "label": "I like the taste",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking because of taste preference"
+        },
+        {
+          "id": "get_drunk",
+          "label": "I enjoy the feeling of being drunk",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking to get drunk",
+          "urgency": "moderate"
+        },
+        {
+          "id": "relax",
+          "label": "To relax or relieve stress",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking to relax"
+        },
+        {
+          "id": "celebrate",
+          "label": "To celebrate",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking to celebrate"
+        },
+        {
+          "id": "boredom",
+          "label": "Out of boredom",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking due to boredom"
         }
       ]
     },

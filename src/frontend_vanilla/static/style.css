@@ -718,6 +718,16 @@ body.dark-mode .progress-container {
   box-shadow: var(--glow), var(--shadow-a);
 }
 
+.mode-option.secondary {
+  border-color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+.mode-option.secondary .mode-icon {
+  background: linear-gradient(135deg, var(--text-secondary) 0%, var(--njit-gray) 100%);
+  box-shadow: none;
+}
+
 .mode-option:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 3px;

@@ -1,16 +1,15 @@
 /* Survey app: dynamic UI, branching, persistence, submission. */
 
-/* Fresh session per load (per current product choice) */
+/* Fresh session per load (per current product choice) - preserving deviceID and progress */
 (() => {
+  const preserved = ['dyn:deviceId', 'dyn:answers', 'dyn:currentId', 'dyn:mode', 'dyn:history', 'k10:theme', 'k10:cookiesAccepted', 'dyn:introSeen'];
   try {
-    localStorage.removeItem('dyn:answers');
-    localStorage.removeItem('dyn:currentId');
+    const keys = Object.keys(localStorage);
+    keys.forEach(k => {
+      if (k.startsWith('dyn:') && !preserved.includes(k)) localStorage.removeItem(k);
+    });
   } catch { }
-  try {
-    sessionStorage.removeItem('dyn:answers');
-    sessionStorage.removeItem('dyn:currentId');
-    sessionStorage.removeItem('dyn:mode');
-  } catch { }
+  // Note: we no longer clear answers/currentId here to allow for persistence
 })();
 
 /* store query params into sessionStorage */
@@ -226,8 +225,17 @@ class DynamicSurvey {
     this.questions = Array.isArray(config.questions) ? config.questions : [];
     this.answers = {};
     this.currentId = null;
-    this.navHistory = [];
-    this.sessionId = crypto.randomUUID(); // Generate a unique session ID
+    try {
+      const rawHistory = localStorage.getItem('dyn:history');
+      this.navHistory = rawHistory ? JSON.parse(rawHistory) : [];
+    } catch { this.navHistory = []; }
+
+    // Persistent deviceID (same across surveys/refreshes)
+    this.deviceID = localStorage.getItem('dyn:deviceId');
+    if (!this.deviceID) {
+      this.deviceID = crypto.randomUUID();
+      try { localStorage.setItem('dyn:deviceId', this.deviceID); } catch { }
+    }
 
     // Navigation + interaction throttles
     this.navCooldownMs = 100;        // rate-limit for Next/Back/Submit
@@ -277,7 +285,7 @@ class DynamicSurvey {
   }
 
   get storageKeys() {
-    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions', mode: 'dyn:mode', query: 'dyn:query' };
+    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions', mode: 'dyn:mode', query: 'dyn:query', deviceId: 'dyn:deviceId', history: 'dyn:history' };
   }
 
   // Throttle helpers
@@ -575,7 +583,7 @@ class DynamicSurvey {
   getVisibleIds() {
     const query = this.getStoredQuery();
     if (query.branching === 'false' || query.branching === 'no') return this.questions.map(q => q.id);
-    return this.questions.filter(q => isVisible(q, this.answers)).map(q => q.id); 
+    return this.questions.filter(q => isVisible(q, this.answers)).map(q => q.id);
   }
   _extractShowIfRefs(cond) {
     if (!cond) return [];
@@ -675,11 +683,14 @@ class DynamicSurvey {
     this.updateQuestionNumberBadges();
 
     this.currentId = qId;
-    try { sessionStorage.setItem(this.storageKeys.current, qId); } catch { }
+    try { localStorage.setItem(this.storageKeys.current, qId); } catch { }
 
     if (pushHistory) {
       const last = this.navHistory[this.navHistory.length - 1];
-      if (last !== qId) this.navHistory.push(qId);
+      if (last !== qId) {
+        this.navHistory.push(qId);
+        try { localStorage.setItem(this.storageKeys.history, JSON.stringify(this.navHistory)); } catch { }
+      }
     }
 
     this.updateStepControls(qId);
@@ -713,10 +724,10 @@ class DynamicSurvey {
     this.dom.backBtn.style.display = 'flex';
   }
 
-  /* Persistence (session) + prune hidden answers after branching */
+  /* Persistence (localStorage) + prune hidden answers after branching */
   persistAnswers() {
     this.pruneHiddenAnswers();
-    try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
+    try { localStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
   }
   pruneHiddenAnswers() {
     const visible = new Set(this.getVisibleIds());
@@ -725,7 +736,7 @@ class DynamicSurvey {
       if (!visible.has(qid)) { delete this.answers[qid]; changed = true; }
     });
     if (changed) {
-      try { sessionStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
+      try { localStorage.setItem(this.storageKeys.answers, JSON.stringify(this.answers)); } catch { }
       this.questions.forEach(q => {
         if (!visible.has(q.id)) this.getContainer(q.id)?.querySelectorAll('.option.selected').forEach(b => b.classList.remove('selected'));
       });
@@ -733,7 +744,7 @@ class DynamicSurvey {
   }
   hydrateFromStorage() {
     try {
-      const raw = sessionStorage.getItem(this.storageKeys.answers);
+      const raw = localStorage.getItem(this.storageKeys.answers);
       this.answers = raw ? JSON.parse(raw) : {};
     } catch { this.answers = {}; }
     this.questions.forEach(q => {
@@ -747,8 +758,8 @@ class DynamicSurvey {
       }
     });
   }
-  getStoredCurrent() { try { return sessionStorage.getItem(this.storageKeys.current) || null; } catch { return null; } }
-  getStoredMode() { try { return sessionStorage.getItem(this.storageKeys.mode) || null; } catch { return null; } }
+  getStoredCurrent() { try { return localStorage.getItem(this.storageKeys.current) || null; } catch { return null; } }
+  getStoredMode() { try { return localStorage.getItem(this.storageKeys.mode) || null; } catch { return null; } }
   getStoredQuery() {
     try { return JSON.parse(sessionStorage.getItem(this.storageKeys.query) || '{}'); }
     catch { return {}; }
@@ -789,6 +800,7 @@ class DynamicSurvey {
         this.navHistory.pop();
         prevId = this.navHistory[this.navHistory.length - 1];
       }
+      try { localStorage.setItem(this.storageKeys.history, JSON.stringify(this.navHistory)); } catch { }
       if (visible.has(prevId)) {
         this.showQuestion(prevId, { pushHistory: false });
         return;
@@ -1060,18 +1072,28 @@ class DynamicSurvey {
   buildSurveyPayload(completed = false) {
     const query = this.getStoredQuery();
     const gps = getStoredGPS();
+    const metadata = {
+      userAgent: navigator.userAgent,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      viewportSize: `${window.innerWidth}x${window.innerHeight}`,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timezoneOffset: new Date().getTimezoneOffset(),
+      language: getLanguage(),
+      platform: navigator.platform
+    };
+
     return {
       data: {
         timestamp: new Date().toISOString(),
         surveyTitle: this.config.title,
         surveyVersion: this.config.version,
-        mode: this.getStoredMode(), // 'self' | 'someoneElse' (or null if not chosen)
-        site: query.site || null,   // common param bubbled up for convenience
-        query,                      // full set of captured query params
+        mode: this.getStoredMode(),
+        site: query.site || null,
+        query,
         gps,
         answers: { ...this.answers },
-        sessionId: this.sessionId,
-        language: getLanguage(),
+        deviceID: this.deviceID,
+        metadata,
         completed: completed,
         isTest: query.test === 'true' || query.test === 'yes',
         isBranching: query.branching !== 'false' && query.branching !== 'no'
@@ -1109,8 +1131,23 @@ class DynamicSurvey {
 
     // Post to backend in background
     const payload = this.buildSurveyPayload(true); // Pass true for completed
-    try { await submitSurvey(payload); showToast('Submitted!'); }
+    try {
+      await submitSurvey(payload);
+      showToast('Submitted!');
+      // Clear progress on successful submit
+      this.clearAllProgress();
+    }
     catch (e) { console.error('Submit error:', e); showToast('Submit failed (saved locally).'); }
+  }
+
+  clearAllProgress() {
+    this.answers = {};
+    try {
+      localStorage.removeItem(this.storageKeys.answers);
+      localStorage.removeItem(this.storageKeys.current);
+      localStorage.removeItem(this.storageKeys.mode);
+      localStorage.removeItem(this.storageKeys.history);
+    } catch { }
   }
 
   /* Completion + restart */
@@ -1127,12 +1164,7 @@ class DynamicSurvey {
     this.isTransitioning = false;
     if (this._interactUnlockTimer) { clearTimeout(this._interactUnlockTimer); this._interactUnlockTimer = null; }
 
-    try {
-      sessionStorage.removeItem(this.storageKeys.answers);
-      sessionStorage.removeItem(this.storageKeys.current);
-      localStorage.removeItem(this.storageKeys.answers);
-      localStorage.removeItem(this.storageKeys.current);
-    } catch { }
+    this.clearAllProgress();
     this.dom.root.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
     if (this.dom.completion) { this.dom.completion.style.display = 'none'; this.dom.completion.classList.remove('active'); }
     if (this.dom.help) { this.dom.help.style.display = 'none'; this.dom.help.classList.remove('active'); }
@@ -1144,8 +1176,6 @@ class DynamicSurvey {
     this.showQuestion(this.currentId, { pushHistory: true });
   }
 }
-
-/* boot up order: intro + cookies + data load + survey */
 document.addEventListener('DOMContentLoaded', async () => {
   // capturing all query params (e.g., ?site=123) into sessionStorage
   captureQueryParams();
@@ -1165,10 +1195,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modeOther = document.getElementById('modeOther');
 
   // Welcome banner visuals
-  startMedia.style.backgroundImage = "url('../static/Logo.jpg')";
-  startMedia.style.backgroundSize = 'contain';
-  startMedia.style.backgroundRepeat = 'no-repeat';
-  startMedia.style.backgroundPosition = 'center';
+  if (startMedia) {
+    startMedia.style.backgroundImage = "url('../static/Logo.jpg')";
+    startMedia.style.backgroundSize = 'contain';
+    startMedia.style.backgroundRepeat = 'no-repeat';
+    startMedia.style.backgroundPosition = 'center';
+  }
 
   const openIntro = () => { document.body.classList.add('intro-open'); startOverlay?.classList.add('show'); };
   const closeIntro = persist => {
@@ -1181,16 +1213,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeMode = () => { modeOverlay?.classList.remove('show'); };
 
   const proceedFromMode = (modeValue) => {
-    try { sessionStorage.setItem('dyn:mode', modeValue); } catch { }
+    try { localStorage.setItem('dyn:mode', modeValue); } catch { }
     closeMode();
     openIntro();
   };
 
   modeSelf?.addEventListener('click', () => proceedFromMode('self'));
   modeOther?.addEventListener('click', () => proceedFromMode('someoneElse'));
-
-  // Always show mode selection on load
-  openMode();
 
   startBegin?.addEventListener('click', async () => {
     closeIntro(true);
@@ -1207,13 +1236,20 @@ document.addEventListener('DOMContentLoaded', async () => {
           timestamp: new Date().toISOString(),
           surveyTitle: window.survey?.config?.title || 'Unknown',
           surveyVersion: window.survey?.config?.version || 'Unknown',
-          mode: sessionStorage.getItem('dyn:mode') || 'unknown',
+          mode: localStorage.getItem('dyn:mode') || 'unknown',
           site: query.site || null,
           query,
           gps: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:gps') || '{}'); } catch { return {}; } })(),
           answers: {},
-          sessionId: window.survey?.sessionId || 'unknown',
-          language: getLanguage(),
+          deviceID: window.survey?.deviceID || localStorage.getItem('dyn:deviceId') || 'unknown',
+          metadata: {
+            userAgent: navigator.userAgent,
+            screenResolution: `${window.screen.width}x${window.screen.height}`,
+            viewportSize: `${window.innerWidth}x${window.innerHeight}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezoneOffset: new Date().getTimezoneOffset(),
+            language: getLanguage()
+          },
           completed: false,
           isTest: query.test === 'true' || query.test === 'yes',
           isBranching: query.branching !== 'false' && query.branching !== 'no'
@@ -1221,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }).catch(e => console.error('Failed to notify server of start:', e));
     } catch (err) { }
 
-    try { const step = sessionStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch { }
+    try { const step = localStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch { }
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   });
   startDismiss?.addEventListener('click', () => { closeIntro(false); showCookieIfNeeded(); });
@@ -1241,4 +1277,42 @@ document.addEventListener('DOMContentLoaded', async () => {
   catch (e) { console.error(e); showToast('Failed to load survey questions.'); return; }
 
   window.survey = new DynamicSurvey(config);
+
+  // Resume / Mode logic
+  const resumeOverlay = document.getElementById('resumeOverlay');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const startFreshBtn = document.getElementById('startFreshBtn');
+
+  const hasProgress = () => {
+    try {
+      const ans = JSON.parse(localStorage.getItem('dyn:answers') || '{}');
+      const step = localStorage.getItem('dyn:currentId');
+      return Object.keys(ans).length > 0 && step && step !== 'complete';
+    } catch { return false; }
+  };
+
+  const closeResume = () => { resumeOverlay?.classList.remove('show'); document.body.classList.remove('intro-open'); };
+
+  if (hasProgress()) {
+    document.body.classList.add('intro-open');
+    resumeOverlay?.classList.add('show');
+    closeMode();
+  } else {
+    openMode();
+  }
+
+  resumeBtn?.addEventListener('click', () => {
+    closeResume();
+    const step = localStorage.getItem('dyn:currentId');
+    if (step && step !== 'complete') {
+      window.survey.showQuestion(step, { pushHistory: true });
+    }
+  });
+
+  startFreshBtn?.addEventListener('click', () => {
+    window.survey.clearAllProgress();
+    closeResume();
+    openMode();
+    window.survey.initUI();
+  });
 });
