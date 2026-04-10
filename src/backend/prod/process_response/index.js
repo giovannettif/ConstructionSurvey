@@ -8,8 +8,29 @@ import { randomUUID } from 'crypto';
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
 const s3 = new S3Client({ region: process.env.AWS_REGION });
 
+// Geo lookup via ipinfo.io (no bundled database — fetch built into Node 18+)
+async function lookupGeo(ip) {
+    try {
+        const res = await fetch(`https://ipinfo.io/${ip}/json`, { signal: AbortSignal.timeout(3000) });
+        if (!res.ok) return null;
+        const d = await res.json();
+        const [lat, lon] = (d.loc ?? ',').split(',').map(Number);
+        return {
+            city: d.city ?? null,
+            region: d.region ?? null,
+            country: d.country ?? null,
+            lat: isNaN(lat) ? null : lat,
+            lon: isNaN(lon) ? null : lon,
+            timezone: d.timezone ?? null,
+        };
+    } catch {
+        return null;
+    }
+}
+
 // Express.js Setup
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json());
 
 // handle new survey responses
@@ -38,10 +59,21 @@ app.post('/survey', async (req, res) => {
 
     console.log('2. Appending new response...');
     const now = new Date();
+    const ip = req.ip;
+    const geo = await lookupGeo(ip);
     currFileData.push({
         id: randomUUID(),
         s3_timestamp: now.toISOString(),
         uploaded_to_drive: false,
+        clientInfo: {
+            ip,
+            city: geo?.city ?? null,
+            region: geo?.region ?? null,
+            country: geo?.country ?? null,
+            lat: geo?.lat ?? null,
+            lon: geo?.lon ?? null,
+            timezone: geo?.timezone ?? null,
+        },
         data: newResponse,
     });
 
