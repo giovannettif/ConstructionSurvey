@@ -1,5 +1,6 @@
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
-import { google } from 'googleapis';
+import { drive as createDrive } from '@googleapis/drive';
+import { GoogleAuth } from 'google-auth-library';
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -12,7 +13,7 @@ let drive = null;
  */
 function getDrive(authClient) {
     if (drive == null) {
-        drive = google.drive({ version: 'v3', auth: authClient });
+        drive = createDrive({ version: 'v3', auth: authClient });
     }
     return drive;
 }
@@ -88,7 +89,7 @@ async function getCredentials() {
  */
 async function authorize(scopes) {
     try {
-        const auth = new google.auth.GoogleAuth({
+        const auth = new GoogleAuth({
             credentials: await getCredentials(),
             scopes,
         });

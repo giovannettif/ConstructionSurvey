@@ -31,34 +31,32 @@ function csvEscape(val) {
     return str;
 }
 
-export const handler = async () => {
+async function processDirectory(sourcePrefix, destPrefix) {
     // 1. List all JSON files from S3
-    console.log('1. Listing all data files from S3...');
+    console.log(`[${sourcePrefix}] 1. Listing all data files from S3...`);
     let files = [];
 
     try {
-        for (const prefix of ['data/', 'test/']) {
-            let response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: prefix }));
-            let objects = response.Contents ?? [];
+        let response = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: sourcePrefix }));
+        let objects = response.Contents ?? [];
 
-            while (response.IsTruncated) {
-                response = await s3.send(new ListObjectsV2Command({
-                    Bucket: S3_BUCKET,
-                    Prefix: prefix,
-                    ContinuationToken: response.NextContinuationToken,
-                }));
-                objects = objects.concat(response.Contents ?? []);
-            }
-
-            files = files.concat(objects.map(item => item.Key).filter(key => key.endsWith('.json')));
+        while (response.IsTruncated) {
+            response = await s3.send(new ListObjectsV2Command({
+                Bucket: S3_BUCKET,
+                Prefix: sourcePrefix,
+                ContinuationToken: response.NextContinuationToken,
+            }));
+            objects = objects.concat(response.Contents ?? []);
         }
+
+        files = objects.map(item => item.Key).filter(key => key.endsWith('.json'));
     } catch (e) {
-        console.error('Error listing S3 files:', e);
-        return { message: 'Error listing S3 files' };
+        console.error(`[${sourcePrefix}] Error listing S3 files:`, e);
+        return { message: `[${sourcePrefix}] Error listing S3 files` };
     }
 
     // 2. Fetch, flatten, and collect all entries
-    console.log('2. Fetching and flattening entries...');
+    console.log(`[${sourcePrefix}] 2. Fetching and flattening entries...`);
     const masterData = [];
     let hasNewData = false;
     const filesToUpdate = {}; // files containing un-flagged entries, written back after upload
@@ -88,42 +86,53 @@ export const handler = async () => {
                 filesToUpdate[filePath] = entries;
             }
         } catch (e) {
-            console.error(`Error fetching file ${filePath}:`, e);
-            return { message: `Error fetching file ${filePath}` };
+            console.error(`[${sourcePrefix}] Error fetching file ${filePath}:`, e);
+            return { message: `[${sourcePrefix}] Error fetching file ${filePath}` };
         }
     }
 
     if (!hasNewData) {
-        console.log('No new data since last CSV generation, skipping.');
-        return { message: 'No new data since last CSV generation' };
+        console.log(`[${sourcePrefix}] No new data since last CSV generation, skipping.`);
+        return { message: `[${sourcePrefix}] No new data since last CSV generation` };
     }
 
-    // 3. Resolve sessionId pairs: drop completed:false if a completed:true partner exists,
-    // but carry over its timestamps onto the completed entry
-    console.log('3. Resolving sessionId pairs...');
+    // 3. Resolve sessionId/deviceID pairs: drop completed:false if a completed:true partner exists,
+    // but carry over its timestamps and clientInfo onto the completed entry.
+    // sessionId takes priority for backward compatibility; deviceID is the current identifier.
+    // Keys are namespaced to prevent accidental collisions between the two ID spaces.
+    console.log(`[${sourcePrefix}] 3. Resolving sessionId/deviceID pairs...`);
     const bySession = {};
     const noSession = [];
     for (const entry of masterData) {
         const sid = entry['data.sessionId'];
-        if (!sid) {
+        const did = entry['data.deviceID'];
+        const groupKey = sid ? `session:${sid}` : did ? `device:${did}` : null;
+        if (!groupKey) {
             noSession.push(entry);
         } else {
-            (bySession[sid] = bySession[sid] || []).push(entry);
+            (bySession[groupKey] = bySession[groupKey] || []).push(entry);
         }
     }
+
+    const STARTED_KEYS = [
+        'data.timestamp', 's3_timestamp', 'drive_timestamp',
+        'clientInfo.ip', 'clientInfo.city', 'clientInfo.region',
+        'clientInfo.country', 'clientInfo.lat', 'clientInfo.lon', 'clientInfo.timezone',
+    ];
 
     const resolvedData = [...noSession];
     for (const sid in bySession) {
         const group = bySession[sid];
-        const complete = group.find(e => e['data.completed'] === true);
-        const incomplete = group.find(e => e['data.completed'] === false);
-        if (complete && incomplete) {
-            const STARTED_KEYS = ['data.timestamp', 's3_timestamp', 'drive_timestamp'];
+        const completes = group.filter(e => e['data.completed'] === true);
+        const incompletes = group.filter(e => e['data.completed'] === false);
+        if (completes.length === 1 && incompletes.length === 1) {
+            // unambiguous pair: merge started fields from incomplete onto complete
             for (const key of STARTED_KEYS) {
-                complete[key + '_started'] = incomplete[key];
+                completes[0][key + '_started'] = incompletes[0][key];
             }
-            resolvedData.push(complete);
+            resolvedData.push(completes[0]);
         } else {
+            // multiple submissions from the same device, or lone entry: keep all rows as-is
             resolvedData.push(...group);
         }
     }
@@ -146,7 +155,7 @@ export const handler = async () => {
     const headers = ['data.timestamp', ...uniqueKeys];
 
     // 6. Build CSV
-    console.log('4. Building CSV...');
+    console.log(`[${sourcePrefix}] 4. Building CSV...`);
     const rows = [headers.map(csvEscape).join(',')];
     for (const entry of resolvedData) {
         rows.push(headers.map(h => csvEscape(entry[h])).join(','));
@@ -154,8 +163,8 @@ export const handler = async () => {
     const csv = rows.join('\n');
 
     // 7. Upload CSV to S3
-    console.log('5. Uploading CSV to S3...');
-    const csvKey = `csv/${new Date().toISOString()}.csv`;
+    console.log(`[${sourcePrefix}] 5. Uploading CSV to S3...`);
+    const csvKey = `${destPrefix}${new Date().toISOString()}.csv`;
     try {
         await s3.send(new PutObjectCommand({
             Bucket: S3_BUCKET,
@@ -164,12 +173,12 @@ export const handler = async () => {
             Body: csv,
         }));
     } catch (e) {
-        console.error('Error uploading CSV to S3:', e);
-        return { message: 'Error uploading CSV to S3' };
+        console.error(`[${sourcePrefix}] Error uploading CSV to S3:`, e);
+        return { message: `[${sourcePrefix}] Error uploading CSV to S3` };
     }
 
     // 8. Mark all entries in affected files as generated_as_csv
-    console.log('6. Marking entries as generated_as_csv...');
+    console.log(`[${sourcePrefix}] 6. Marking entries as generated_as_csv...`);
     for (const [filePath, entries] of Object.entries(filesToUpdate)) {
         try {
             for (const entry of entries) {
@@ -182,11 +191,19 @@ export const handler = async () => {
                 Body: JSON.stringify(entries),
             }));
         } catch (e) {
-            console.error(`Error marking entries in ${filePath}:`, e);
-            return { message: `Error marking entries in ${filePath}` };
+            console.error(`[${sourcePrefix}] Error marking entries in ${filePath}:`, e);
+            return { message: `[${sourcePrefix}] Error marking entries in ${filePath}` };
         }
     }
 
-    console.log(`CSV uploaded to s3://${S3_BUCKET}/${csvKey}`);
+    console.log(`[${sourcePrefix}] CSV uploaded to s3://${S3_BUCKET}/${csvKey}`);
     return { message: `CSV uploaded to s3://${S3_BUCKET}/${csvKey}` };
+}
+
+export const handler = async () => {
+    const [prodResult, testResult] = await Promise.all([
+        processDirectory('data/', 'csv/'),
+        processDirectory('test/', 'test_csv/'),
+    ]);
+    return { prod: prodResult, test: testResult };
 };

@@ -39,9 +39,11 @@ export const handler = async () => {
             jsonFiles = jsonFiles.concat(objects.map(item => item.Key).filter(key => key.endsWith('.json')));
         }
 
-        // list unuploaded CSVs: root csv/ only (Delimiter excludes subfoldered/uploaded ones)
-        const csvResponse = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: 'csv/', Delimiter: '/' }));
-        csvFiles = (csvResponse.Contents ?? []).map(item => item.Key).filter(key => key.endsWith('.csv'));
+        // list unuploaded CSVs from both csv/ and test_csv/ (Delimiter excludes subfoldered/uploaded ones)
+        for (const csvPrefix of ['csv/', 'test_csv/']) {
+            const csvResponse = await s3.send(new ListObjectsV2Command({ Bucket: S3_BUCKET, Prefix: csvPrefix, Delimiter: '/' }));
+            csvFiles = csvFiles.concat((csvResponse.Contents ?? []).map(item => item.Key).filter(key => key.endsWith('.csv')));
+        }
     } catch (e) {
         console.error('Error listing S3 data files:', e);
         return { message: 'Error listing S3 data files' };
@@ -131,14 +133,16 @@ export const handler = async () => {
     console.log('5. Uploading CSVs to Google Drive and moving in S3...');
     for (const csvKey of csvFiles) {
         try {
-            const fileName = csvKey.split('/').at(-1);
+            const parts = csvKey.split('/');
+            const csvPrefix = parts.slice(0, -1).join('/'); // 'csv' or 'test_csv'
+            const fileName = parts.at(-1);
             const yyyymm = fileName.slice(0, 7);
-            const destKey = `csv/${yyyymm}/${fileName}`;
+            const destKey = `${csvPrefix}/${yyyymm}/${fileName}`;
 
             const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: csvKey }));
             const csvContent = await response.Body.transformToString();
 
-            const folderId = await createFolders(authClient, FOLDER_ID, `csv/${yyyymm}`);
+            const folderId = await createFolders(authClient, FOLDER_ID, `${csvPrefix}/${yyyymm}`);
             const fileId = await uploadCsvToDrive(authClient, folderId, fileName, csvContent);
 
             if (fileId) {
