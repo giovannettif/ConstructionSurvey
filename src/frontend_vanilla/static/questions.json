@@ -1029,14 +1029,6 @@
           "reason": "Drinking to forget worries"
         },
         {
-          "id": "peer_pressure",
-          "label": "Because your friends pressure you to drink",
-          "indicates": [
-            "alcohol"
-          ],
-          "reason": "Drinking due to peer pressure"
-        },
-        {
           "id": "enjoy_party",
           "label": "Because it helps you enjoy a party",
           "indicates": [
@@ -1077,6 +1069,30 @@
           ],
           "reason": "Drinking to get drunk",
           "urgency": "moderate"
+        },
+        {
+          "id": "like_the_feeling",
+          "label": "Because you like the feeling",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking because of the feeling"
+        },
+        {
+          "id": "social_avoidance",
+          "label": "So that others won't kid you about not drinking",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking to avoid social ridicule"
+        },
+        {
+          "id": "confidence",
+          "label": "Because you feel more self-confident and sure of yourself",
+          "indicates": [
+            "alcohol"
+          ],
+          "reason": "Drinking for confidence"
         },
         {
           "id": "relax",
