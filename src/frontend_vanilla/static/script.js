@@ -2,7 +2,7 @@
 
 /* Fresh session per load (per current product choice) - preserving deviceID and progress */
 (() => {
-  const preserved = ['dyn:deviceId', 'dyn:answers', 'dyn:currentId', 'dyn:mode', 'dyn:history', 'k10:theme', 'k10:cookiesAccepted', 'dyn:introSeen'];
+  const preserved = ['dyn:deviceId', 'dyn:sessionId', 'dyn:answers', 'dyn:currentId', 'dyn:mode', 'dyn:history', 'k10:theme', 'k10:cookiesAccepted', 'dyn:introSeen'];
   try {
     const keys = Object.keys(localStorage);
     keys.forEach(k => {
@@ -237,6 +237,13 @@ class DynamicSurvey {
       try { localStorage.setItem('dyn:deviceId', this.deviceID); } catch { }
     }
 
+    // Session ID matches the current attempt
+    this.sessionID = localStorage.getItem('dyn:sessionId');
+    if (!this.sessionID) {
+      this.sessionID = crypto.randomUUID();
+      try { localStorage.setItem('dyn:sessionId', this.sessionID); } catch { }
+    }
+
     // Navigation + interaction throttles
     this.navCooldownMs = 100;        // rate-limit for Next/Back/Submit
     this.interactCooldownMs = 500;   // minimum time before options are clickable on a new step
@@ -285,7 +292,7 @@ class DynamicSurvey {
   }
 
   get storageKeys() {
-    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions', mode: 'dyn:mode', query: 'dyn:query', deviceId: 'dyn:deviceId', history: 'dyn:history' };
+    return { answers: 'dyn:answers', current: 'dyn:currentId', submissions: 'dyn:submissions', mode: 'dyn:mode', query: 'dyn:query', deviceId: 'dyn:deviceId', history: 'dyn:history', sessionId: 'dyn:sessionId' };
   }
 
   // Throttle helpers
@@ -1093,6 +1100,7 @@ class DynamicSurvey {
         gps,
         answers: { ...this.answers },
         deviceID: this.deviceID,
+        sessionID: this.sessionID,
         metadata,
         completed: completed,
         isTest: query.test === 'true' || query.test === 'yes',
@@ -1147,7 +1155,11 @@ class DynamicSurvey {
       localStorage.removeItem(this.storageKeys.current);
       localStorage.removeItem(this.storageKeys.mode);
       localStorage.removeItem(this.storageKeys.history);
+      localStorage.removeItem(this.storageKeys.sessionId);
     } catch { }
+
+    this.sessionID = crypto.randomUUID();
+    try { localStorage.setItem(this.storageKeys.sessionId, this.sessionID); } catch { }
   }
 
   /* Completion + restart */
@@ -1242,6 +1254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           gps: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:gps') || '{}'); } catch { return {}; } })(),
           answers: {},
           deviceID: window.survey?.deviceID || localStorage.getItem('dyn:deviceId') || 'unknown',
+          sessionID: window.survey?.sessionID || localStorage.getItem('dyn:sessionId') || 'unknown',
           metadata: {
             userAgent: navigator.userAgent,
             screenResolution: `${window.screen.width}x${window.screen.height}`,
