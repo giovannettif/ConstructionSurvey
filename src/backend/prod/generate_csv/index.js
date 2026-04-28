@@ -1,35 +1,11 @@
 // Generates a CSV from all survey response JSON files in S3 and stores it in the csv/ folder
 
 import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { flattenObj, csvEscape } from './util.js';
+import { DISCARD_KEYS, RENAME_KEYS, ORDERED_KEYS, START_KEYS } from './cleaning.js';
 
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
 const s3 = new S3Client({ region: process.env.AWS_REGION });
-
-// Recursively flattens a nested object using dot-notation keys.
-// Arrays are serialized to JSON strings since CSV cells hold scalar values.
-function flattenObj(obj, prefix) {
-    const result = {};
-    for (const key in obj) {
-        const val = obj[key];
-        const fullKey = prefix ? prefix + '.' + key : key;
-        if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
-            Object.assign(result, flattenObj(val, fullKey));
-        } else {
-            result[fullKey] = Array.isArray(val) ? JSON.stringify(val) : val;
-        }
-    }
-    return result;
-}
-
-// Escapes a value for CSV output per RFC 4180.
-function csvEscape(val) {
-    if (val == null) return '';
-    const str = String(val);
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-        return '"' + str.replace(/"/g, '""') + '"';
-    }
-    return str;
-}
 
 async function processDirectory(sourcePrefix, destPrefix) {
     // 1. List all JSON files from S3
@@ -55,9 +31,9 @@ async function processDirectory(sourcePrefix, destPrefix) {
         return { message: `[${sourcePrefix}] Error listing S3 files` };
     }
 
-    // 2. Fetch, flatten, and collect all entries
-    console.log(`[${sourcePrefix}] 2. Fetching and flattening entries...`);
-    const masterData = [];
+    // 2. Fetch all entries and check for new data
+    console.log(`[${sourcePrefix}] 2. Fetching entries...`);
+    const allEntries = [];
     let hasNewData = false;
     const filesToUpdate = {}; // files containing un-flagged entries, written back after upload
 
@@ -66,20 +42,14 @@ async function processDirectory(sourcePrefix, destPrefix) {
             const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: filePath }));
             const jsonStr = await response.Body.transformToString();
             const entries = JSON.parse(jsonStr);
-
             let fileHasNewData = false;
+
             for (const entry of entries) {
                 if (!entry.generated_as_csv) {
                     hasNewData = true;
                     fileHasNewData = true;
                 }
-                // exclude internal tracking fields
-                const { uploaded_to_drive, generated_as_csv, ...rest } = entry;
-                // normalize malformed data field: [{...}] -> {...}
-                if (Array.isArray(rest.data) && rest.data.length === 1) {
-                    rest.data = rest.data[0];
-                }
-                masterData.push(flattenObj(rest, ''));
+                allEntries.push(entry);
             }
 
             if (fileHasNewData) {
@@ -96,17 +66,32 @@ async function processDirectory(sourcePrefix, destPrefix) {
         return { message: `[${sourcePrefix}] No new data since last CSV generation` };
     }
 
-    // 3. Resolve sessionId/deviceID pairs: drop completed:false if a completed:true partner exists,
+    // 3. Flatten and clean all entries
+    console.log(`[${sourcePrefix}] 3. Cleaning entries...`);
+    const masterData = [];
+    for (const entry of allEntries) {
+        // normalize malformed data field: [{...}] -> {...}
+        const base = Array.isArray(entry.data) && entry.data.length === 1
+            ? { ...entry, data: entry.data[0] }
+            : entry;
+        const flat = flattenObj(base, '');
+        for (const key of DISCARD_KEYS) delete flat[key];
+        const cleaned = {};
+        for (const key in flat) {
+            const newKey = RENAME_KEYS[key] ?? key.split('.').pop();
+            cleaned[newKey] = flat[key];
+        }
+        masterData.push(cleaned);
+    }
+
+    // 4. Resolve sessionId pairs: drop completed:false if a completed:true partner exists,
     // but carry over its timestamps and clientInfo onto the completed entry.
-    // sessionId takes priority for backward compatibility; deviceID is the current identifier.
-    // Keys are namespaced to prevent accidental collisions between the two ID spaces.
     console.log(`[${sourcePrefix}] 3. Resolving sessionId/deviceID pairs...`);
     const bySession = {};
     const noSession = [];
     for (const entry of masterData) {
-        const sid = entry['data.sessionId'];
-        const did = entry['data.deviceID'];
-        const groupKey = sid ? `session:${sid}` : did ? `device:${did}` : null;
+        const sid = entry['sessionId'];
+        const groupKey = sid ? `session:${sid}` : null;
         if (!groupKey) {
             noSession.push(entry);
         } else {
@@ -114,21 +99,15 @@ async function processDirectory(sourcePrefix, destPrefix) {
         }
     }
 
-    const STARTED_KEYS = [
-        'data.timestamp', 's3_timestamp', 'drive_timestamp',
-        'clientInfo.ip', 'clientInfo.city', 'clientInfo.region',
-        'clientInfo.country', 'clientInfo.lat', 'clientInfo.lon', 'clientInfo.timezone',
-    ];
-
     const resolvedData = [...noSession];
     for (const sid in bySession) {
         const group = bySession[sid];
-        const completes = group.filter(e => e['data.completed'] === true);
-        const incompletes = group.filter(e => e['data.completed'] === false);
+        const completes = group.filter(e => e['completed'] === true);
+        const incompletes = group.filter(e => e['completed'] === false);
         if (completes.length === 1 && incompletes.length === 1) {
-            // unambiguous pair: merge started fields from incomplete onto complete
-            for (const key of STARTED_KEYS) {
-                completes[0][key + '_started'] = incompletes[0][key];
+            // unambiguous pair: merge start fields from incomplete onto complete
+            for (const key of START_KEYS) {
+                completes[0][key + '_start'] = incompletes[0][key];
             }
             resolvedData.push(completes[0]);
         } else {
@@ -137,24 +116,35 @@ async function processDirectory(sourcePrefix, destPrefix) {
         }
     }
 
-    // 4. Sort descending by data.timestamp
+    // 5. Sort descending by timestamp
     resolvedData.sort((a, b) => {
-        const ta = a['data.timestamp'] ?? '';
-        const tb = b['data.timestamp'] ?? '';
+        const ta = a['timestamp'] ?? '';
+        const tb = b['timestamp'] ?? '';
         return tb < ta ? -1 : tb > ta ? 1 : 0;
     });
 
-    // 5. Build headers with data.timestamp pinned first
-    const uniqueKeys = new Set();
+    // 6. Build headers: establish base order (ORDERED_KEYS first, then remaining),
+    // then insert each _start column immediately after its counterpart.
+    // JS sets are ordered by insertion order.
+    const allKeys = new Set();
     for (const entry of resolvedData) {
-        for (const key in entry) {
-            uniqueKeys.add(key);
-        }
+        for (const key in entry) allKeys.add(key);
     }
-    uniqueKeys.delete('data.timestamp');
-    const headers = ['data.timestamp', ...uniqueKeys];
 
-    // 6. Build CSV
+    // start with ORDERED_KEYS, then add remaining keys
+    const orderedSet = new Set(ORDERED_KEYS.filter(k => allKeys.has(k)));
+    for (const key of allKeys) {
+        if (!orderedSet.has(key) && !key.endsWith('_start')) orderedSet.add(key);
+    }
+
+    const headers = [];
+    for (const key of orderedSet) {
+        headers.push(key);
+        // push _start columns after their non-_start counterparts
+        if (allKeys.has(key + '_start')) headers.push(key + '_start');
+    }
+
+    // 7. Build CSV
     console.log(`[${sourcePrefix}] 4. Building CSV...`);
     const rows = [headers.map(csvEscape).join(',')];
     for (const entry of resolvedData) {
@@ -162,7 +152,7 @@ async function processDirectory(sourcePrefix, destPrefix) {
     }
     const csv = rows.join('\n');
 
-    // 7. Upload CSV to S3
+    // 8. Upload CSV to S3
     console.log(`[${sourcePrefix}] 5. Uploading CSV to S3...`);
     const csvKey = `${destPrefix}${new Date().toISOString()}.csv`;
     try {
@@ -177,7 +167,7 @@ async function processDirectory(sourcePrefix, destPrefix) {
         return { message: `[${sourcePrefix}] Error uploading CSV to S3` };
     }
 
-    // 8. Mark all entries in affected files as generated_as_csv
+    // 9. Mark all entries in affected files as generated_as_csv
     console.log(`[${sourcePrefix}] 6. Marking entries as generated_as_csv...`);
     for (const [filePath, entries] of Object.entries(filesToUpdate)) {
         try {
