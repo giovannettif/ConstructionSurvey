@@ -1191,7 +1191,6 @@ class DynamicSurvey {
   }
 
   clearAllProgress() {
-    this.answers = {};
     try {
       localStorage.removeItem(this.storageKeys.answers);
       localStorage.removeItem(this.storageKeys.current);
