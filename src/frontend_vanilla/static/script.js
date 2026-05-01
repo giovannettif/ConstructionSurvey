@@ -277,6 +277,8 @@ class DynamicSurvey {
       whySection: document.getElementById('whySection')
     };
 
+    this.clickedResources = new Set();
+
     this.bindGlobalEvents();
     this.initUI();
 
@@ -329,6 +331,35 @@ class DynamicSurvey {
 
   /* Global UI: theme, cookies, back, keys, and event delegation for clicks */
   bindGlobalEvents() {
+
+    // Resource click tracking
+    document.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (chip) {
+        const text = chip.textContent.trim();
+        if (text) this.clickedResources.add(text);
+      }
+    });
+
+    // Send tracked resources when user leaves the page
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && this.clickedResources.size > 0) {
+        const payload = {
+          data: {
+            timestamp: new Date().toISOString(),
+            sessionID: this.sessionID,
+            deviceID: this.deviceID,
+            clickedResources: Array.from(this.clickedResources),
+            completed: true,
+            isResourceUpdate: true
+          }
+        };
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(SURVEY_ENDPOINT, JSON.stringify(payload));
+          this.clickedResources.clear();
+        }
+      }
+    });
 
     // Apply saved theme, or default to dark if none saved
     try {
@@ -1089,16 +1120,36 @@ class DynamicSurvey {
       platform: navigator.platform
     };
 
+    const answers_text = {};
+    const byId = new Map(this.questions.map(q => [q.id, q]));
+    for (const [id, val] of Object.entries(this.answers)) {
+      const q = byId.get(id);
+      if (!q) continue;
+
+      let valText = val;
+      if (Array.isArray(val)) {
+        valText = val.map(v => {
+          const opt = (q.options || []).find(o => String(o.id) === String(v));
+          return opt ? opt.label : v;
+        });
+      } else {
+        const opt = (q.options || []).find(o => String(o.id) === String(val));
+        valText = opt ? opt.label : val;
+      }
+      answers_text[q.text] = valText;
+    }
+
     return {
       data: {
         timestamp: new Date().toISOString(),
         surveyTitle: this.config.title,
         surveyVersion: this.config.version,
         mode: this.getStoredMode(),
-        site: query.site || null,
+        site_id: query.site_id || query.site || null,
         query,
         gps,
         answers: { ...this.answers },
+        answers_text,
         deviceID: this.deviceID,
         sessionID: this.sessionID,
         metadata,
