@@ -1120,23 +1120,15 @@ class DynamicSurvey {
       platform: navigator.platform
     };
 
-    const answers_text = {};
-    const byId = new Map(this.questions.map(q => [q.id, q]));
+    const numberedAnswers = {};
     for (const [id, val] of Object.entries(this.answers)) {
-      const q = byId.get(id);
-      if (!q) continue;
-
-      let valText = val;
-      if (Array.isArray(val)) {
-        valText = val.map(v => {
-          const opt = (q.options || []).find(o => String(o.id) === String(v));
-          return opt ? opt.label : v;
-        });
+      const index = this.questions.findIndex(q => q.id === id);
+      if (index !== -1) {
+        const prefix = String(index + 1).padStart(2, '0');
+        numberedAnswers[`${prefix}_${id}`] = val;
       } else {
-        const opt = (q.options || []).find(o => String(o.id) === String(val));
-        valText = opt ? opt.label : val;
+        numberedAnswers[id] = val;
       }
-      answers_text[q.text] = valText;
     }
 
     return {
@@ -1148,8 +1140,7 @@ class DynamicSurvey {
         site_id: query.site_id || query.site || null,
         query,
         gps,
-        answers: { ...this.answers },
-        answers_text,
+        answers: numberedAnswers,
         deviceID: this.deviceID,
         sessionID: this.sessionID,
         metadata,
@@ -1206,11 +1197,7 @@ class DynamicSurvey {
       localStorage.removeItem(this.storageKeys.current);
       localStorage.removeItem(this.storageKeys.mode);
       localStorage.removeItem(this.storageKeys.history);
-      localStorage.removeItem(this.storageKeys.sessionId);
     } catch { }
-
-    this.sessionID = crypto.randomUUID();
-    try { localStorage.setItem(this.storageKeys.sessionId, this.sessionID); } catch { }
   }
 
   /* Completion + restart */
@@ -1228,6 +1215,12 @@ class DynamicSurvey {
     if (this._interactUnlockTimer) { clearTimeout(this._interactUnlockTimer); this._interactUnlockTimer = null; }
 
     this.clearAllProgress();
+
+    // Regenerate session ID only on explicit restarts
+    try { localStorage.removeItem(this.storageKeys.sessionId); } catch { }
+    this.sessionID = crypto.randomUUID();
+    try { localStorage.setItem(this.storageKeys.sessionId, this.sessionID); } catch { }
+
     this.dom.root.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
     if (this.dom.completion) { this.dom.completion.style.display = 'none'; this.dom.completion.classList.remove('active'); }
     if (this.dom.help) { this.dom.help.style.display = 'none'; this.dom.help.classList.remove('active'); }
@@ -1375,6 +1368,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   startFreshBtn?.addEventListener('click', () => {
     window.survey.clearAllProgress();
+    
+    // Regenerate session ID for fresh starts
+    try { localStorage.removeItem('dyn:sessionId'); } catch { }
+    window.survey.sessionID = crypto.randomUUID();
+    try { localStorage.setItem('dyn:sessionId', window.survey.sessionID); } catch { }
+
     closeResume();
     openMode();
     window.survey.initUI();
