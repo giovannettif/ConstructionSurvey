@@ -9,6 +9,8 @@ export const DISCARD_KEYS = [
     "drive_timestamp",
     "data.test.status",
     "data.test.type",
+    "data.test",
+    "data.testType",
     "valid"
 ];
 
@@ -34,9 +36,9 @@ export const RENAME_KEYS = {
     "data.metadata.timezoneOffset": "metadata_timezoneOffset",
     "data.metadata.language": "metadata_lang",
     "data.query.branching": "query_branching",
-    "data.query.isBranching": "query_isBranching",
     "data.query.test": "query_test",
-    "data.query.isTest": "query_isTest",
+    "data.isBranching": "isBranching",
+    "data.isTest": "isTest",
     "data.language": "lang",
 };
 
@@ -61,15 +63,16 @@ export const ORDERED_KEYS = [
     "gps_err_code",
     "gps_err_msg",
     "userAgent",
+    "platform",
     "screenResolution",
     "viewportSize",
     "metadata_timezone",
     "metadata_timezoneOffset",
     "metadata_lang",
     "query_test",
-    "query_isTest",
     "query_branching",
-    "query_isBranching",
+    "isTest",
+    "isBranching",
     "timestamp",
     "mode",
     "completed",
