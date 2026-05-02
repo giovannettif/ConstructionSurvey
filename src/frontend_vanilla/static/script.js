@@ -341,9 +341,15 @@ class DynamicSurvey {
       }
     });
 
-    // Send tracked resources when user leaves the page
+    // Send tracked resources OR partial abandonment when user leaves the page
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden' && this.clickedResources.size > 0) {
+      if (document.visibilityState !== 'hidden') return;
+
+      const isOnSurvey = !!this.currentId && !this.submitting;
+      const hasPartialAnswers = isOnSurvey && Object.keys(this.answers).length > 0;
+
+      // Resource click payload (user on resources page)
+      if (this.clickedResources.size > 0) {
         const payload = {
           data: {
             timestamp: new Date().toISOString(),
@@ -354,16 +360,46 @@ class DynamicSurvey {
             isResourceUpdate: true
           }
         };
-        
-        // Use keepalive fetch instead of sendBeacon to support application/json and CORS
         fetch(SURVEY_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
           keepalive: true
         }).catch(() => {});
-        
         this.clickedResources.clear();
+      }
+
+      // Partial abandonment payload (user left mid-survey without submitting)
+      if (hasPartialAnswers) {
+        const numberedAnswers = {};
+        for (const [id, val] of Object.entries(this.answers)) {
+          const index = this.questions.findIndex(q => q.id === id);
+          if (index !== -1) {
+            const prefix = String(index + 1).padStart(2, '0');
+            numberedAnswers[`${prefix}_${id}`] = val;
+          } else {
+            numberedAnswers[id] = val;
+          }
+        }
+        const query = Object.fromEntries(new URLSearchParams(location.search));
+        const abandonPayload = {
+          data: {
+            timestamp: new Date().toISOString(),
+            sessionID: this.sessionID,
+            deviceID: this.deviceID,
+            site_id: query.site_id || query.site || null,
+            stoppedAtQuestion: this.currentId,
+            answers: numberedAnswers,
+            completed: false,
+            isPartialAbandonment: true
+          }
+        };
+        fetch(SURVEY_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(abandonPayload),
+          keepalive: true
+        }).catch(() => {});
       }
     });
 
