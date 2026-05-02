@@ -9,6 +9,7 @@
   },
   "questions": [
     {
+      "questionNumber": 1,
       "id": "k10_1",
       "text": "In the past 30 days, how often did you feel tired out for no good reason?",
       "type": "single",
@@ -55,6 +56,7 @@
       ]
     },
     {
+      "questionNumber": 2,
       "id": "k10_2",
       "text": "In the past 30 days, how often did you feel nervous?",
       "type": "single",
@@ -99,6 +101,7 @@
       ]
     },
     {
+      "questionNumber": 3,
       "id": "k10_3",
       "text": "In the past 30 days, how often did you feel so nervous that nothing could calm you down?",
       "type": "single",
@@ -143,6 +146,7 @@
       ]
     },
     {
+      "questionNumber": 4,
       "id": "k10_4",
       "text": "In the past 30 days, how often did you feel hopeless?",
       "type": "single",
@@ -187,6 +191,7 @@
       ]
     },
     {
+      "questionNumber": 5,
       "id": "k10_5",
       "text": "In the past 30 days, how often did you feel restless or fidgety?",
       "type": "single",
@@ -231,6 +236,7 @@
       ]
     },
     {
+      "questionNumber": 6,
       "id": "k10_6",
       "text": "In the past 30 days, how often did you feel so restless you could not sit still?",
       "type": "single",
@@ -275,6 +281,7 @@
       ]
     },
     {
+      "questionNumber": 7,
       "id": "k10_7",
       "text": "In the past 30 days, how often did you feel depressed?",
       "type": "single",
@@ -319,6 +326,7 @@
       ]
     },
     {
+      "questionNumber": 8,
       "id": "k10_8",
       "text": "In the past 30 days, how often did you feel that everything was an effort?",
       "type": "single",
@@ -363,6 +371,7 @@
       ]
     },
     {
+      "questionNumber": 9,
       "id": "k10_9",
       "text": "In the past 30 days, how often did you feel so sad that nothing could cheer you up?",
       "type": "single",
@@ -407,6 +416,7 @@
       ]
     },
     {
+      "questionNumber": 10,
       "id": "k10_10",
       "text": "In the past 30 days, how often did you feel worthless?",
       "type": "single",
@@ -451,6 +461,7 @@
       ]
     },
     {
+      "questionNumber": 11,
       "id": "t1",
       "text": "Which best describes you today? (Select all that apply)",
       "type": "multiple",
@@ -507,6 +518,7 @@
       ]
     },
     {
+      "questionNumber": 12,
       "id": "t2",
       "text": "In the past 30 days, which of the following did you generally feel? (Select all that apply)",
       "type": "multiple",
@@ -608,6 +620,7 @@
       ]
     },
     {
+      "questionNumber": 13,
       "id": "t3",
       "text": "In the past 30 days, which of the following have you experienced? (Select all that apply)",
       "type": "multiple",
@@ -656,6 +669,7 @@
       ]
     },
     {
+      "questionNumber": 14,
       "id": "t4",
       "text": "In the past 30 days, how have you addressed these experiences? (Select all that apply)",
       "type": "multiple",
@@ -696,6 +710,7 @@
       }
     },
     {
+      "questionNumber": 15,
       "id": "t5",
       "text": "In the past 30 days, which physical symptoms have you experienced? (Select all that apply)",
       "type": "multiple",
@@ -776,6 +791,7 @@
       ]
     },
     {
+      "questionNumber": 16,
       "id": "t6",
       "text": "In the past 30 days, how have you addressed these physical symptoms? (Select all that apply)",
       "type": "multiple",
@@ -808,6 +824,7 @@
       }
     },
     {
+      "questionNumber": 17,
       "id": "notes1",
       "text": "What do you do for yourself? (Select all that apply)",
       "type": "multiple",
@@ -852,6 +869,7 @@
       ]
     },
     {
+      "questionNumber": 18,
       "id": "t7",
       "text": "In the past 30 days, have you consumed alcohol?",
       "type": "single",
@@ -875,6 +893,7 @@
       ]
     },
     {
+      "questionNumber": 19,
       "id": "t8",
       "showIf": {
         "questionId": "t7",
@@ -927,6 +946,7 @@
       ]
     },
     {
+      "questionNumber": 20,
       "id": "t9",
       "showIf": {
         "questionId": "t7",
@@ -951,6 +971,7 @@
       ]
     },
     {
+      "questionNumber": 21,
       "id": "notes2",
       "showIf": {
         "questionId": "t7",
@@ -1011,6 +1032,7 @@
       ]
     },
     {
+      "questionNumber": 22,
       "id": "alcohol_reasons",
       "showIf": {
         "questionId": "t7",
@@ -1121,6 +1143,7 @@
       ]
     },
     {
+      "questionNumber": 23,
       "id": "t10",
       "text": "In the past 30 days, excluding alcohol, have you used any substances or medications?",
       "type": "single",
@@ -1159,6 +1182,7 @@
       ]
     },
     {
+      "questionNumber": 24,
       "id": "t11",
       "text": "In the past 30 days, how often did you use drugs?",
       "type": "single",
@@ -1216,6 +1240,7 @@
       }
     },
     {
+      "questionNumber": 25,
       "id": "jama1",
       "text": "How many times in the past year have you used an illegal drug or used a prescription medication for nonmedical reasons?",
       "type": "single",
@@ -1243,6 +1268,7 @@
       }
     },
     {
+      "questionNumber": 26,
       "id": "notes_q4",
       "text": "How often do you take your medication?",
       "type": "single",
@@ -1257,12 +1283,12 @@
           "reason": "Daily medication use"
         },
         {
-          "id": "as_needed",
-          "label": "As needed",
+          "id": "as_prescribed",
+          "label": "As prescribed",
           "indicates": [
             "substances"
           ],
-          "reason": "As-needed medication use"
+          "reason": "As-prescribed medication use"
         }
       ],
       "showIf": {
@@ -1274,6 +1300,7 @@
       }
     },
     {
+      "questionNumber": 27,
       "id": "notes_q4_followup",
       "text": "If Daily, what do you use it for? (Select all that apply)",
       "type": "multiple",
@@ -1322,6 +1349,7 @@
       }
     },
     {
+      "questionNumber": 28,
       "id": "g0",
       "text": "In the past 12 months, have you gambled (e.g., lottery, sports betting, casino)?",
       "type": "single",
@@ -1338,6 +1366,7 @@
       ]
     },
     {
+      "questionNumber": 29,
       "id": "g1",
       "text": "During the past 12 months, have you become restless, irritable, or anxious when trying to stop or cut down on gambling?",
       "type": "single",
@@ -1362,6 +1391,7 @@
       }
     },
     {
+      "questionNumber": 30,
       "id": "g2",
       "text": "During the past 12 months, have you tried to keep your family or friends from knowing how much you gambled?",
       "type": "single",
@@ -1386,6 +1416,7 @@
       }
     },
     {
+      "questionNumber": 31,
       "id": "g3",
       "text": "During the past 12 months, did you have financial trouble as a result of your gambling that you had to get help with living expenses from family, friends, or welfare?",
       "type": "single",
@@ -1410,6 +1441,7 @@
       }
     },
     {
+      "questionNumber": 32,
       "id": "g4",
       "text": "How would you describe your relationship with gambling right now?",
       "type": "single",

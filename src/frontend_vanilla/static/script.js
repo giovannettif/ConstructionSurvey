@@ -371,16 +371,7 @@ class DynamicSurvey {
 
       // Partial abandonment payload (user left mid-survey without submitting)
       if (hasPartialAnswers) {
-        const numberedAnswers = {};
-        for (const [id, val] of Object.entries(this.answers)) {
-          const index = this.questions.findIndex(q => q.id === id);
-          if (index !== -1) {
-            const prefix = String(index + 1).padStart(2, '0');
-            numberedAnswers[`${prefix}_${id}`] = val;
-          } else {
-            numberedAnswers[id] = val;
-          }
-        }
+        const numberedAnswers = this.buildNumberedAnswers(this.answers);
         const query = Object.fromEntries(new URLSearchParams(location.search));
         const abandonPayload = {
           data: {
@@ -388,7 +379,7 @@ class DynamicSurvey {
             sessionID: this.sessionID,
             deviceID: this.deviceID,
             site_id: query.site_id || query.site || null,
-            stoppedAtQuestion: this.currentId,
+            stoppedAtQuestion: this.getQuestionPrefix(this.currentId),
             answers: numberedAnswers,
             completed: false,
             isPartialAbandonment: true
@@ -1108,6 +1099,22 @@ class DynamicSurvey {
     return topics;
   }
 
+  /* Helpers for consistent question numbering across all payloads */
+  getQuestionPrefix(qId) {
+    const q = this.getQuestion(qId);
+    if (!q) return qId;
+    const num = String(q.questionNumber).padStart(2, '0');
+    return `${num}_${qId}`;
+  }
+
+  buildNumberedAnswers(answers) {
+    const result = {};
+    for (const [id, val] of Object.entries(answers)) {
+      result[this.getQuestionPrefix(id)] = val;
+    }
+    return result;
+  }
+
   computeSelectedTopics() {
     return new Set(this.computeSelectedTopicsWithReasons().keys());
   }
@@ -1162,16 +1169,7 @@ class DynamicSurvey {
       platform: navigator.platform
     };
 
-    const numberedAnswers = {};
-    for (const [id, val] of Object.entries(this.answers)) {
-      const index = this.questions.findIndex(q => q.id === id);
-      if (index !== -1) {
-        const prefix = String(index + 1).padStart(2, '0');
-        numberedAnswers[`${prefix}_${id}`] = val;
-      } else {
-        numberedAnswers[id] = val;
-      }
-    }
+    const numberedAnswers = this.buildNumberedAnswers(this.answers);
 
     return {
       data: {
