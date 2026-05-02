@@ -354,10 +354,16 @@ class DynamicSurvey {
             isResourceUpdate: true
           }
         };
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(SURVEY_ENDPOINT, JSON.stringify(payload));
-          this.clickedResources.clear();
-        }
+        
+        // Use keepalive fetch instead of sendBeacon to support application/json and CORS
+        fetch(SURVEY_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(() => {});
+        
+        this.clickedResources.clear();
       }
     });
 
@@ -1367,7 +1373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   startFreshBtn?.addEventListener('click', () => {
     window.survey.clearAllProgress();
-    
+
     // Regenerate session ID for fresh starts
     try { localStorage.removeItem('dyn:sessionId'); } catch { }
     window.survey.sessionID = crypto.randomUUID();
