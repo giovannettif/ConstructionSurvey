@@ -345,16 +345,16 @@ class DynamicSurvey {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState !== 'hidden') return;
 
-      // Only send if the user has actually started the survey
-      const hasStarted = Object.keys(this.answers).length > 0 || this.clickedResources.size > 0;
-      if (!hasStarted) return;
+      // Only send if the user has actually entered the survey flow
+      const hasEntered = !!this.currentId || this.clickedResources.size > 0;
+      if (!hasEntered) return;
 
       // Build the same canonical payload used for submission, but with completed=false
       // and attach any clicked resources accumulated in this session.
       const payload = this.buildSurveyPayload(this.submitting);
-      payload.data.clickedResources = this.clickedResources.size > 0
-        ? Array.from(this.clickedResources)
-        : null;
+      if (this.clickedResources.size > 0) {
+        payload.data.clickedResources = Array.from(this.clickedResources);
+      }
 
       fetch(SURVEY_ENDPOINT, {
         method: 'POST',
@@ -1161,7 +1161,7 @@ class DynamicSurvey {
         query,
         gps,
         answers: allAnswers,
-        clickedResources: null,  // overridden by visibilitychange handler when needed
+        clickedResources: [], 
         deviceID: this.deviceID,
         sessionID: this.sessionID,
         metadata,
