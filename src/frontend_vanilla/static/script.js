@@ -341,57 +341,29 @@ class DynamicSurvey {
       }
     });
 
-    // Send tracked resources OR partial abandonment when user leaves the page
+    // Send a canonical payload whenever the user leaves the page (mid-survey or after)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState !== 'hidden') return;
 
-      const isOnSurvey = !!this.currentId && !this.submitting;
-      const hasPartialAnswers = isOnSurvey && Object.keys(this.answers).length > 0;
+      // Only send if the user has actually started the survey
+      const hasStarted = Object.keys(this.answers).length > 0 || this.clickedResources.size > 0;
+      if (!hasStarted) return;
 
-      // Resource click payload (user on resources page)
-      if (this.clickedResources.size > 0) {
-        const payload = {
-          data: {
-            timestamp: new Date().toISOString(),
-            sessionID: this.sessionID,
-            deviceID: this.deviceID,
-            clickedResources: Array.from(this.clickedResources),
-            completed: true,
-            isResourceUpdate: true
-          }
-        };
-        fetch(SURVEY_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          keepalive: true
-        }).catch(() => {});
-        this.clickedResources.clear();
-      }
+      // Build the same canonical payload used for submission, but with completed=false
+      // and attach any clicked resources accumulated in this session.
+      const payload = this.buildSurveyPayload(this.submitting);
+      payload.data.clickedResources = this.clickedResources.size > 0
+        ? Array.from(this.clickedResources)
+        : null;
 
-      // Partial abandonment payload (user left mid-survey without submitting)
-      if (hasPartialAnswers) {
-        const numberedAnswers = this.buildNumberedAnswers(this.answers);
-        const query = Object.fromEntries(new URLSearchParams(location.search));
-        const abandonPayload = {
-          data: {
-            timestamp: new Date().toISOString(),
-            sessionID: this.sessionID,
-            deviceID: this.deviceID,
-            site_id: query.site_id || query.site || null,
-            stoppedAtQuestion: this.getQuestionPrefix(this.currentId),
-            answers: numberedAnswers,
-            completed: false,
-            isPartialAbandonment: true
-          }
-        };
-        fetch(SURVEY_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(abandonPayload),
-          keepalive: true
-        }).catch(() => {});
-      }
+      fetch(SURVEY_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: true
+      }).catch(() => {});
+
+      this.clickedResources.clear();
     });
 
     // Apply saved theme, or default to dark if none saved
@@ -1169,7 +1141,15 @@ class DynamicSurvey {
       platform: navigator.platform
     };
 
-    const numberedAnswers = this.buildNumberedAnswers(this.answers);
+    // Pre-initialize all questions to null so unanswered ones appear explicitly.
+    // The backend can find the last non-null entry to determine where user stopped.
+    const allAnswers = {};
+    for (const q of this.questions) {
+      allAnswers[this.getQuestionPrefix(q.id)] = null;
+    }
+    // Overlay actual answers
+    const filled = this.buildNumberedAnswers(this.answers);
+    Object.assign(allAnswers, filled);
 
     return {
       data: {
@@ -1180,11 +1160,12 @@ class DynamicSurvey {
         site_id: query.site_id || query.site || null,
         query,
         gps,
-        answers: numberedAnswers,
+        answers: allAnswers,
+        clickedResources: null,  // overridden by visibilitychange handler when needed
         deviceID: this.deviceID,
         sessionID: this.sessionID,
         metadata,
-        completed: completed,
+        completed,
         isTest: query.test === 'true' || query.test === 'yes',
         isBranching: query.branching !== 'false' && query.branching !== 'no'
       }
