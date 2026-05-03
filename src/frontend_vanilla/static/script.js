@@ -361,10 +361,13 @@ class DynamicSurvey {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         keepalive: true
-      }).catch(() => {});
+      }).catch(() => { });
 
-      this.clickedResources.clear();
+      // Do NOT clear clickedResources here — opening a resource link temporarily hides
+      // the tab, which would reset the list. Let it accumulate for the full session.
+      // The Set is naturally destroyed when the page closes.
     });
+
 
     // Apply saved theme, or default to dark if none saved
     try {
@@ -1157,11 +1160,11 @@ class DynamicSurvey {
         surveyTitle: this.config.title,
         surveyVersion: this.config.version,
         mode: this.getStoredMode(),
-        site_id: query.site_id || query.site || "",
+        site_id: query.site_id || query.site || null,
         query,
         gps,
         answers: allAnswers,
-        clickedResources: [], 
+        clickedResources: [],
         deviceID: this.deviceID,
         sessionID: this.sessionID,
         metadata,
