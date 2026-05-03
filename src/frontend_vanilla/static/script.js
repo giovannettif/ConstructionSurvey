@@ -1304,34 +1304,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ask for GPS once the user starts
     await retryGPS(); // better than a single strict attempt
 
-    // Send "survey started" to server
+    // Send "survey started" to server using canonical payload
     try {
-      const query = (() => { try { return JSON.parse(sessionStorage.getItem('dyn:query') || '{}'); } catch { return {}; } })();
-      submitSurvey({
-        data: {
-          timestamp: new Date().toISOString(),
-          surveyTitle: window.survey?.config?.title || 'Unknown',
-          surveyVersion: window.survey?.config?.version || 'Unknown',
-          mode: localStorage.getItem('dyn:mode') || 'unknown',
-          site: query.site || null,
-          query,
-          gps: (() => { try { return JSON.parse(sessionStorage.getItem('dyn:gps') || '{}'); } catch { return {}; } })(),
-          answers: {},
-          deviceID: window.survey?.deviceID || localStorage.getItem('dyn:deviceId') || 'unknown',
-          sessionID: window.survey?.sessionID || localStorage.getItem('dyn:sessionId') || 'unknown',
-          metadata: {
-            userAgent: navigator.userAgent,
-            screenResolution: `${window.screen.width}x${window.screen.height}`,
-            viewportSize: `${window.innerWidth}x${window.innerHeight}`,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            timezoneOffset: new Date().getTimezoneOffset(),
-            language: getLanguage()
-          },
-          completed: false,
-          isTest: query.test === 'true' || query.test === 'yes',
-          isBranching: query.branching !== 'false' && query.branching !== 'no'
-        }
-      }).catch(e => console.error('Failed to notify server of start:', e));
+      const payload = window.survey.buildSurveyPayload(false);
+      submitSurvey(payload).catch(e => console.error('Failed to notify server of start:', e));
     } catch (err) { }
 
     try { const step = localStorage.getItem('dyn:currentId'); if (!step) window.survey?.restart?.(); } catch { }
