@@ -1160,7 +1160,7 @@ class DynamicSurvey {
         surveyTitle: this.config.title,
         surveyVersion: this.config.version,
         mode: this.getStoredMode(),
-        site_id: query.site_id || query.site || null,
+        site_id: query.site_id || query.site || "",
         query,
         gps,
         answers: allAnswers,
