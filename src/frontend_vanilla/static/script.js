@@ -277,7 +277,7 @@ class DynamicSurvey {
       whySection: document.getElementById('whySection')
     };
 
-    this.clickedResources = new Set();
+    this.clickedResources = []; // Array preserves order and duplicates (e.g. A→B→A)
 
     this.bindGlobalEvents();
     this.initUI();
@@ -337,7 +337,7 @@ class DynamicSurvey {
       const chip = e.target.closest('.chip');
       if (chip) {
         const text = chip.textContent.trim();
-        if (text) this.clickedResources.add(text);
+        if (text) this.clickedResources.push(text);
       }
     });
 
@@ -346,14 +346,14 @@ class DynamicSurvey {
       if (document.visibilityState !== 'hidden') return;
 
       // Only send if the user has actually entered the survey flow
-      const hasEntered = !!this.currentId || this.clickedResources.size > 0;
+      const hasEntered = !!this.currentId || this.clickedResources.length > 0;
       if (!hasEntered) return;
 
       // Build the same canonical payload used for submission, but with completed=false
       // and attach any clicked resources accumulated in this session.
       const payload = this.buildSurveyPayload(this.submitting);
-      if (this.clickedResources.size > 0) {
-        payload.data.clickedResources = Array.from(this.clickedResources);
+      if (this.clickedResources.length > 0) {
+        payload.data.clickedResources = [...this.clickedResources];
       }
 
       fetch(SURVEY_ENDPOINT, {
