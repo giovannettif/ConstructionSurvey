@@ -11,7 +11,9 @@ export const DISCARD_KEYS = [
     "data.test.type",
     "data.test",
     "data.testType",
-    "valid"
+    "valid",
+    "isTest",
+    "isBranching",
 ];
 
 // 2. Rename columns when flattening. Otherwise, only keep the deepest keys.
@@ -47,27 +49,26 @@ const RENAME_KEYS = {
     // merge keys
     "data.sessionId": "session_id",
     "data.sessionID": "session_id",
-
 };
 
 // add questions
 // k10_1, ..., k10_10 -> 01_k10_1, ..., 10_k10_10; add k10_i keys too for merging
 for (let i = 1; i <= 10; i++) {
-    const padded = `${i}`.padStart(2, '0') + `_k10_${i}`;
+    const padded = `${i}`.padStart(2, "0") + `_k10_${i}`;
     RENAME_KEYS[`data.answers.k10_${i}`] = padded;
     RENAME_KEYS[`data.answers.` + padded] = padded;
 }
 
 // t1, ..., t6 -> 11_t1, ..., 16_t6; add ti keys too for merging
 for (let i = 11; i <= 16; i++) {
-    const padded = `${i}`.padStart(2, '0') + `_t${i - 10}`;
+    const padded = `${i}`.padStart(2, "0") + `_t${i - 10}`;
     RENAME_KEYS[`data.answers.t${i - 10}`] = padded;
     RENAME_KEYS[`data.answers.` + padded] = padded;
 }
 
 // g0, ..., g4 -> 28_g0, ..., 32_g4; add gi keys too for merging
 for (let i = 28; i <= 32; i++) {
-    const padded = `${i}`.padStart(2, '0') + `_g${i - 28}`;
+    const padded = `${i}`.padStart(2, "0") + `_g${i - 28}`;
     RENAME_KEYS[`data.answers.g${i - 28}`] = padded;
     RENAME_KEYS[`data.answers.` + padded] = padded;
 }
@@ -138,12 +139,17 @@ export const ORDERED_KEYS = [
     "site",
     "site_id",
     "lang",
-    "clicked_resources"
+    "clicked_resources",
 ];
 
 // 4. Merge with completed = false entries with _start columns.
 export const START_KEYS = [
-    'timestamp',
-    'ip_addr', 'ip_city', 'ip_region',
-    'ip_country', 'ip_lat', 'ip_lon', 'ip_timezone',
+    "timestamp",
+    "ip_addr",
+    "ip_city",
+    "ip_region",
+    "ip_country",
+    "ip_lat",
+    "ip_lon",
+    "ip_timezone",
 ];
