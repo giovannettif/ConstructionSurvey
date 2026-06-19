@@ -68,6 +68,14 @@ async function processDirectory(sourcePrefix, destPrefix) {
 
     // 3. Flatten and clean all entries
     console.log(`[${sourcePrefix}] 3. Cleaning entries...`);
+
+    // Pre-compute which dest keys have multiple source keys (merge groups)
+    const mergeGroups = {};
+    for (const [src, dest] of Object.entries(RENAME_KEYS)) {
+        (mergeGroups[dest] = mergeGroups[dest] || []).push(src);
+    }
+    const mergedDests = new Set(Object.keys(mergeGroups).filter(d => mergeGroups[d].length > 1));
+
     const masterData = [];
     for (const entry of allEntries) {
         // normalize malformed data field: [{...}] -> {...}
@@ -75,22 +83,35 @@ async function processDirectory(sourcePrefix, destPrefix) {
             ? { ...entry, data: entry.data[0] }
             : entry;
         const flat = flattenObj(base, '');
+        // discard specified keys
         for (const key of DISCARD_KEYS) delete flat[key];
+
         const cleaned = {};
+        // rename & merge keys
         for (const key in flat) {
             const newKey = RENAME_KEYS[key] ?? key.split('.').pop();
-            cleaned[newKey] = flat[key];
+            if (mergedDests.has(newKey) && newKey in cleaned) {
+                const existing = cleaned[newKey];
+                const incoming = flat[key];
+                if (incoming != null && existing != null && incoming !== existing) {
+                    console.warn(`[cleaning] Merge conflict on "${newKey}" (entry ${flat['id'] ?? '?'}): keeping "${existing}", discarding "${incoming}" from source key "${key}"`);
+                } else if (incoming != null) {
+                    cleaned[newKey] = incoming;
+                }
+            } else {
+                cleaned[newKey] = flat[key];
+            }
         }
         masterData.push(cleaned);
     }
 
-    // 4. Resolve sessionId pairs: drop completed:false if a completed:true partner exists,
+    // 4. Resolve session_id pairs: drop completed:false if a completed:true partner exists,
     // but carry over its timestamps and clientInfo onto the completed entry.
-    console.log(`[${sourcePrefix}] 3. Resolving sessionId/deviceID pairs...`);
+    console.log(`[${sourcePrefix}] 4. Resolving session_id pairs...`);
     const bySession = {};
     const noSession = [];
     for (const entry of masterData) {
-        const sid = entry['sessionId'];
+        const sid = entry['session_id'];
         const groupKey = sid ? `session:${sid}` : null;
         if (!groupKey) {
             noSession.push(entry);
@@ -104,19 +125,36 @@ async function processDirectory(sourcePrefix, destPrefix) {
         const group = bySession[sid];
         const completes = group.filter(e => e['completed'] === true);
         const incompletes = group.filter(e => e['completed'] === false);
-        if (completes.length === 1 && incompletes.length === 1) {
-            // unambiguous pair: merge start fields from incomplete onto complete
-            for (const key of START_KEYS) {
-                completes[0][key + '_start'] = incompletes[0][key];
+        incompletes.sort((a, b) => (a['timestamp'] ?? '') < (b['timestamp'] ?? '') ? -1 : 1);
+
+        if (completes.length >= 1) {
+            // Keep latest complete entry; merge START_KEYS from earliest incomplete
+            completes.sort((a, b) => (a['timestamp'] ?? '') < (b['timestamp'] ?? '') ? -1 : 1);
+            const latest = completes[completes.length - 1];
+            if (incompletes.length > 0) {
+                for (const key of START_KEYS) {
+                    latest[key + '_start'] = incompletes[0][key];
+                }
             }
-            resolvedData.push(completes[0]);
+            latest['num_incomplete'] = incompletes.length;
+            resolvedData.push(latest);
+        } else if (incompletes.length > 0) {
+            // Abandoned: keep latest incomplete (furthest progress), start info from earliest
+            const latest = incompletes[incompletes.length - 1];
+            if (incompletes.length > 1) {
+                for (const key of START_KEYS) {
+                    latest[key + '_start'] = incompletes[0][key];
+                }
+            }
+            latest['num_incomplete'] = incompletes.length;
+            resolvedData.push(latest);
         } else {
-            // multiple submissions from the same device, or lone entry: keep all rows as-is
             resolvedData.push(...group);
         }
     }
 
     // 5. Sort descending by timestamp
+    console.log(`[${sourcePrefix}] 5. Sorting entries...`);
     resolvedData.sort((a, b) => {
         const ta = a['timestamp'] ?? '';
         const tb = b['timestamp'] ?? '';
@@ -126,6 +164,7 @@ async function processDirectory(sourcePrefix, destPrefix) {
     // 6. Build headers: establish base order (ORDERED_KEYS first, then remaining),
     // then insert each _start column immediately after its counterpart.
     // JS sets are ordered by insertion order.
+    console.log(`[${sourcePrefix}] 6. Building CSV headers...`);
     const allKeys = new Set();
     for (const entry of resolvedData) {
         for (const key in entry) allKeys.add(key);
@@ -145,7 +184,7 @@ async function processDirectory(sourcePrefix, destPrefix) {
     }
 
     // 7. Build CSV
-    console.log(`[${sourcePrefix}] 4. Building CSV...`);
+    console.log(`[${sourcePrefix}] 7. Building CSV...`);
     const rows = [headers.map(csvEscape).join(',')];
     for (const entry of resolvedData) {
         rows.push(headers.map(h => csvEscape(entry[h])).join(','));
@@ -153,7 +192,7 @@ async function processDirectory(sourcePrefix, destPrefix) {
     const csv = rows.join('\n');
 
     // 8. Upload CSV to S3
-    console.log(`[${sourcePrefix}] 5. Uploading CSV to S3...`);
+    console.log(`[${sourcePrefix}] 8. Uploading CSV to S3...`);
     const csvKey = `${destPrefix}${new Date().toISOString()}.csv`;
     try {
         await s3.send(new PutObjectCommand({
@@ -168,7 +207,7 @@ async function processDirectory(sourcePrefix, destPrefix) {
     }
 
     // 9. Mark all entries in affected files as generated_as_csv
-    console.log(`[${sourcePrefix}] 6. Marking entries as generated_as_csv...`);
+    console.log(`[${sourcePrefix}] 9. Marking entries as generated_as_csv...`);
     for (const [filePath, entries] of Object.entries(filesToUpdate)) {
         try {
             for (const entry of entries) {
