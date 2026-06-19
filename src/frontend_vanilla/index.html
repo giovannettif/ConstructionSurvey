@@ -8,57 +8,1707 @@
   <link rel="stylesheet" href="static/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    /* Custom styles for the landing page */
-    .landing-container {
+    /* ===== TAB NAVIGATION STYLES ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navigation Container */
+    .main-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      box-shadow: var(--shadow-a);
+      z-index: 1000;
+      padding: 0;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    /* Logo in nav */
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+    }
+
+    .nav-logo img {
+      height: 40px;
+      width: auto;
+    }
+
+    .nav-logo span {
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 600px) {
+      .nav-logo span {
+        font-size: 0.7rem;
+        white-space: normal;
+      }
+    }
+
+    /* Tab Container */
+    .tab-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Individual Tab Buttons */
+    .tab-btn {
+      position: relative;
+      background: transparent;
+      border: none;
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+    }
+
+    /* Special Survey Tab */
+    .tab-btn.survey-tab {
+      background: var(--accent);
+      color: white;
+      border-radius: 25px;
+      padding: 10px 20px;
+      margin-left: 10px;
+      font-weight: 700;
+      box-shadow: var(--glow);
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.survey-tab:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Sliding Indicator */
+    .tab-indicator {
+      position: absolute;
+      bottom: 0;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 3px 3px 0 0;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 -2px 10px var(--accent);
+    }
+
+    /* Decorative accent under nav - subtle gradient line */
+    .nav-diagonal-accent {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--accent) 20%, 
+        var(--accent) 80%, 
+        transparent 100%);
+      opacity: 0.3;
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    /* ===== MAIN CONTENT AREA ===== */
+    .main-content {
+      margin-top: 80px;
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeInPanel 0.4s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeInPanel {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== DECORATIVE ELEMENTS ===== */
+    /* Geometric Background Shapes - Desktop Only */
+    .geo-bg-circle {
+      position: fixed;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .geo-bg-circle-1 {
+      width: 300px;
+      height: 300px;
+      top: 15%;
+      right: -80px;
+    }
+
+    .geo-bg-circle-2 {
+      width: 200px;
+      height: 200px;
+      bottom: 25%;
+      left: -40px;
+    }
+
+    @media (max-width: 768px) {
+      .geo-bg-circle {
+        display: none;
+      }
+    }
+
+    /* Modern diagonal accent lines */
+    .diagonal-accent {
+      position: fixed;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .diagonal-accent-1 {
+      width: 2px;
+      height: 60vh;
+      background: linear-gradient(to bottom, transparent 0%, rgba(204, 0, 0, 0.06) 50%, transparent 100%);
+      top: 20%;
+      left: 8%;
+      transform: rotate(25deg);
+      transform-origin: top center;
+    }
+
+    .diagonal-accent-2 {
+      width: 2px;
+      height: 40vh;
+      background: linear-gradient(to bottom, transparent 0%, rgba(31, 78, 121, 0.05) 50%, transparent 100%);
+      top: 50%;
+      right: 12%;
+      transform: rotate(-20deg);
+      transform-origin: top center;
+    }
+
+    /* Subtle gradient mesh overlay */
+    .gradient-mesh {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 30%, rgba(204, 0, 0, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(31, 78, 121, 0.02) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @media (max-width: 768px) {
+      .diagonal-accent,
+      .gradient-mesh {
+        display: none;
+      }
+    }
+
+    /* Sleek underline decoration */
+    .diagonal-line {
+      position: relative;
+      display: inline-block;
+    }
+
+    .diagonal-line::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      border-radius: 2px;
+    }
+
+    /* Section Headers */
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+      position: relative;
+      padding-top: 20px;
+    }
+
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 550px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ===== HOME TAB STYLES ===== */
+    .hero-section {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 80vh;
+      min-height: calc(100vh - 160px);
       text-align: center;
-      padding: 20px;
+      position: relative;
     }
 
-    .landing-card {
-      background: var(--bg-secondary);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-a);
-      padding: 40px;
-      max-width: 500px;
+    .hero-logo-container {
+      position: relative;
+      margin-bottom: 40px;
+    }
+
+    /* Subtle soft glow behind logo */
+    .hero-logo-container::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(204, 0, 0, 0.08) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
     }
 
-    .landing-logo {
-      max-width: 200px;
+    .hero-logo {
+      max-width: 240px;
+      position: relative;
+      z-index: 1;
+      border-radius: var(--border-radius);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .hero-logo:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      position: relative;
+    }
+
+    .hero-title::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--njit-blue) 100%);
+      margin: 20px auto;
+      border-radius: 2px;
+      transform: skewX(-20deg);
+    }
+
+    .hero-description {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--accent);
+      color: white;
+      padding: 18px 40px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: var(--glow);
+      transition: all 0.3s ease;
+    }
+
+    .hero-cta:hover {
+      background: var(--accent-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(204, 0, 0, 0.3);
+    }
+
+    /* Smooth fade gradient at bottom of hero */
+    .hero-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to top, var(--bg-primary), transparent);
+      pointer-events: none;
+    }
+
+    /* ===== ABOUT TAB STYLES ===== */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+    }
+
+    .about-card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .about-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .about-card h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .about-card h3 i {
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+
+    .about-card p {
+      color: var(--text-secondary);
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    /* Partners Section */
+    .partners-section {
+      text-align: center;
+    }
+
+    .partners-section h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
       margin-bottom: 30px;
     }
 
-    .landing-text {
+    .partners-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .partner-card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 35px 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .partner-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+      border-color: rgba(204, 0, 0, 0.15);
+    }
+
+    .partner-logo {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, #f8f9fa 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      font-size: 1.8rem;
+      color: var(--accent);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .partner-name {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+
+    .partner-role {
+      font-size: 0.9rem;
       color: var(--text-secondary);
+    }
+
+    /* ===== MEET THE TEAM SECTION ===== */
+    .team-section {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .team-section h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
       margin-bottom: 40px;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .team-card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .team-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .team-photo {
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+    }
+
+    .team-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .team-card:hover .team-photo img {
+      transform: scale(1.05);
+    }
+
+    .team-info {
+      padding: 24px 20px;
+    }
+
+    .team-info h4 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .team-role {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .team-bio {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
       line-height: 1.6;
+    }
+
+    /* ===== ORDER MATERIALS TAB (Under Construction) ===== */
+    .construction-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 50vh;
+      text-align: center;
+      padding: 60px 40px;
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+      margin: 0 auto;
+      max-width: 700px;
+    }
+
+    .construction-icon {
+      font-size: 6rem;
+      color: var(--accent);
+      margin-bottom: 30px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .construction-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .construction-message {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      line-height: 1.6;
+    }
+
+    .construction-estimate {
+      margin-top: 30px;
+      padding: 20px 30px;
+      background: var(--bg-secondary);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-a);
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .construction-estimate i {
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    /* ===== BLOG TAB STYLES ===== */
+    .newsletter-section {
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      padding: 50px;
+      margin-bottom: 60px;
+      text-align: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .newsletter-section h3 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .newsletter-section h3 i {
+      color: var(--accent);
+      margin-right: 8px;
+    }
+
+    .newsletter-section p {
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .newsletter-form input {
+      flex: 1;
+      padding: 16px 24px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .newsletter-form input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(204, 0, 0, 0.08);
+    }
+
+    .newsletter-form button {
+      padding: 16px 28px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .newsletter-form button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(204, 0, 0, 0.25);
+    }
+
+    .success-message {
+      display: none;
+      color: #22c55e;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    /* Blog Posts Grid */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+    }
+
+    .blog-card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+      border-color: rgba(204, 0, 0, 0.1);
+    }
+
+    .blog-image {
+      height: 180px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .blog-content {
+      padding: 28px;
+    }
+
+    .blog-date {
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .blog-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .blog-excerpt {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .blog-read-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      font-size: 0.95rem;
+    }
+
+    .blog-read-more:hover {
+      gap: 12px;
+      color: var(--accent-hover);
+    }
+
+    /* ===== CONTACT TAB STYLES ===== */
+    .contact-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .contact-info {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .contact-info h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .contact-info h3 i {
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+
+    .contact-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .contact-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(204, 0, 0, 0.1) 0%, rgba(204, 0, 0, 0.05) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .contact-detail h4 {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+      font-size: 1.05rem;
+    }
+
+    .contact-detail p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .map-placeholder {
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--text-secondary);
+      margin-top: 25px;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .map-placeholder i {
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    /* Contact Form */
+    .contact-form {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .contact-form h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 28px;
+      color: var(--text-primary);
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(204, 0, 0, 0.08);
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .submit-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--glow);
+    }
+
+    /* Form success message */
+    .form-success {
+      display: none;
+      background: #dcfce7;
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .form-success.show {
+      display: block;
+    }
+
+    .form-success i {
+      font-size: 2rem;
+      color: #22c55e;
+      margin-bottom: 10px;
+    }
+
+    /* ===== FOOTER ===== */
+    .main-footer {
+      background: var(--bg-secondary);
+      padding: 40px 20px;
+      text-align: center;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-logo {
+      height: 42px;
+      opacity: 0.6;
+      margin-bottom: 16px;
+      transition: opacity 0.3s ease;
+    }
+
+    .footer-logo:hover {
+      opacity: 0.85;
+    }
+
+    .footer-text {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .tab-wrapper {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: var(--bg-secondary);
+        flex-direction: column;
+        padding: 20px;
+        gap: 10px;
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-a);
+      }
+
+      .tab-wrapper.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .tab-btn {
+        width: 100%;
+        text-align: left;
+        padding: 15px 20px;
+        border-radius: 10px;
+      }
+
+      .tab-btn:hover {
+        background: var(--bg-primary);
+      }
+
+      .tab-btn.survey-tab {
+        margin-left: 0;
+        margin-top: 10px;
+        justify-content: center;
+      }
+
+      .tab-indicator {
+        display: none;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .about-grid,
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+
+      .blog-grid {
+        grid-template-columns: 1fr;
+      }
+
+      /* Mobile Team Grid - Single column, more breathing room */
+      .team-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .team-card {
+        display: flex;
+        flex-direction: column;
+        border-radius: 12px;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .team-photo {
+        width: 100%;
+        height: 160px;
+        flex-shrink: 0;
+      }
+
+      .team-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .team-info {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .team-info h4 {
+        font-size: 1.05rem;
+        margin-bottom: 4px;
+        line-height: 1.3;
+      }
+
+      .team-role {
+        font-size: 0.75rem;
+        margin-bottom: 8px;
+      }
+
+      .team-bio {
+        font-size: 0.85rem;
+        line-height: 1.5;
+      }
+
+      /* Mobile About Grid */
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .about-card {
+        padding: 24px;
+      }
+
+      /* Mobile Partners */
+      .partners-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .partner-card {
+        padding: 20px 15px;
+      }
+
+      .partner-logo {
+        width: 50px;
+        height: 50px;
+        font-size: 1.4rem;
+      }
+
+      /* Mobile Contact */
+      .contact-container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .contact-info,
+      .contact-form {
+        padding: 24px;
+      }
+
+      /* Mobile Newsletter */
+      .newsletter-section {
+        padding: 30px 20px;
+      }
+
+      /* Mobile Hero - Remove glow effects */
+      .hero-logo-container::before {
+        display: none;
+      }
+
+      .hero-fade {
+        display: none;
+      }
+
+      .hero-logo {
+        max-width: 200px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .hero-title {
+        font-size: 1.6rem;
+      }
+
+      .hero-description {
+        font-size: 1rem;
+        padding: 0 15px;
+      }
+
+      .hero-cta {
+        padding: 14px 28px;
+        font-size: 1rem;
+        box-shadow: none;
+      }
+
+      .hero-cta:hover {
+        box-shadow: 0 4px 12px rgba(204, 0, 0, 0.3);
+      }
+
+      /* Remove all glow effects on mobile */
+      .newsletter-form button,
+      .submit-btn,
+      .contact-icon,
+      .partner-logo {
+        box-shadow: none !important;
+      }
+
+      /* Mobile Section Headers */
+      .section-header h2 {
+        font-size: 1.6rem;
+      }
+
+      .section-header {
+        margin-bottom: 30px;
+      }
+
+      /* Mobile Tab Panels */
+      .tab-panel {
+        padding: 20px 15px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="landing-container">
-    <div class="landing-card">
-      <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat Logo" class="landing-logo">
-      <h1>Protecting Under the Hard Hat</h1>
-      <p class="landing-text">
-        Welcome to the Protecting Under the Hard Hat Wellbeing Survey. This quick check takes about 1–2 minutes. It’s not a
-        diagnosis, but it can point you to helpful resources.
-      </p>
-      <a href="/questionnaire" class="begin-btn" style="text-decoration: none; display: inline-block;">Take the
-        Survey</a>
+  <!-- Geometric Background Shapes -->
+  <div class="geo-bg-circle geo-bg-circle-1"></div>
+  <div class="geo-bg-circle geo-bg-circle-2"></div>
+  
+  <!-- Modern diagonal accents -->
+  <div class="diagonal-accent diagonal-accent-1"></div>
+  <div class="diagonal-accent diagonal-accent-2"></div>
+  
+  <!-- Subtle gradient mesh overlay -->
+  <div class="gradient-mesh"></div>
+
+  <!-- Navigation -->
+  <nav class="main-nav">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat Logo">
+        <span>Protecting Under the Hard Hat</span>
+      </div>
+      
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="tab-wrapper" id="tabWrapper">
+        <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">Home</button>
+        <button class="tab-btn" data-tab="about" onclick="switchTab('about')">About Us</button>
+        <button class="tab-btn" data-tab="materials" onclick="switchTab('materials')">Order Materials</button>
+        <button class="tab-btn" data-tab="blog" onclick="switchTab('blog')">Blog</button>
+        <button class="tab-btn" data-tab="contact" onclick="switchTab('contact')">Contact</button>
+        <a href="/questionnaire" class="tab-btn survey-tab" style="text-decoration: none;">
+          <i class="fas fa-clipboard-check"></i> Take Survey
+        </a>
+        <div class="tab-indicator" id="tabIndicator"></div>
+      </div>
     </div>
+    <div class="nav-diagonal-accent"></div>
+  </nav>
 
-    <footer class="footer-branding" style="border: none; margin-top: 50px;">
-      <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="njit-logo-footer">
-    </footer>
-  </div>
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- HOME TAB -->
+    <section id="home" class="tab-panel active">
+      <div class="hero-section">
+        <div class="hero-logo-container">
+          <img src="static/Logo.jpg" alt="Protecting Under the Hard Hat Logo" class="hero-logo">
+        </div>
+        
+        <h1 class="hero-title">Protecting Under the Hard Hat</h1>
+        
+        <p class="hero-description">
+          Welcome to the Protecting Under the Hard Hat Wellbeing Survey. This quick check takes about 1–2 minutes. 
+          It's not a diagnosis, but it can point you to helpful resources for construction workers' mental health and wellbeing.
+        </p>
+        
+        <a href="/questionnaire" class="hero-cta">
+          <i class="fas fa-clipboard-check"></i>
+          Take the Survey
+        </a>
+        
+        <div class="hero-fade"></div>
+      </div>
+    </section>
+
+    <!-- ABOUT US TAB -->
+    <section id="about" class="tab-panel">
+      <div class="section-header">
+        <h2><span class="diagonal-line">About Us</span></h2>
+        <p>Learn about our mission and the partners who make this initiative possible</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card">
+          <h3><i class="fas fa-bullseye"></i> Our Mission</h3>
+          <p>Mission text here. We are dedicated to supporting the mental health and wellbeing of construction workers. 
+          Our goal is to provide accessible resources, early intervention tools, and a supportive community for those 
+          working in the construction industry.</p>
+        </div>
+
+        <div class="about-card">
+          <h3><i class="fas fa-flag-checkered"></i> Our Goals</h3>
+          <p>Goals text here. We aim to raise awareness about mental health in construction, reduce stigma around 
+          seeking help, connect workers with appropriate resources, and create a culture where wellbeing is prioritized 
+          alongside physical safety on job sites.</p>
+        </div>
+      </div>
+
+      <div class="partners-section">
+        <h3><span class="diagonal-line">Our Partners</span></h3>
+        <div class="partners-grid">
+          <div class="partner-card">
+            <div class="partner-logo">
+              <i class="fas fa-university"></i>
+            </div>
+            <div class="partner-name">NJIT</div>
+            <div class="partner-role">Research Partner</div>
+          </div>
+          <div class="partner-card">
+            <div class="partner-logo">
+              <i class="fas fa-hard-hat"></i>
+            </div>
+            <div class="partner-name">Construction Union</div>
+            <div class="partner-role">Industry Partner</div>
+          </div>
+          <div class="partner-card">
+            <div class="partner-logo">
+              <i class="fas fa-heart-pulse"></i>
+            </div>
+            <div class="partner-name">Health Services</div>
+            <div class="partner-role">Wellness Partner</div>
+          </div>
+          <div class="partner-card">
+            <div class="partner-logo">
+              <i class="fas fa-handshake"></i>
+            </div>
+            <div class="partner-name">Safety Council</div>
+            <div class="partner-role">Advocacy Partner</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meet the Team Section -->
+      <div class="team-section">
+        <h3><span class="diagonal-line">Meet the Team</span></h3>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-photo">
+              <img src="https://images.squarespace-cdn.com/content/v1/67a7dc2f4542c17ec9ee1db8/44ecb4d8-41c8-412c-8cfa-a36769263087/RBV.png?format=500w" alt="Roni Barak Ventura">
+            </div>
+            <div class="team-info">
+              <h4>Roni Barak Ventura</h4>
+              <p class="team-role">Assistant Professor</p>
+              <p class="team-bio">School of Applied Engineering and Technology, Newark College of Engineering, New Jersey Institute of Technology.</p>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-photo">
+              <img src="https://images.squarespace-cdn.com/content/v1/67a7dc2f4542c17ec9ee1db8/e993ab74-6a95-43f0-9b2d-f45a95e537a1/AC.jpeg?format=300w" alt="Andrew Couto">
+            </div>
+            <div class="team-info">
+              <h4>Andrew Couto</h4>
+              <p class="team-role">Researcher</p>
+              <p class="team-bio">B.Sc. Civil Engineering, Expected 2028. Research interests: Construction, Data science, and Health and safety.</p>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-photo">
+              <img src="https://images.squarespace-cdn.com/content/v1/67a7dc2f4542c17ec9ee1db8/a368b7e8-9874-4669-8472-0dfe36b99644/FG.JPG?format=500w" alt="Franco Giovannetti">
+            </div>
+            <div class="team-info">
+              <h4>Franco Giovannetti</h4>
+              <p class="team-role">Researcher</p>
+              <p class="team-bio">B.Sc. Computer Science, Expected 2029. Research interests: Data science, Health and safety, and Web design.</p>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-photo">
+              <img src="https://images.squarespace-cdn.com/content/v1/67a7dc2f4542c17ec9ee1db8/b3e2c9d4-19b0-4c1e-a804-81c5e56453e1/KP.JPG?format=500w" alt="Krish Patel">
+            </div>
+            <div class="team-info">
+              <h4>Krish Patel</h4>
+              <p class="team-role">Researcher</p>
+              <p class="team-bio">B.Sc. Computer Science, B.Sc. Applied Physics, Expected 2028. Research interests: Data science, Health and safety, and Web design.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDER MATERIALS TAB -->
+    <section id="materials" class="tab-panel">
+      <div class="section-header">
+        <h2><span class="diagonal-line">Order Materials</span></h2>
+      </div>
+
+      <div class="construction-container">
+        <div class="construction-icon">
+          <i class="fas fa-person-digging"></i>
+        </div>
+        <h2 class="construction-title">Under Construction</h2>
+        <p class="construction-message">
+          We're working hard to build this page for you. Soon you'll be able to order 
+          mental health resources, safety materials, and educational content right here.
+        </p>
+        <div class="construction-estimate">
+          <i class="fas fa-clock"></i>
+          <span>Expected completion: Coming Soon</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOG TAB -->
+    <section id="blog" class="tab-panel">
+      <div class="section-header">
+        <h2><span class="diagonal-line">Blog & Newsletter</span></h2>
+        <p>Stay updated with the latest news, personal stories, and mental health resources</p>
+      </div>
+
+      <!-- Newsletter Signup -->
+      <div class="newsletter-section">
+        <h3><i class="fas fa-envelope-open-text"></i> Subscribe to Our Newsletter</h3>
+        <p>Get the latest mental health resources, personal stories, and construction industry news delivered to your inbox.</p>
+        <form class="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
+          <input type="email" placeholder="Enter your email address" required id="newsletterEmail">
+          <button type="submit">
+            <i class="fas fa-paper-plane"></i> Subscribe
+          </button>
+        </form>
+        <div class="success-message" id="newsletterSuccess">
+          <i class="fas fa-check-circle"></i> Thank you for subscribing!
+        </div>
+      </div>
+
+      <!-- Blog Posts -->
+      <div class="blog-grid">
+        <article class="blog-card">
+          <div class="blog-image">
+            <i class="fas fa-helmet-safety"></i>
+          </div>
+          <div class="blog-content">
+            <div class="blog-date">June 15, 2024</div>
+            <h4 class="blog-title">Mental Health Awareness in Construction</h4>
+            <p class="blog-excerpt">
+              Discover why mental health is becoming a critical focus in the construction industry and what steps 
+              are being taken to support workers...
+            </p>
+            <a href="#" class="blog-read-more">
+              Read More <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+
+        <article class="blog-card">
+          <div class="blog-image">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="blog-content">
+            <div class="blog-date">June 10, 2024</div>
+            <h4 class="blog-title">A Worker's Story: Finding Support</h4>
+            <p class="blog-excerpt">
+              John shares his personal journey through mental health challenges in the construction industry 
+              and how he found the help he needed...
+            </p>
+            <a href="#" class="blog-read-more">
+              Read More <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+
+        <article class="blog-card">
+          <div class="blog-image">
+            <i class="fas fa-book-medical"></i>
+          </div>
+          <div class="blog-content">
+            <div class="blog-date">June 5, 2024</div>
+            <h4 class="blog-title">New Resources Available</h4>
+            <p class="blog-excerpt">
+              We're excited to announce new mental health resources specifically designed for construction 
+              workers and their families...
+            </p>
+            <a href="#" class="blog-read-more">
+              Read More <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- CONTACT TAB -->
+    <section id="contact" class="tab-panel">
+      <div class="section-header">
+        <h2><span class="diagonal-line">Contact Us</span></h2>
+        <p>We'd love to hear from you. Send us your feedback or questions.</p>
+      </div>
+
+      <div class="contact-container">
+        <div class="contact-info">
+          <h3><i class="fas fa-address-card"></i> Get in Touch</h3>
+          
+          <div class="contact-detail">
+            <div class="contact-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div>
+              <h4>Email Us</h4>
+              <p>contact@hardhatwellbeing.org</p>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="contact-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div>
+              <h4>Call Us</h4>
+              <p>1-800-123-4567</p>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="contact-icon">
+              <i class="fas fa-location-dot"></i>
+            </div>
+            <div>
+              <h4>Visit Us</h4>
+              <p>New Jersey Institute of Technology<br>Newark, NJ 07102</p>
+            </div>
+          </div>
+
+          <div class="map-placeholder">
+            <i class="fas fa-map-location-dot"></i>
+            <span>Map Location</span>
+          </div>
+        </div>
+
+        <div class="contact-form">
+          <h3>Send us a Message</h3>
+          <form onsubmit="handleContactSubmit(event)">
+            <div class="form-group">
+              <label for="contactName">Your Name</label>
+              <input type="text" id="contactName" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail">Email Address</label>
+              <input type="email" id="contactEmail" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="contactMessage">Your Message</label>
+              <textarea id="contactMessage" placeholder="How can we help you?" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+          </form>
+
+          <div class="form-success" id="contactSuccess">
+            <i class="fas fa-check-circle"></i>
+            <h4>Message Sent!</h4>
+            <p>Thank you for reaching out. We'll get back to you soon.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <img src="static/New_Jersey_IT_logo.svg" alt="NJIT Logo" class="footer-logo">
+      <p class="footer-text">
+        &copy; 2024 Protecting Under the Hard Hat. A partnership with NJIT.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Tab Switching Logic
+    function switchTab(tabId) {
+      // Hide all panels
+      const panels = document.querySelectorAll('.tab-panel');
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+      });
+
+      // Show selected panel
+      document.getElementById(tabId).classList.add('active');
+
+      // Update tab buttons
+      const buttons = document.querySelectorAll('.tab-btn[data-tab]');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabId) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Move indicator
+      updateTabIndicator();
+
+      // Close mobile menu if open
+      document.getElementById('tabWrapper').classList.remove('open');
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Update Tab Indicator Position
+    function updateTabIndicator() {
+      const activeTab = document.querySelector('.tab-btn.active[data-tab]');
+      const indicator = document.getElementById('tabIndicator');
+
+      if (activeTab && indicator) {
+        const tabRect = activeTab.getBoundingClientRect();
+        const wrapperRect = document.getElementById('tabWrapper').getBoundingClientRect();
+        
+        indicator.style.width = tabRect.width + 'px';
+        indicator.style.transform = `translateX(${tabRect.left - wrapperRect.left}px)`;
+      }
+    }
+
+    // Mobile Menu Toggle
+    function toggleMobileMenu() {
+      document.getElementById('tabWrapper').classList.toggle('open');
+    }
+
+    // Handle Newsletter Submit
+    function handleNewsletterSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('newsletterEmail').value;
+      
+      // Show success message
+      document.getElementById('newsletterSuccess').classList.add('show');
+      
+      // Reset form
+      event.target.reset();
+      
+      // Hide success after 5 seconds
+      setTimeout(() => {
+        document.getElementById('newsletterSuccess').classList.remove('show');
+      }, 5000);
+    }
+
+    // Handle Contact Form Submit
+    function handleContactSubmit(event) {
+      event.preventDefault();
+      
+      // Show success message
+      document.getElementById('contactSuccess').classList.add('show');
+      
+      // Reset form
+      event.target.reset();
+      
+      // Hide success after 5 seconds
+      setTimeout(() => {
+        document.getElementById('contactSuccess').classList.remove('show');
+      }, 5000);
+    }
+
+    // Initialize tab indicator on load
+    window.addEventListener('load', updateTabIndicator);
+    
+    // Update indicator on resize
+    window.addEventListener('resize', updateTabIndicator);
+  </script>
 </body>
-
 
 </html>
