@@ -58,7 +58,7 @@ cd "$DIR_NAME" || exit 4
 # Zip code only — node_modules live in the Lambda layer instead
 zip -qr "../$ZIP_NAME" . \
     -x "*.git*" \
-    -x "test_input.js" \
+    -x "test-input.js" \
     -x "**/.env" \
     -x "**/service_account.json" "**/service-account.json" \
     -x "package-lock.json" \
@@ -234,9 +234,10 @@ echo -e "${GREEN}✅ Propagation successful!${NC}"
 
 # --- Step 8: Smoke Test (Invoke) ---
 echo -e "${YELLOW}🧪 Running smoke test...${NC}"
-if [ -f "$DIR_NAME/test_input.js" ]; then
-    PAYLOAD=$(node $DIR_NAME/test_input.js)
+if [ -f "$DIR_NAME/test-input.js" ]; then
+    PAYLOAD=$(node $DIR_NAME/test-input.js)
 else
+    echo "${YELLOW}⚠️ Warning: No payload file found${NC}"
     PAYLOAD="{}"
 fi
 aws lambda invoke \
