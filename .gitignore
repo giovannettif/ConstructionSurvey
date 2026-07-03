@@ -1,10 +1,6 @@
 # secrets
-private
 .env
 service_account.json
-client_secret.json
-credentials.json
-token.json
 
 # installations
 node_modules
