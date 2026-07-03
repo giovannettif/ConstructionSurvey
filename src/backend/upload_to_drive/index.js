@@ -5,7 +5,7 @@ import pLimit from 'p-limit';
 import { authorize, createFolders, uploadJsonToDrive, uploadCsvToDrive } from './drive.js';
 
 // env vars
-const FOLDER_ID = process.env.FOLDER_ID;
+const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
 // S3 configuration
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
@@ -79,7 +79,7 @@ export const handler = async () => {
     const promises1 = Object.entries(unuploadedS3Data).map(async ([filePath, data]) => {
         // if the file name contains a path, create / retrieve the folders first
         // test/2026-04.json (file) -> test/2026-04 (folder)
-        const folderId = await createFolders(authClient, FOLDER_ID, filePath.replace(/\.json$/, ''));
+        const folderId = await createFolders(authClient, GOOGLE_DRIVE_FOLDER_ID, filePath.replace(/\.json$/, ''));
 
         const promises2 = data.filter(entry => !entry.uploaded_to_drive).map((entry) => {
             return limit(async () => {
@@ -142,7 +142,7 @@ export const handler = async () => {
             const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: csvKey }));
             const csvContent = await response.Body.transformToString();
 
-            const folderId = await createFolders(authClient, FOLDER_ID, `${csvPrefix}/${yyyymm}`);
+            const folderId = await createFolders(authClient, GOOGLE_DRIVE_FOLDER_ID, `${csvPrefix}/${yyyymm}`);
             const fileId = await uploadCsvToDrive(authClient, folderId, fileName, csvContent);
 
             if (fileId) {

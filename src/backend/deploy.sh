@@ -237,7 +237,7 @@ echo -e "${YELLOW}🧪 Running smoke test...${NC}"
 if [ -f "$DIR_NAME/test-input.js" ]; then
     PAYLOAD=$(node $DIR_NAME/test-input.js)
 else
-    echo "${YELLOW}⚠️ Warning: No payload file found${NC}"
+    echo -e "${YELLOW}⚠️ Warning: No payload file found${NC}"
     PAYLOAD="{}"
 fi
 aws lambda invoke \
