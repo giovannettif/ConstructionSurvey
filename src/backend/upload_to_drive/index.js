@@ -2,7 +2,7 @@
 
 import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
-import { authorize, createFolders, uploadJsonToDrive, uploadCsvToDrive } from './driveManager.js';
+import { authorize, createFolders, uploadJsonToDrive, uploadCsvToDrive } from './drive.js';
 
 // env vars
 const FOLDER_ID = process.env.FOLDER_ID;
