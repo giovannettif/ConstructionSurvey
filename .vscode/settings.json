@@ -2,10 +2,10 @@
   "cSpell.languageSettings": [
     {
       "languageId": "javascript",
-      "words": [
-        "incompletes",
-        "",
-        ""
-      ]
-    }]
+      "words": ["incompletes", "", ""]
+    }
+  ],
+  "[markdown]": {
+    "editor.formatOnSave": true
+  }
 }
