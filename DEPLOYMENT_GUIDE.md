@@ -7,7 +7,7 @@ Your landing page has been configured for GitHub Pages deployment with the follo
 ### What's Been Done:
 
 1. **Created GitHub Actions Workflow** (`.github/workflows/pages.yml`)
-   - Automatically deploys the `src/frontend_vanilla/` folder when you push to main
+   - Automatically deploys the `src/frontend/` folder when you push to main
    - Uses GitHub's official Pages deployment action
 
 2. **Updated Links for Relative Paths**
@@ -16,7 +16,7 @@ Your landing page has been configured for GitHub Pages deployment with the follo
 
 3. **Directory Structure** (kept intact)
    ```
-   src/frontend_vanilla/
+   src/frontend/
    ├── index.html          (landing page - 1700+ lines!)
    ├── questionnaire/
    │   └── index.html      (survey)
@@ -52,7 +52,7 @@ Once deployed (takes ~2-3 minutes), your site will be at:
 
 **https://giovannettif.github.io/ConstructionSurvey/**
 
-This will serve the `src/frontend_vanilla/` folder as the root.
+This will serve the `src/frontend/` folder as the root.
 
 ### URLs:
 - **Landing Page**: `https://giovannettif.github.io/ConstructionSurvey/`
