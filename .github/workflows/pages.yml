@@ -30,8 +30,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Deploy the frontend_vanilla folder
-          path: './src/frontend_vanilla'
+          # Deploy the frontend folder
+          path: './src/frontend'
 
       - name: Deploy to GitHub Pages
         id: deployment

@@ -3,6 +3,6 @@ frontend:
     build:
       commands: []
   artifacts:
-    baseDirectory: src/frontend_vanilla
+    baseDirectory: src/frontend
     files:
       - '**/*'
