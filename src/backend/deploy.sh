@@ -57,13 +57,14 @@ cd "$DIR_NAME" || exit 4
 
 # Zip code only — node_modules live in the Lambda layer instead
 zip -qr "../$ZIP_NAME" . \
-    -x "*.git*" \
-    -x "test-input.js" \
-    -x "**/.env" \
-    -x "**/service_account.json" "**/service-account.json" \
-    -x "package-lock.json" \
-    -x "private/*" "**/private/*" \
-    -x "node_modules/*"
+    -x "*.git*" -x "**/*.git*" \
+    -x "test-input.js" -x "**/test-input.js" \
+    -x ".env" -x "**/.env" \
+    -x "service_account.json" -x "service-account.json" -x "**/service_account.json" -x "**/service-account.json" \
+    -x "package-lock.json" -x "**/package-lock.json" \
+    -x "private/*" -x "**/private/*" \
+    -x "node_modules/*" -x "**/node_modules/*" \
+	-x "scratch.mjs" -x "**/scratch.mjs"
 
 # Check if zip was successful
 if [ $? -ne 0 ]; then
