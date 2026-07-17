@@ -56,15 +56,12 @@ rm -f "$ZIP_NAME"   # Remove old zip if exists
 cd "$DIR_NAME" || exit 4
 
 # Zip code only — node_modules live in the Lambda layer instead
-zip -qr "../$ZIP_NAME" . \
-    -x "*.git*" -x "**/*.git*" \
-    -x "test-input.js" -x "**/test-input.js" \
-    -x ".env" -x "**/.env" \
-    -x "service_account.json" -x "service-account.json" -x "**/service_account.json" -x "**/service-account.json" \
-    -x "package-lock.json" -x "**/package-lock.json" \
-    -x "private/*" -x "**/private/*" \
-    -x "node_modules/*" -x "**/node_modules/*" \
-	-x "scratch.mjs" -x "**/scratch.mjs"
+if [ ! -f deploy_list.txt ]; then
+	echo -e "${RED}❌ Error: deploy_list.txt not found.${NC}"
+    exit 11
+fi
+
+zip -qr "../$ZIP_NAME" $(cat deploy_list.txt)
 
 # Check if zip was successful
 if [ $? -ne 0 ]; then
