@@ -2,6 +2,9 @@
 .env
 service_account.json
 
+# scratch files
+scratch.mjs
+
 # installations
 node_modules
 
