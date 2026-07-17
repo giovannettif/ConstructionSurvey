@@ -123,6 +123,8 @@ bash ./deploy.sh upload_to_drive/
 > [!WARNING]
 > You _must_ be inside the directory that `deploy.sh` is in for it to pick up the proper Lambda function. You _cannot_ use the path from any other directory.
 
+[TODO] `deploy_list.txt` explanation.
+
 #### 📦 `process_response`
 
 [TODO]
