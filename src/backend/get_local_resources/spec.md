@@ -1,17 +1,33 @@
 # `get_local_resources` Spec
 
+- AWS Lambda function.
+- Written in JavaScript.
+- Given a user ZIP code and maximum radius from the frontend, returns a list of resources located within the maximum radius.
+
+## Overview
+
+- All distances are in meters.
+- Use `papaparse` to parse the CSV datasets.
+- Use `express` for request/response handling.
+- Use camel_case for all request/response fields.
+- Normalize ZIP codes to left-0-padded 5-digit strings, e.g. "680" or 680 (number) -> "00680".
+
+## Endpoint
+
+`GET /local-resources`
+
 ## Request Schema
 
 ```json
 {
   "zip_code": "string - Required if max_radius != -1. User ZIP code around which to retrieve local resources.",
-  "max_radius": "number - Required. In miles. Only retrieve resources at ZIP codes within a certain radius of given ZIP code. Use -1 to get all resources."
+  "max_radius": "number - Required. In meters. Only retrieve resources at ZIP codes within a certain radius of given ZIP code. Use -1 to get all resources."
 }
 ```
 
 ## Response Schema
 
-Only on success:
+Only on success and when `"zip_code"` is provided in the request:
 
 ```json
 {
@@ -35,6 +51,12 @@ Only on success:
 }
 ```
 
+- If `max_radius == -1`:
+  - No `"zip_code_info"` field.
+  - No `"distance"` field per resource.
+  - No sorting resources.
+- If no resources are found, still a success. Simply return an empty array for the `"resources"` field along with the other fields in the schema.
+
 ## ZIP Codes Dataset
 
 - A static CSV dataset of ZIP codes, latitudes, longitudes, city, and state. Each row has a unique ZIP code.
@@ -45,8 +67,8 @@ Schema:
 | Column      | Type   | Example   | Notes                    |
 | ----------- | ------ | --------- | ------------------------ |
 | `Zip`       | number | 680       | Not zero-padded.         |
-| `Longitude` | number | -67.12655 |                          |
 | `Latitude`  | number | 18.205232 |                          |
+| `Longitude` | number | -67.12655 |                          |
 | `State`     | string | PR        | Two-letter abbreviation. |
 | `City`      | string | Mayaguez  |                          |
 
@@ -60,7 +82,7 @@ Schema:
 
 ## Functionality
 
-### Module
+### Module Scope
 
 1. Load the ZIP codes dataset as an object of the form:
 
@@ -78,31 +100,32 @@ Schema:
 2. Load the resources dataset as an object of the form:
 
 ```js
-{
-  [zip]: [
-    {
-      // resource 1 info (including ZIP code) at this ZIP code
-    },
-    // ...
-    {
-      // resource n info (including ZIP code) at this ZIP code
-    }
-  ]
-}
+[
+    {/* resource 1 */},
+     /*     ...    */ 
+    {/* resource n */},
+]
 ```
 
-### Function
+- Cache the S3 read promise for efficient reuse on warm invocations.
+- Delete the cache if the promise fails.
+- To avoid stale resources when the function stays warm for a long time, use a TTL of 4 hours.
+
+### Function Scope
+
+Constants:
+- `MARGIN=5000` - In meters. Add to `max_radius` to give some leeway against floating point precision errors. 
 
 1. Validate input/request.
-2. Find the user ZIP code's `lat` and `long` using the loaded dataset.
-3. Create an array `distances` of 2-element arrays: 1st element being ZIP code, 2nd element being distance to the ZIP code from the user ZIP code.
-
-- Use the Haversine formula to calculate the distance between a pair of `lat` and `long`.
-
-4. Sort `distances` by the 2nd element (distance) in ascending order. Closest ZIP code (user ZIP code itself) should be at the top.
-5. Create an empty array `localResources`.
-6. Iterate over `distances`. For each distance and ZIP code, get all resources with that ZIP code, add a `distance` field to each retrieved resource object, and add each object to the `localResources` array.
-7. Add other necessary fields as per the response schema, and return the JSON response.
+2. If `max_radius != 1` (ZIP code given, get local resources):
+   2.1. Find the user ZIP code's `lat` and `long` using the ZIP code dataset.
+   2.2. Collect all the resources.
+   2.3. Create an `nx2` array `resourceDistances` (where `n` is the number of resources). The 2nd element in each pair is a resource object, and the 1st element is the distance to the resource ZIP code from the user ZIP code. Use the Haversine formula to calculate the distance between a pair of `lat` and `long`.
+   2.4. Filter out pairs where the distance exceeds `max_radius + MARGIN`.
+   2.5. Sort `resourceDistances` by the 1st element (distance) in ascending order. Closest resource should be at the top. No need to handle ties - the original resource dataset order should prevail.
+   2.6. Transform the `nx2` `resourceDistances` array into an `nx1` `localResources` array, where each element is a resource object with a `distance` field added.
+   2.7. Add other necessary fields as per the response schema, and return the JSON response.
+3. If `max_radius == -1` (ZIP code not given, get all resources), return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
 
 ## Status Codes
 
@@ -114,12 +137,13 @@ Return a response of the schema above.
 
 Conditions:
 
-- Required fields missing:
+- Field requirement deviation:
   - `zip_code` not given when `max_radius != -1`
+  - `zip_code` given when `max_radius == -1`
   - `max_radius` not given
 - Type checking:
   - `zip_code` not a string
-  - `max_radius` not a non-negative number or -1
+  - `max_radius` not a non-negative number or not -1
 - Advanced:
   - `zip_code` not of length 5
 
@@ -173,3 +197,15 @@ Log:
 
 - Use a simple string message format.
 - Log entries should be concise but also readable.
+
+## Coding Conventions
+
+- Code style (in order of most to least preferred):
+  - Readable
+  - Efficient
+  - Compact
+- Add docstrings for all key functions, including description, request format, status codes, response format, etc.
+- Use comments generously, but each should be concise.
+- Use Prettier for formatting.
+- Always use camelCase for variable and function names. Convert object keys into camelCase when reading them (e.g. `{ max_radius: maxRadius }`).
+- Use `variable == null` or `variable != null` if `variable` can plausibly be either `null` or `undefined`. Do NOT use `variable === null || variable === undefined` (and similarly for the `!==` conditions).
