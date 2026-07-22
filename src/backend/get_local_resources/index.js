@@ -104,11 +104,25 @@ async function loadResourcesData() {
     return { resources, zipColumn };
 }
 
-// [TODO] add TTL, clear cache upon error, and error handling
-// Cached across warm invocations; only fetched once per container lifetime.
+const RESOURCES_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
+
+// Cached across warm invocations; refetched after RESOURCES_TTL_MS or if the
+// previous fetch failed, so a stale or dead cache is never served forever.
 let resourcesDataPromise = null;
+let resourcesDataFetchedAt = null;
 function getResourcesData() {
-    if (!resourcesDataPromise) resourcesDataPromise = loadResourcesData();
+    const isStale =
+        resourcesDataFetchedAt != null &&
+        Date.now() - resourcesDataFetchedAt > RESOURCES_TTL_MS;
+
+    if (!resourcesDataPromise || isStale) {
+        resourcesDataFetchedAt = Date.now();
+        resourcesDataPromise = loadResourcesData().catch((e) => {
+            resourcesDataPromise = null;
+            resourcesDataFetchedAt = null;
+            throw e;
+        });
+    }
     return resourcesDataPromise;
 }
 
