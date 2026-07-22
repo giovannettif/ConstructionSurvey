@@ -129,7 +129,7 @@ Constants:
    2.4. Filter out pairs where the distance exceeds `max_radius + MARGIN`.
    2.5. Sort `resourceDistances` by the 1st element (distance) in ascending order. Closest resource should be at the top. No need to handle ties - the original resource dataset order should prevail.
    2.6. Transform the `nx2` `resourceDistances` array into an `nx1` `localResources` array, where each element is a resource object with a `distance` field added.
-   2.7. Save analytics data: create a `{datetime}_{uuid}.json` file at `SAVE_PATH` (where `{datetime}` is an ISO datetime string with `:` replaced by `-` and `{uuid}` is a freshly generated UUID). Write to this file a JSON object with `session_id`, `device_id`, `zip_code`, `max_radius`, `num_resources` (the latter is the count of resources to return in the response). Use `try`/`catch` to handle any S3 errors, surfacing them in logs but not to the client. This ensures an otherwise `200` response not be `500`: data storage is secondary to the resource fetch operation.
+   2.7. Save analytics data: create a `{datetime}_{uuid}.json` file at `SAVE_PATH` (where `{datetime}` is an ISO datetime string with `:` replaced by `-` and `{uuid}` is a freshly generated UUIDv4). Write to this file a JSON object with `session_id`, `device_id`, `zip_code`, `max_radius`, `num_resources` (the latter is the count of resources to return in the response). Use `try`/`catch` to handle any S3 errors, surfacing them in logs but not to the client. This ensures an otherwise `200` response not be `500`: data storage is secondary to the resource fetch operation.
    2.8. Return a JSON response object, adding the `localResources` array and any other necessary fields to it as per the response schema.
 3. If `max_radius == -1` (ZIP code not given, get all resources):
   3.1. Save analytics data: follow step 2.7 but set `zip_code` to `null`. Now, `max_radius` is naturally `-1`, and `num_resources` is still the count of resources returned but without filtering.
@@ -159,8 +159,12 @@ Conditions:
 - Advanced:
   - `zip_code` not of length 5
   - `zip_code` contains non-numeric characters
-  - `session_id` not a UUID (by shape only, disregarding the version and variant)
-  - `device_id` not a UUID (same as above)
+  - `session_id` not a UUIDv4
+  - `device_id` not a UUIDv4
+
+- UUIDv4 validation:
+  - Use strict validation, enforcing shape, version, and variant
+  - Use the `uuid` library functions `validate` (rename to `uuidValidate`) and `version` (rename to `uuidVersion`)
 
 Response schema:
 
