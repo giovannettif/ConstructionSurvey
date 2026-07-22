@@ -163,7 +163,7 @@ Conditions:
   - `device_id` not a UUIDv4
 
 - UUIDv4 validation:
-  - Use strict validation, enforcing shape, version, and variant
+  - Use strict validation, enforcing shape (8-4-4-4-12 with hyphens), version, and variant
   - Use the `uuid` library functions `validate` (rename to `uuidValidate`) and `version` (rename to `uuidVersion`)
 
 Response schema:
