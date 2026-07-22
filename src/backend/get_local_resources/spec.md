@@ -3,6 +3,7 @@
 - AWS Lambda function.
 - Written in JavaScript.
 - Given a user ZIP code and maximum radius from the frontend, returns a list of resources located within the maximum radius.
+- Save analytics data about requests received.
 
 ## Overview
 
@@ -11,6 +12,7 @@
 - Use `express` for request/response handling.
 - Use camel_case for all request/response fields.
 - Normalize ZIP codes to left-0-padded 5-digit strings, e.g. "680" or 680 (number) -> "00680".
+- Use the `S3_BUCKET_NAME` env var whenever an S3 bucket is specified in this spec.
 
 ## Endpoint
 
@@ -20,6 +22,8 @@
 
 ```json
 {
+  "session_id": "string - UUID. Required. Unique session per survey load.",
+  "device_id": "string - UUID. Required. Unique per browser. Not real device ID, just a proxy.",
   "zip_code": "string - Required if max_radius != -1. User ZIP code around which to retrieve local resources.",
   "max_radius": "number - Required. In meters. Only retrieve resources at ZIP codes within a certain radius of given ZIP code. Use -1 to get all resources."
 }
@@ -75,7 +79,7 @@ Schema:
 ## Resources Dataset
 
 - A manually-maintained CSV dataset of resources with address, ZIP code, phone number, etc.
-- Stored in S3 bucket (`S3_BUCKET_NAME` env var) under name `resources.csv` at root.
+- Stored in S3 bucket under name `resources.csv` at root.
 - Flexible schema since it can be updated frequently.
 - 1st row is always the CSV header.
 - Each row afterward is a resource.
@@ -115,6 +119,7 @@ Schema:
 
 Constants:
 - `MARGIN=5000` - In meters. Add to `max_radius` to give some leeway against floating point precision errors. 
+- `SAVE_PATH="data/new"` - Path in S3 bucket to save basic analytics data to.
 
 1. Validate input/request.
 2. If `max_radius != 1` (ZIP code given, get local resources):
@@ -124,8 +129,11 @@ Constants:
    2.4. Filter out pairs where the distance exceeds `max_radius + MARGIN`.
    2.5. Sort `resourceDistances` by the 1st element (distance) in ascending order. Closest resource should be at the top. No need to handle ties - the original resource dataset order should prevail.
    2.6. Transform the `nx2` `resourceDistances` array into an `nx1` `localResources` array, where each element is a resource object with a `distance` field added.
-   2.7. Add other necessary fields as per the response schema, and return the JSON response.
-3. If `max_radius == -1` (ZIP code not given, get all resources), return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
+   2.7. Save analytics data: create a `{datetime}_{uuid}.json` file at `SAVE_PATH` (where `{datetime}` is an ISO datetime string with `:` replaced by `-` and `{uuid}` is a freshly generated UUID). Write to this file a JSON object with `session_id`, `device_id`, `zip_code`, `max_radius`, `num_resources` (the latter is the count of resources to return in the response).
+   2.8. Return a JSON response object, adding the `localResources` array and any other necessary fields to it as per the response schema.
+3. If `max_radius == -1` (ZIP code not given, get all resources):
+  3.1. Save analytics data: follow step 2.7 but set `zip_code` to `null`. Now, `max_radius` is naturally `-1`, and `num_resources` is still the count of resources returned but without filtering.
+  3.2. Return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
 
 ## Status Codes
 
@@ -141,11 +149,18 @@ Conditions:
   - `zip_code` not given when `max_radius != -1`
   - `zip_code` given when `max_radius == -1`
   - `max_radius` not given
+  - `session_id` not given
+  - `device_id` not given
 - Type checking:
   - `zip_code` not a string
   - `max_radius` not a non-negative number or not -1
+  - `session_id` not a string
+  - `device_id` not a string
 - Advanced:
   - `zip_code` not of length 5
+  - `zip_code` contains non-numeric characters
+  - `session_id` not a UUID
+  - `device_id` not a UUID
 
 Response schema:
 
@@ -190,7 +205,7 @@ Response schema:
 
 Log:
 
-- Request info: user ZIP and maximum radius.
+- Request info - all four fields.
 - Success response info: type and resource count.
 - Any errors caught via try-catch.
 - Any non-`200` status code and the descriptive error message.
