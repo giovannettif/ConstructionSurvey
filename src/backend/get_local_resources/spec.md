@@ -125,7 +125,7 @@ Constants:
 2. If `max_radius != -1` (ZIP code given, get local resources):
    2.1. Find the user ZIP code's `lat` and `long` using the ZIP code dataset.
    2.2. Collect all the resources.
-   2.3. Create an `nx2` array `resourceDistances` (where `n` is the number of resources). The 2nd element in each pair is a resource object, and the 1st element is the distance to the resource ZIP code from the user ZIP code. Use the Haversine formula to calculate the distance between a pair of `lat` and `long`.
+   2.3. Create an `nx2` array `resourceDistances` (where `n` is the number of resources). The 2nd element in each pair is a resource object, and the 1st element is the distance to the resource ZIP code from the user ZIP code. Use the Haversine formula to calculate the distance between a pair of `lat` and `long`. If any resource ZIP code is invalid (not in the ZIP code dataset), simply don't include that resource.
    2.4. Filter out pairs where the distance exceeds `max_radius + MARGIN`.
    2.5. Sort `resourceDistances` by the 1st element (distance) in ascending order. Closest resource should be at the top. No need to handle ties - the original resource dataset order should prevail.
    2.6. Transform the `nx2` `resourceDistances` array into an `nx1` `localResources` array, where each element is a resource object with a `distance` field added.
@@ -212,6 +212,7 @@ Log:
 - Request info - all four fields.
 - Success response info: type and resource count.
 - That analytics stored successfully (if so).
+- A warning if any resource ZIP doesn't exist in the ZIP code dataset.
 - Any errors caught via try-catch.
 - Any non-`200` status code and the descriptive error message.
 
