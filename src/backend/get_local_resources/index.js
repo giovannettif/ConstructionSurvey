@@ -18,12 +18,13 @@ import { validate as uuidValidate, version as uuidVersion } from "uuid";
 // S3 Configuration
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
 const s3 = new S3Client({ region: process.env.AWS_REGION });
-const SAVE_PATH = "data/new";
+const SAVE_PATH = "data/new";       // for request analytics
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const EARTH_RADIUS_METERS = 6371000;
+const MARGIN = 5000;                // meters; filtering leeway for floating point errors
+const EARTH_RADIUS_M = 6371000;     // meters
 
 // ---------------------------------------------------------------------------
 // Module Scope: load datasets once per Lambda container (cold start).
@@ -85,28 +86,22 @@ function findZipColumn(fields) {
 }
 
 /**
- * Fetches resources.csv from S3 and parses it into:
- * { [normalizedZip]: [resource, ...] }
- * @returns {Promise<Object>}
+ * Fetches resources.csv from S3 and parses it into the resource objects as-is
+ * (one per CSV row), alongside the name of their ZIP code column.
+ * @returns {Promise<{ resources: Object[], zipColumn: string }>}
  */
 async function loadResourcesData() {
     const response = await s3.send(
         new GetObjectCommand({ Bucket: S3_BUCKET, Key: "resources.csv" }),
     );
     const csvText = await response.Body.transformToString();
-    const { data: rows, meta } = Papa.parse(csvText, {
+    const { data: resources, meta } = Papa.parse(csvText, {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
     });
     const zipColumn = findZipColumn(meta.fields);
-    const resourcesData = {};
-
-    for (const row of rows) {
-        const zip = normalizeZip(row[zipColumn]);
-        (resourcesData[zip] = resourcesData[zip] ?? []).push(row);
-    }
-    return resourcesData;
+    return { resources, zipColumn };
 }
 
 // [TODO] add TTL, clear cache upon error, and error handling
@@ -226,7 +221,7 @@ function haversineDistance(lat1, long1, lat2, long2) {
             Math.cos(toRadians(lat2)) *
             Math.sin(dLong / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return EARTH_RADIUS_METERS * c;
+    return EARTH_RADIUS_M * c;
 }
 
 // ---------------------------------------------------------------------------
@@ -314,12 +309,10 @@ app.get("/local-resources", async (req, res) => {
                 .json({ success: false, error: validationError });
         }
 
-        const resourcesData = await getResourcesData();
+        const { resources, zipColumn } = await getResourcesData();
 
         // max_radius == -1: return every resource, unsorted, with no distance/ZIP info.
         if (maxRadius === -1) {
-            const resources = Object.values(resourcesData).flat();
-
             try {
                 await saveAnalytics({
                     sessionId,
@@ -350,28 +343,38 @@ app.get("/local-resources", async (req, res) => {
             return res.status(404).json({ success: false, error });
         }
 
-        // [TODO] optimization: distances to only resource ZIPs, filter out resources
-        // Distance from the user ZIP to every known ZIP, filtered to max_radius, closest first.
-        const distances = [];
-        for (const [zip, info] of Object.entries(zipData)) {
+        // Distance from the user ZIP to each resource's own ZIP, filtered to
+        // max_radius (plus MARGIN leeway), closest first. Resources are the
+        // limiting factor here (few), so only their ZIPs are considered -
+        // not every ZIP in the dataset.
+        const resourceDistances = [];
+        for (const resource of resources) {
+            const resourceZip = normalizeZip(resource[zipColumn]);
+            const resourceZipInfo = zipData[resourceZip];
+            if (!resourceZipInfo) {
+                console.warn(
+                    `Resource ZIP code ${resourceZip} not found in ZIP dataset; excluding resource.`,
+                );
+                continue;
+            }
+
             const distance = haversineDistance(
                 userZipInfo.lat,
                 userZipInfo.long,
-                info.lat,
-                info.long,
+                resourceZipInfo.lat,
+                resourceZipInfo.long,
             );
-            if (distance <= maxRadius) distances.push([zip, distance]);
-        }
-
-        distances.sort((a, b) => a[1] - b[1]);
-
-        const localResources = [];
-        for (const [zip, distance] of distances) {
-            const resourcesAtZip = resourcesData[zip] ?? [];
-            for (const resource of resourcesAtZip) {
-                localResources.push({ ...resource, distance });
+            if (distance <= maxRadius + MARGIN) {
+                resourceDistances.push([distance, resource]);
             }
         }
+
+        resourceDistances.sort((a, b) => a[0] - b[0]);
+
+        const localResources = resourceDistances.map(([distance, resource]) => ({
+            ...resource,
+            distance,
+        }));
 
         try {
             await saveAnalytics({
