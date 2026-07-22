@@ -211,6 +211,7 @@ Log:
 
 - Request info - all four fields.
 - Success response info: type and resource count.
+- That analytics stored successfully (if so).
 - Any errors caught via try-catch.
 - Any non-`200` status code and the descriptive error message.
 
