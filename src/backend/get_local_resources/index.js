@@ -3,15 +3,22 @@
 
 import express from "express";
 import serverless from "serverless-http";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+    S3Client,
+    GetObjectCommand,
+    PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import Papa from "papaparse";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { randomUUID } from "crypto";
+import { validate as uuidValidate, version as uuidVersion } from "uuid";
 
 // S3 Configuration
 const S3_BUCKET = process.env.S3_BUCKET_NAME;
 const s3 = new S3Client({ region: process.env.AWS_REGION });
+const SAVE_PATH = "data/new";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -115,13 +122,45 @@ function getResourcesData() {
 // ---------------------------------------------------------------------------
 
 /**
+ * Checks whether a value is a strict UUIDv4 string.
+ * @param {any} value
+ * @returns {boolean}
+ */
+function isUuidV4(value) {
+    return (
+        uuidValidate(value) &&
+        uuidVersion(value) === 4
+    );
+}
+
+/**
  * Validates the request body against the spec's requirements.
- * @param {{ zip_code: any, max_radius: any }} body
+ * @param {{ session_id: any, device_id: any, zip_code: any, max_radius: any }} body
  * @returns {string|null} Descriptive error message, or null if valid.
  */
-function validateRequest({ zip_code: zipCode, max_radius: maxRadius }) {
+function validateRequest({
+    session_id: sessionId,
+    device_id: deviceId,
+    zip_code: zipCode,
+    max_radius: maxRadius,
+}) {
+    // Field requirement deviation
+    if (sessionId == null) {
+        return "session_id is required.";
+    }
+    if (deviceId == null) {
+        return "device_id is required.";
+    }
     if (maxRadius == null) {
         return "max_radius is required.";
+    }
+
+    // Type checking
+    if (typeof sessionId !== "string") {
+        return "session_id must be a string.";
+    }
+    if (typeof deviceId !== "string") {
+        return "device_id must be a string.";
     }
     if (
         typeof maxRadius !== "number" ||
@@ -147,6 +186,18 @@ function validateRequest({ zip_code: zipCode, max_radius: maxRadius }) {
             return "zip_code must be exactly 5 characters long.";
         }
     }
+
+    // Advanced
+    if (maxRadius !== -1 && !/^\d+$/.test(zipCode)) {
+        return "zip_code must contain only numeric characters.";
+    }
+    if (!isUuidV4(sessionId)) {
+        return "session_id must be a valid UUIDv4.";
+    }
+    if (!isUuidV4(deviceId)) {
+        return "device_id must be a valid UUIDv4.";
+    }
+
     return null;
 }
 
@@ -179,6 +230,44 @@ function haversineDistance(lat1, long1, lat2, long2) {
 }
 
 // ---------------------------------------------------------------------------
+// Function Scope: analytics
+// ---------------------------------------------------------------------------
+
+/**
+ * Saves basic analytics data about a request to S3 as a JSON file named
+ * `{datetime}_{uuid}.json` under `SAVE_PATH`. Throws on S3 errors - the
+ * caller is responsible for catching and logging, per the spec.
+ * @param {{ sessionId: string, deviceId: string, zipCode: string|null, maxRadius: number, numResources: number }} data
+ * @returns {Promise<void>}
+ */
+async function saveAnalytics({
+    sessionId,
+    deviceId,
+    zipCode,
+    maxRadius,
+    numResources,
+}) {
+    const datetime = new Date().toISOString().replace(/:/g, "-");
+    const key = `${SAVE_PATH}/${datetime}_${randomUUID()}.json`;
+    const body = JSON.stringify({
+        session_id: sessionId,
+        device_id: deviceId,
+        zip_code: zipCode,
+        max_radius: maxRadius,
+        num_resources: numResources,
+    });
+
+    await s3.send(
+        new PutObjectCommand({
+            Bucket: S3_BUCKET,
+            Key: key,
+            Body: body,
+            ContentType: "application/json",
+        }),
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Express.js Setup
 // ---------------------------------------------------------------------------
 
@@ -192,7 +281,7 @@ app.use(express.json());
  * when `max_radius` is -1 (in which case `zip_code` must be omitted).
  *
  * Request body:
- *   { zip_code?: string, max_radius: number }
+ *   { session_id: string, device_id: string, zip_code?: string, max_radius: number }
  *
  * Responses:
  *   200 - { success: true, type, message, zip_code_info?, resources: [...] }
@@ -201,11 +290,20 @@ app.use(express.json());
  *   500 - { success: false, error: "Internal server error." } - unhandled error
  */
 app.get("/local-resources", async (req, res) => {
-    const { zip_code: zipCode, max_radius: maxRadius } = req.body ?? {};
-    console.log(`Request: zip_code=${zipCode}, max_radius=${maxRadius}`);
+    const {
+        session_id: sessionId,
+        device_id: deviceId,
+        zip_code: zipCode,
+        max_radius: maxRadius,
+    } = req.body ?? {};
+    console.log(
+        `Request: session_id=${sessionId}, device_id=${deviceId}, zip_code=${zipCode}, max_radius=${maxRadius}`,
+    );
 
     try {
         const validationError = validateRequest({
+            session_id: sessionId,
+            device_id: deviceId,
             zip_code: zipCode,
             max_radius: maxRadius,
         });
@@ -221,6 +319,20 @@ app.get("/local-resources", async (req, res) => {
         // max_radius == -1: return every resource, unsorted, with no distance/ZIP info.
         if (maxRadius === -1) {
             const resources = Object.values(resourcesData).flat();
+
+            try {
+                await saveAnalytics({
+                    sessionId,
+                    deviceId,
+                    zipCode: null,
+                    maxRadius,
+                    numResources: resources.length,
+                });
+                console.log("Analytics saved successfully.");
+            } catch (e) {
+                console.error("Failed to save analytics:", e);
+            }
+
             console.log(`200: all_resources, ${resources.length} resource(s)`);
             return res.status(200).json({
                 success: true,
@@ -259,6 +371,19 @@ app.get("/local-resources", async (req, res) => {
             for (const resource of resourcesAtZip) {
                 localResources.push({ ...resource, distance });
             }
+        }
+
+        try {
+            await saveAnalytics({
+                sessionId,
+                deviceId,
+                zipCode,
+                maxRadius,
+                numResources: localResources.length,
+            });
+            console.log("Analytics saved successfully.");
+        } catch (e) {
+            console.error("Failed to save analytics:", e);
         }
 
         console.log(
