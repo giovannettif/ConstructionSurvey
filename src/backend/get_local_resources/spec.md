@@ -22,8 +22,8 @@
 
 ```json
 {
-  "session_id": "string - UUID. Required. Unique session per survey load.",
-  "device_id": "string - UUID. Required. Unique per browser. Not real device ID, just a proxy.",
+  "session_id": "string - UUIDv4. Required. Unique session per survey load.",
+  "device_id": "string - UUIDv4. Required. Unique per browser. Not real device ID, just a proxy.",
   "zip_code": "string - Required if max_radius != -1. User ZIP code around which to retrieve local resources.",
   "max_radius": "number - Required. In meters. Only retrieve resources at ZIP codes within a certain radius of given ZIP code. Use -1 to get all resources."
 }
@@ -122,18 +122,18 @@ Constants:
 - `SAVE_PATH="data/new"` - Path in S3 bucket to save basic analytics data to.
 
 1. Validate input/request.
-2. If `max_radius != 1` (ZIP code given, get local resources):
+2. If `max_radius != -1` (ZIP code given, get local resources):
    2.1. Find the user ZIP code's `lat` and `long` using the ZIP code dataset.
    2.2. Collect all the resources.
    2.3. Create an `nx2` array `resourceDistances` (where `n` is the number of resources). The 2nd element in each pair is a resource object, and the 1st element is the distance to the resource ZIP code from the user ZIP code. Use the Haversine formula to calculate the distance between a pair of `lat` and `long`.
    2.4. Filter out pairs where the distance exceeds `max_radius + MARGIN`.
    2.5. Sort `resourceDistances` by the 1st element (distance) in ascending order. Closest resource should be at the top. No need to handle ties - the original resource dataset order should prevail.
    2.6. Transform the `nx2` `resourceDistances` array into an `nx1` `localResources` array, where each element is a resource object with a `distance` field added.
-   2.7. Return a JSON response object, adding the `localResources` array and any other necessary fields to it as per the response schema.
-   2.8. Save analytics data (asynchronously - concurrently with or after response sent - to reduce response latency): create a `{datetime}_{uuid}.json` file at `SAVE_PATH` (where `{datetime}` is an ISO datetime string with `:` replaced by `-` and `{uuid}` is a freshly generated UUID). Write to this file a JSON object with `session_id`, `device_id`, `zip_code`, `max_radius`, `num_resources` (the latter is the count of resources to return in the response).
+   2.7. Save analytics data: create a `{datetime}_{uuid}.json` file at `SAVE_PATH` (where `{datetime}` is an ISO datetime string with `:` replaced by `-` and `{uuid}` is a freshly generated UUID). Write to this file a JSON object with `session_id`, `device_id`, `zip_code`, `max_radius`, `num_resources` (the latter is the count of resources to return in the response). Use `try`/`catch` to handle any S3 errors, surfacing them in logs but not to the client. This ensures an otherwise `200` response not be `500`: data storage is secondary to the resource fetch operation.
+   2.8. Return a JSON response object, adding the `localResources` array and any other necessary fields to it as per the response schema.
 3. If `max_radius == -1` (ZIP code not given, get all resources):
-  3.1. Return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
-  3.2. Save analytics data asynchronously: follow step 2.8 but set `zip_code` to `null`. Now, `max_radius` is naturally `-1`, and `num_resources` is still the count of resources returned but without filtering.
+  3.1. Save analytics data: follow step 2.7 but set `zip_code` to `null`. Now, `max_radius` is naturally `-1`, and `num_resources` is still the count of resources returned but without filtering.
+  3.2. Return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
 
 ## Status Codes
 
@@ -159,8 +159,8 @@ Conditions:
 - Advanced:
   - `zip_code` not of length 5
   - `zip_code` contains non-numeric characters
-  - `session_id` not a UUID
-  - `device_id` not a UUID
+  - `session_id` not a UUID (by shape only, disregarding the version and variant)
+  - `device_id` not a UUID (same as above)
 
 Response schema:
 
