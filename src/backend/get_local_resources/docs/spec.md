@@ -22,13 +22,13 @@
 
 In kebab-case.
 
-|Query Param | Description |
-|--|--|
-is-test | "One of 'true' or 'false' (case sensitive). Required. Whether or not the request is a test.", |
-session-id | "UUIDv4. Required. Unique session per survey load.", |
-device-id | "UUIDv4. Required. Unique per browser. Not real device ID, just a proxy.", |
-zip-code | "5-character integer string. Required if max-radius != -1. User ZIP code around which to retrieve local resources.", |
-max-radius | "Numeric string. Required. In meters. Only retrieve resources at ZIP codes within a certain radius of given ZIP code. Use -1 to get all resources." |
+| Query Param | Description                                                                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| is-test     | "One of 'true' or 'false' (case sensitive). Required. Whether or not the request is a test.",                                                       |
+| session-id  | "UUIDv4. Required. Unique session per survey load.",                                                                                                |
+| device-id   | "UUIDv4. Required. Unique per browser. Not real device ID, just a proxy.",                                                                          |
+| zip-code    | "5-character integer string. Required if max-radius != -1. User ZIP code around which to retrieve local resources.",                                |
+| max-radius  | "Numeric string. Required. In meters. Only retrieve resources at ZIP codes within a certain radius of given ZIP code. Use -1 to get all resources." |
 
 ## Response Schema
 
@@ -130,10 +130,14 @@ Schema:
 
 ```js
 [
-    {/* resource 1 */},
-     /*     ...    */ 
-    {/* resource n */},
-]
+  {
+    /* resource 1 */
+  },
+  /*     ...    */
+  {
+    /* resource n */
+  },
+];
 ```
 
 - Cache the S3 read promise for efficient reuse on warm invocations.
@@ -143,7 +147,8 @@ Schema:
 ### Function Scope
 
 Constants:
-- `MARGIN=5000` - In meters. Add to `max-radius` to give some leeway against floating point precision errors. 
+
+- `MARGIN=5000` - In meters. Add to `max-radius` to give some leeway against floating point precision errors.
 
 1. Validate input/request.
 2. If `max-radius != -1` (ZIP code given, get local resources):
@@ -156,8 +161,8 @@ Constants:
    2.7. Save analytics data as specified in the [Analytics Storage](#analytics-storage) section above.
    2.8. Return a JSON response object, adding the `localResources` array and any other necessary fields to it as per the response schema.
 3. If `max-radius == -1` (ZIP code not given, get all resources):
-  3.1. Save analytics data as in Step 2.7.
-  3.2. Return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
+   3.1. Save analytics data as in Step 2.7.
+   3.2. Return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
 
 ## Status Codes
 
