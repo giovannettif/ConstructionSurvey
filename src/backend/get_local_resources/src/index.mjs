@@ -144,77 +144,64 @@ function isUuidV4(value) {
 }
 
 /**
- * Validates the request body against the spec's requirements.
- * @param {{ is_test: any, session_id: any, device_id: any, zip_code: any, max_radius: any }} body
+ * Validates query params against the spec's requirements.
+ * @param {{ isTest, sessionId: any, deviceId: any, zipCode: any, maxRadius: any }} body
  * @returns {string|null} Descriptive error message, or null if valid.
  */
-function validateRequest({
-    is_test: isTest,
-    session_id: sessionId,
-    device_id: deviceId,
-    zip_code: zipCode,
-    max_radius: maxRadius,
+function validateQueryParams({
+	isTest,
+	sessionId,
+	deviceId,
+	zipCode,
+	maxRadius,
 }) {
     // Field requirement deviation
+	if (isTest == null) {
+        return "is-test is required.";
+    }
     if (sessionId == null) {
-        return "session_id is required.";
+        return "session-id is required.";
     }
     if (deviceId == null) {
-        return "device_id is required.";
-    }
-    if (isTest == null) {
-        return "is_test is required.";
+        return "device-id is required.";
     }
     if (maxRadius == null) {
-        return "max_radius is required.";
+        return "max-radius is required.";
     }
-
-    // Type checking
-    if (typeof sessionId !== "string") {
-        return "session_id must be a string.";
-    }
-    if (typeof deviceId !== "string") {
-        return "device_id must be a string.";
-    }
-    if (typeof isTest !== "boolean") {
-        return "is_test must be a boolean.";
-    }
-    if (
-        typeof maxRadius !== "number" ||
-        Number.isNaN(maxRadius) ||
-        !(maxRadius === -1 || maxRadius >= 0)
-    ) {
-        return "max_radius must be a non-negative number, or -1 to retrieve all resources.";
-    }
-
-    if (maxRadius === -1) {
-        // max_radius == -1 is the sole indicator of "no ZIP code" requests.
+	if (maxRadius === "-1") {
+        // max-radius == -1 is the sole indicator of "no ZIP code" requests.
         if (zipCode != null) {
-            return "zip_code must not be provided when max_radius is -1.";
+            return "zip-code must not be provided when max-radius is -1.";
         }
     } else {
         if (zipCode == null) {
-            return "zip_code is required when max_radius is not -1.";
-        }
-        if (typeof zipCode !== "string") {
-            return "zip_code must be a string.";
-        }
-        if (zipCode.length !== 5) {
-            return "zip_code must be exactly 5 characters long.";
+            return "zip-code is required when max-radius is not -1.";
         }
     }
 
-    // Advanced
-    if (maxRadius !== -1 && !/^\d+$/.test(zipCode)) {
-        return "zip_code must contain only numeric characters.";
+    // Advanced checks
+    if (isTest !== "true" && isTest !== "false") {
+        return "is-test must be either 'true' or 'false'.";
     }
-    if (!isUuidV4(sessionId)) {
-        return "session_id must be a valid UUIDv4.";
+	if (!isUuidV4(sessionId)) {
+        return "session-id must be a valid UUIDv4.";
     }
     if (!isUuidV4(deviceId)) {
-        return "device_id must be a valid UUIDv4.";
+        return "device-id must be a valid UUIDv4.";
     }
-
+	if (maxRadius !== "-1" && zipCode.length !== 5) {
+		return "zip-code must be exactly 5 characters long.";
+	}
+	if (maxRadius !== "-1" && !/^\d+$/.test(zipCode)) {
+        return "zip-code must contain only numeric characters.";
+    }
+	const maxRadiusNum = Number(maxRadius);
+    if (
+        Number.isNaN(maxRadiusNum) ||
+        !(maxRadiusNum === -1 || maxRadiusNum >= 0)
+    ) {
+        return "max-radius must be a non-negative number, or -1 to retrieve all resources.";
+    }    
     return null;
 }
 
@@ -296,11 +283,15 @@ app.use(express.json());
 /**
  * GET /local-resources
  *
- * Returns resources within `max_radius` meters of `zip_code`, or all resources
- * when `max_radius` is -1 (in which case `zip_code` must be omitted).
+ * Returns resources within `max-radius` meters of `zip-code`, or all resources
+ * when `max-radius` is -1 (in which case `zip-code` must be omitted).
  *
- * Request body:
- *   { session_id: string, device_id: string, zip_code?: string, max_radius: number }
+ * Query params:
+ * 		is-test: "true" or "false",
+ * 		session-id: UUIDv4
+ * 		device-id: UUIDv4
+ * 		zip-code?: 5-character integer string
+ * 		max-radius: string entirely a number >= 0 or -1
  *
  * Responses:
  *   200 - { success: true, type, message, zip_code_info?, resources: [...] }
@@ -309,24 +300,22 @@ app.use(express.json());
  *   500 - { success: false, error: "Internal server error." } - unhandled error
  */
 app.get("/local-resources", async (req, res) => {
-    const {
-        is_test: isTest,
-        session_id: sessionId,
-        device_id: deviceId,
-        zip_code: zipCode,
-        max_radius: maxRadius,
-    } = req.body ?? {};
+	const isTestRaw = req.query["is-test"];
+	const sessionIdRaw = req.query["session-id"];
+	const deviceIdRaw = req.query["device-id"];
+	const zipCodeRaw = req.query["zip-code"];
+	const maxRadiusRaw = req.query["max-radius"];
     console.log(
-        `Request: is_test=${isTest}, session_id=${sessionId}, device_id=${deviceId}, zip_code=${zipCode}, max_radius=${maxRadius}`,
+        `Request: is-test=${isTestRaw}, session-id=${sessionIdRaw}, device-id=${deviceIdRaw}, zip-code=${zipCodeRaw}, max-radius=${maxRadiusRaw}`,
     );
 
     try {
-        const validationError = validateRequest({
-            is_test: isTest,
-            session_id: sessionId,
-            device_id: deviceId,
-            zip_code: zipCode,
-            max_radius: maxRadius,
+        const validationError = validateQueryParams({
+            isTest: isTestRaw,
+			sessionId: sessionIdRaw,
+            deviceId: deviceIdRaw,
+            zipCode: zipCodeRaw,
+			maxRadius: maxRadiusRaw,
         });
         if (validationError) {
             console.warn(`400: ${validationError}`);
@@ -334,10 +323,16 @@ app.get("/local-resources", async (req, res) => {
                 .status(400)
                 .json({ success: false, error: validationError });
         }
+		
+		const isTest = isTestRaw === "true";
+		const sessionId = sessionIdRaw;
+		const deviceId = deviceIdRaw;
+		const zipCode = zipCodeRaw;
+		const maxRadius = Number(maxRadiusRaw);
 
         const { resources, zipColumn } = await getResourcesData();
 
-        // max_radius == -1: return every resource, unsorted, with no distance/ZIP info.
+        // max-radius == -1: return every resource, unsorted, with no distance/ZIP info.
         if (maxRadius === -1) {
             try {
                 await saveAnalytics({
@@ -371,7 +366,7 @@ app.get("/local-resources", async (req, res) => {
         }
 
         // Distance from the user ZIP to each resource's own ZIP, filtered to
-        // max_radius (plus MARGIN leeway), closest first. Resources are the
+        // max-radius (plus MARGIN leeway), closest first. Resources are the
         // limiting factor here (few), so only their ZIPs are considered -
         // not every ZIP in the dataset.
         const resourceDistances = [];
