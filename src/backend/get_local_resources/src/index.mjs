@@ -145,7 +145,7 @@ function isUuidV4(value) {
 
 /**
  * Validates the request body against the spec's requirements.
- * @param {{ session_id: any, device_id: any, zip_code: any, max_radius: any }} body
+ * @param {{ is_test: any, session_id: any, device_id: any, zip_code: any, max_radius: any }} body
  * @returns {string|null} Descriptive error message, or null if valid.
  */
 function validateRequest({
