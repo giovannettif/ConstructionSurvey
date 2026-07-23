@@ -23,6 +23,7 @@ const SAVE_PATH = "data/new";       // for request analytics
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const ZIP_CODE_DATA_PATH = "data/zip-codes.csv";
 const MARGIN = 5000;                // meters; filtering leeway for floating point errors
 const EARTH_RADIUS_M = 6371000;     // meters
 
@@ -40,13 +41,13 @@ function normalizeZip(zip) {
 }
 
 /**
- * Loads and parses the local ZIP codes dataset (zip-code-data.csv) into:
+ * Loads and parses the local ZIP codes dataset into:
  * { [normalizedZip]: { lat, long, city, state } }
  * @returns {Object}
  */
 function loadZipData() {
     const csvText = fs.readFileSync(
-        path.join(__dirname, "zip-code-data.csv"),
+        path.join(__dirname, ZIP_CODE_DATA_PATH),
         "utf-8",
     );
     const { data: rows } = Papa.parse(csvText, {
