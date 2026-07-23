@@ -252,7 +252,7 @@ function haversineDistance(lat1, long1, lat2, long2) {
 
 /**
  * Saves basic analytics data about a request to S3 as a JSON file named
- * `{datetime}_{uuid}.json` under `SAVE_PATH`. Throws on S3 errors - the
+ * `{datetime}_{uuid}{suffix}.json` under `SAVE_PATH`. Throws on S3 errors - the
  * caller is responsible for catching and logging, per the spec.
  * @param {{ sessionId: string, deviceId: string, zipCode: string|null, maxRadius: number, numResources: number }} data
  * @returns {Promise<void>}
