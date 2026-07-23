@@ -85,6 +85,30 @@ Schema:
 - 1st row is always the CSV header.
 - Each row afterward is a resource.
 
+## Analytics Storage
+
+- Save basic analytics in a new JSON file at path `data/new` in the S3 bucket.
+- File name format: `{datetime}_{uuid}{suffix}.json`, where
+  - `{datetime}` is an ISO datetime string with `:` replaced by `-`,
+  - `{uuid}` is a freshly generated UUIDv4,
+  - `{suffix}` is `"_test"` only if `is_test` is `true` otherwise empty string.
+- Example file name: `2026-07-23T13-21-53.918Z_1434353b-498e-4cd5-a4b3-770faa8da583.json`
+- Use `try`/`catch` to handle any S3 errors, surfacing them in logs but not to the client.
+- An otherwise `200` response should not be `500`: data storage is secondary to the resource fetch operation.
+
+Schema:
+
+```json
+{
+  "is_test": "Same as request.",
+  "session_id": "Same as request.",
+  "device_id": "Same as request.",
+  "zip_code": "Same as request. null if max_radius == -1.",
+  "max_radius": "Same as request, including when it is -1.",
+  "num_resources": "number - Count of resources returned in response."
+}
+```
+
 ## Functionality
 
 ### Module Scope
@@ -120,7 +144,6 @@ Schema:
 
 Constants:
 - `MARGIN=5000` - In meters. Add to `max_radius` to give some leeway against floating point precision errors. 
-- `SAVE_PATH="data/new"` - Path in S3 bucket to save basic analytics data to.
 
 1. Validate input/request.
 2. If `max_radius != -1` (ZIP code given, get local resources):
@@ -130,10 +153,10 @@ Constants:
    2.4. Filter out pairs where the distance exceeds `max_radius + MARGIN`.
    2.5. Sort `resourceDistances` by the 1st element (distance) in ascending order. Closest resource should be at the top. No need to handle ties - the original resource dataset order should prevail.
    2.6. Transform the `nx2` `resourceDistances` array into an `nx1` `localResources` array, where each element is a resource object with a `distance` field added.
-   2.7. Save analytics data: create a `{datetime}_{uuid}{suffix}.json` file at `SAVE_PATH` (where `{datetime}` is an ISO datetime string with `:` replaced by `-`, `{uuid}` is a freshly generated UUIDv4, and `{suffix}` is `"_test"` only if `is_test` is `true` otherwise empty string). Write to this file a JSON object with `is_test`, `session_id`, `device_id`, `zip_code`, `max_radius`, `num_resources` (the latter is the count of resources to return in the response). Use `try`/`catch` to handle any S3 errors, surfacing them in logs but not to the client. This ensures an otherwise `200` response not be `500`: data storage is secondary to the resource fetch operation.
+   2.7. Save analytics data as specified in the [Analytics Storage](#analytics-storage) section above.
    2.8. Return a JSON response object, adding the `localResources` array and any other necessary fields to it as per the response schema.
 3. If `max_radius == -1` (ZIP code not given, get all resources):
-  3.1. Save analytics data: follow step 2.7 but set `zip_code` to `null`. Now, `max_radius` is naturally `-1`, and `num_resources` is still the count of resources returned but without filtering.
+  3.1. Save analytics data as in Step 2.7.
   3.2. Return a JSON response with all the resources as they are, adding other necessary fields as per the response schema.
 
 ## Status Codes
