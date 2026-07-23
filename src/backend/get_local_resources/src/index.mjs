@@ -317,7 +317,7 @@ app.get("/local-resources", async (req, res) => {
         max_radius: maxRadius,
     } = req.body ?? {};
     console.log(
-        `Request: session_id=${sessionId}, device_id=${deviceId}, zip_code=${zipCode}, max_radius=${maxRadius}`,
+        `Request: is_test=${isTest}, session_id=${sessionId}, device_id=${deviceId}, zip_code=${zipCode}, max_radius=${maxRadius}`,
     );
 
     try {
