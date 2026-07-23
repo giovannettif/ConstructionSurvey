@@ -149,6 +149,7 @@ function isUuidV4(value) {
  * @returns {string|null} Descriptive error message, or null if valid.
  */
 function validateRequest({
+    is_test: isTest,
     session_id: sessionId,
     device_id: deviceId,
     zip_code: zipCode,
@@ -161,6 +162,9 @@ function validateRequest({
     if (deviceId == null) {
         return "device_id is required.";
     }
+    if (isTest == null) {
+        return "is_test is required.";
+    }
     if (maxRadius == null) {
         return "max_radius is required.";
     }
@@ -171,6 +175,9 @@ function validateRequest({
     }
     if (typeof deviceId !== "string") {
         return "device_id must be a string.";
+    }
+    if (typeof isTest !== "boolean") {
+        return "is_test must be a boolean.";
     }
     if (
         typeof maxRadius !== "number" ||
@@ -251,6 +258,7 @@ function haversineDistance(lat1, long1, lat2, long2) {
  * @returns {Promise<void>}
  */
 async function saveAnalytics({
+    isTest,
     sessionId,
     deviceId,
     zipCode,
@@ -258,8 +266,9 @@ async function saveAnalytics({
     numResources,
 }) {
     const datetime = new Date().toISOString().replace(/:/g, "-");
-    const key = `${SAVE_PATH}/${datetime}_${randomUUID()}.json`;
+    const key = `${SAVE_PATH}/${datetime}_${randomUUID()}${isTest ? "_test" : ""}.json`;
     const body = JSON.stringify({
+        is_test: isTest,
         session_id: sessionId,
         device_id: deviceId,
         zip_code: zipCode,
@@ -301,6 +310,7 @@ app.use(express.json());
  */
 app.get("/local-resources", async (req, res) => {
     const {
+        is_test: isTest,
         session_id: sessionId,
         device_id: deviceId,
         zip_code: zipCode,
@@ -312,6 +322,7 @@ app.get("/local-resources", async (req, res) => {
 
     try {
         const validationError = validateRequest({
+            is_test: isTest,
             session_id: sessionId,
             device_id: deviceId,
             zip_code: zipCode,
@@ -330,6 +341,7 @@ app.get("/local-resources", async (req, res) => {
         if (maxRadius === -1) {
             try {
                 await saveAnalytics({
+                    isTest,
                     sessionId,
                     deviceId,
                     zipCode: null,
@@ -393,6 +405,7 @@ app.get("/local-resources", async (req, res) => {
 
         try {
             await saveAnalytics({
+                isTest,
                 sessionId,
                 deviceId,
                 zipCode,
